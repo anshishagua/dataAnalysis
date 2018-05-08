@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anshishagua.mybatis.mapper.TableMapper">
+    <resultMap id="tableMapper" type="com.anshishagua.object.Table">
+        <id column="id" property="id" jdbcType="BIGINT"></id>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <result column="alias" property="alias" jdbcType="VARCHAR"></result>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="description" property="description" jdbcType="VARCHAR"></result>
+        <result column="deleted" property="deleted" jdbcType="BIT"></result>
+    </resultMap>
+    <select id="getById" resultMap="tableMapper">
+        SELECT *
+        FROM t_table
+        WHERE t_table.id = #{id};
+    </select>
+    <select id="getByName" resultMap="tableMapper">
+        SELECT *
+        FROM t_table
+        WHERE t_table.name = #{name};
+    </select>
+</mapper>

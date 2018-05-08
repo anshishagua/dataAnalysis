@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anshishagua.mybatis.mapper.TableRelationMapper">
+    <resultMap id="tableRelationMapper" type="com.anshishagua.object.TableRelation">
+        <id column="id" property="id" jdbcType="BIGINT"></id>
+        <result column="join_type" property="joinType" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.JoinTypeHandler"></result>
+        <result column="left_column_id" property="leftColumnId" jdbcType="BIGINT"></result>
+        <result column="right_column_id" property="rightColumnId" jdbcType="BIGINT"></result>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="description" property="description" jdbcType="VARCHAR"></result>
+        <result column="deleted" property="deleted" jdbcType="BIT"></result>
+        <!--
+        <result column="left_table_name" property="leftTableName" jdbcType="VARCHAR"></result>
+        <result column="right_table_name" property="rightTableName" jdbcType="VARCHAR"></result>
+        <result column="left_column_name" property="leftColumnName" jdbcType="VARCHAR"></result>
+        <result column="right_column_name" property="rightColumnName" jdbcType="VARCHAR"></result>
+        -->
+    </resultMap>
+    <select id="getById" resultMap="tableRelationMapper">
+        SELECT *
+        FROM t_table_relation
+        WHERE id = #{id};
+    </select>
+    <select id="getByTable" resultMap="tableRelationMapper">
+        SELECT t_table_relation.*
+        FROM t_table_relation INNER JOIN t_table_column left_table_column ON t_table_relation.left_column_id = left_table_column.id
+            INNER JOIN t_table_column right_table_column
+                ON t_table_relation.right_column_id = right_table_column.id
+            INNER JOIN t_table left_table ON left_table_column.table_id = left_table.id AND left_table.`name` = #{leftTableName}
+            INNER JOIN t_table right_table ON right_table_column.table_id = right_table.id AND right_table.`name` = #{rightTableName}
+    </select>
+    <select id="getByTableColumn" resultMap="tableRelationMapper">
+        SELECT t_table_relation.*
+        FROM t_table_relation INNER JOIN t_table_column left_table_column ON t_table_relation.left_column_id = left_table_column.id AND left_table_column.`name` = #{leftColumnName}
+            INNER JOIN t_table_column right_table_column
+                ON t_table_relation.right_column_id = right_table_column.id AND right_table_column.`name` = #{rightColumnName}
+            INNER JOIN t_table left_table ON left_table_column.table_id = left_table.id AND left_table.`name` = #{leftTableName}
+            INNER JOIN t_table right_table ON right_table_column.table_id = right_table.id AND right_table.`name` = #{rightTableName}
+    </select>
+</mapper>

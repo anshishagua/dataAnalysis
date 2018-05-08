@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anshishagua.mybatis.mapper.DataTypeMapper">
+    <resultMap id="dataTypeMapper" type="com.anshishagua.object.DataType">
+        <id column="id" property="id" jdbcType="BIGINT"></id>
+        <result column="value" property="value" jdbcType="VARCHAR"></result>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <result column="description" property="description" jdbcType="VARCHAR"></result>
+        <result column="deleted" property="deleted" jdbcType="BIT"></result>
+        <result column="parent_id" property="parentId" jdbcType="BIGINT"></result>
+    </resultMap>
+    <select id="getById" resultMap="dataTypeMapper">
+        SELECT *
+        FROM t_data_type
+        WHERE id = #{id};
+    </select>
+</mapper>
