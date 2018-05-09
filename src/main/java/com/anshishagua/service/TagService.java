@@ -140,7 +140,7 @@ public class TagService {
         ParseResult.ParseType parseType = ParseResult.ParseType.TAG_FILTER_CONDITION;
 
         if (Strings.isNullOrEmpty(expression)) {
-            return ParseResult.ok(parseType, expression);
+            return ParseResult.ok(parseType, expression == null ? "" : expression);
         }
 
         return parse(expression, parseType);

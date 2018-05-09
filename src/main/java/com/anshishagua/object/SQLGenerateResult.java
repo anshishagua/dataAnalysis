@@ -18,6 +18,15 @@ public class SQLGenerateResult {
     private Set<String> dataSourceTables = new HashSet<>();
     private Set<String> targetTables = new HashSet<>();
 
+    public static SQLGenerateResult error(String errorMessage) {
+        SQLGenerateResult result = new SQLGenerateResult();
+
+        result.setSuccess(false);
+        result.setErrorMessage(errorMessage);
+
+        return result;
+    }
+
     public boolean isSuccess() {
         return success;
     }

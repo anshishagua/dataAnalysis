@@ -15,4 +15,9 @@ public class Sum extends FunctionNode implements AggregationNode {
     public Sum(List<Node> children) {
         super("sum", children);
     }
+
+    @Override
+    public int requiredArgumentSize() {
+        return 1;
+    }
 }

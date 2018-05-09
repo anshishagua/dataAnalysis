@@ -1,6 +1,6 @@
 package com.anshishagua.parser.semantic;
 
-import com.anshishagua.FunctionRegistry;
+import com.anshishagua.parser.nodes.function.FunctionRegistry;
 import com.anshishagua.exceptions.SemanticException;
 import com.anshishagua.object.SystemParameter;
 import com.anshishagua.object.Table;
@@ -131,13 +131,14 @@ public class SemanticAnalyzer {
     private void analyzeFunction() throws SemanticException {
         Consumer<Node> consumer = (Node node) -> {
             if (node instanceof FunctionNode) {
-                String functionName = ((FunctionNode) node).getName();
+                FunctionNode functionNode = (FunctionNode) node;
+                String functionName = functionNode.getName();
 
                 if (!FunctionRegistry.contains(functionName)) {
                     throw new SemanticException("Function " + functionName + " not found");
                 }
 
-                int args = FunctionRegistry.get(functionName);
+                int args = functionNode.requiredArgumentSize();
 
                 if (node.getChildren().size() != args) {
                     throw new SemanticException(String.format("Function %s should have %d argument%s, actual: %d", functionName, args, args > 1 ? "s" : "", node.getChildren().size()));

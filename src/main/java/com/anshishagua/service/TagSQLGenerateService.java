@@ -9,6 +9,7 @@ import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.bool.In;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
 import com.anshishagua.parser.nodes.sql.Column;
+import com.anshishagua.parser.nodes.sql.Insert;
 import com.anshishagua.parser.nodes.sql.Join;
 import com.anshishagua.parser.nodes.sql.Query;
 import com.anshishagua.utils.CollectionUtils;
@@ -32,10 +33,28 @@ import java.util.stream.Collectors;
 
 @Service
 public class TagSQLGenerateService {
+    public static final String TAG_TABLE_NAME_PREFIX = "tag_";
+
     @Autowired
     private TagService tagService;
     @Autowired
     private BasicSQLService basicSQLService;
+    @Autowired
+    private TableService tableService;
+
+    public String generateTagTableName(long tagId) {
+        return String.format("%s%d", TAG_TABLE_NAME_PREFIX, tagId);
+    }
+
+    public String generateTagTableCreateSQL(Tag tag) {
+        Objects.requireNonNull(tag);
+
+        TableColumn primaryKey = tableService.getById(tag.getTableId()).getPrimaryKeys().get(0);
+
+        String tagTableName = generateTagTableName(tag.getId());
+
+        return String.format("CREATE TABLE IF NOT EXISTS %s (`id` %s)", tagTableName, primaryKey.getDataType().getValue());
+    }
 
     //将聚合操作转化为子查询
     //student.age >= 20 && student.age <= 30 && (avg(scores.score) >= 70 AND avg(scores.score) <= 90)
@@ -91,7 +110,7 @@ public class TagSQLGenerateService {
         return query;
     }
 
-    public SQLGenerateResult genereate(Tag tag) {
+    public SQLGenerateResult generate(Tag tag) {
         Objects.requireNonNull(tag);
 
         SQLGenerateResult result = new SQLGenerateResult();
@@ -104,6 +123,8 @@ public class TagSQLGenerateService {
         if (!filterConditionResult.isSuccess()) {
             result.setSuccess(false);
             result.setErrorMessage(filterConditionResult.getErrorMessage());
+
+            return result;
         }
 
         ParseResult computeConditionResult = tagService.parseComputeCondition(computeCondition);
@@ -111,6 +132,8 @@ public class TagSQLGenerateService {
         if (!computeConditionResult.isSuccess()) {
             result.setSuccess(false);
             result.setErrorMessage(computeConditionResult.getErrorMessage());
+
+            return result;
         }
 
         Table targetTable = tag.getTable();
@@ -129,6 +152,11 @@ public class TagSQLGenerateService {
             computeQuery.and(new In(new Column(targetTable.getName(), primaryKey.getName()), filterQuery));
         }
 
+        Insert insert = new Insert();
+        insert.setOverwrite(true);
+        insert.setTableName(generateTagTableName(tag.getId()));
+        insert.setQuery(computeQuery);
+
         result.setSuccess(true);
         Set<String> dataSourceTables = new HashSet<>();
         dataSourceTables.add(targetTable.getName());
@@ -138,7 +166,8 @@ public class TagSQLGenerateService {
         result.setDataSourceTables(dataSourceTables);
 
         List<String> executeSQLs = new ArrayList<>();
-        executeSQLs.add(computeQuery.toString());
+        executeSQLs.add(generateTagTableCreateSQL(tag));
+        executeSQLs.add(insert.toString());
 
         result.setExecuteSQLs(executeSQLs);
 

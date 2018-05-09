@@ -78,7 +78,7 @@ public class DataType {
             return BasicType.Boolean;
         }
 
-        if (value.equals("INTEGER")) {
+        if (value.equals("INTEGER") || value.equals("INT")) {
             return BasicType.Integer;
         }
 

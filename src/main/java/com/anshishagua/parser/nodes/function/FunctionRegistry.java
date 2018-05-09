@@ -1,4 +1,4 @@
-package com.anshishagua;
+package com.anshishagua.parser.nodes.function;
 
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.function.aggregation.Avg;
@@ -9,6 +9,7 @@ import com.anshishagua.parser.nodes.function.aggregation.Sum;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * User: lixiao
@@ -17,7 +18,14 @@ import java.util.Map;
  */
 
 public class FunctionRegistry {
+    private static Map<String, Class<?>> CLASS_MAP = new HashMap<>();
     private static Map<String, Integer> argumentsMap = new HashMap<>();
+
+    private static void registerClass() {
+        CLASS_MAP.put(Sum.class.getSimpleName().toLowerCase(), Sum.class);
+        CLASS_MAP.put(Avg.class.getSimpleName().toLowerCase(), Avg.class);
+        CLASS_MAP.put(Count.class.getSimpleName().toLowerCase(), Count.class);
+    }
 
     static {
         argumentsMap.put("sin", 1);
@@ -26,25 +34,17 @@ public class FunctionRegistry {
         argumentsMap.put("sum", 1);
         argumentsMap.put("avg", 1);
         argumentsMap.put("count", 1);
+
+        registerClass();
     }
 
     public static boolean contains(String functionName) {
-        if (functionName == null) {
-            return false;
-        }
+        Objects.requireNonNull(functionName);
 
-        return argumentsMap.containsKey(functionName);
+        return CLASS_MAP.containsKey(functionName);
     }
 
-    public static int get(String functionName) {
-        if (functionName == null) {
-            return -1;
-        }
-
-        return argumentsMap.get(functionName);
-    }
-
-    public static Node newNode(String name, List<Node> children) {
+    public static Node createNode(String name, List<Node> children) {
         switch (name) {
             case "sum":
                 return new Sum(children);

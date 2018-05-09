@@ -15,4 +15,9 @@ public class Avg extends FunctionNode implements AggregationNode {
     public Avg(List<Node> children) {
         super("avg", children);
     }
+
+    @Override
+    public int requiredArgumentSize() {
+        return 1;
+    }
 }

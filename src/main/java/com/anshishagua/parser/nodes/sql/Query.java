@@ -102,11 +102,11 @@ public class Query extends AbstractNode<Void> {
         }
 
         if (joinClause != null) {
-            builder.append(joinClause.toString()).append(" ");
+            builder.append(joinClause.toString());
         }
 
         if (whereCondition != null) {
-            builder.append("WHERE ").append(whereCondition);
+            builder.append(" WHERE ").append(whereCondition);
             builder.append(" ");
         }
 

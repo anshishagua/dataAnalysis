@@ -24,5 +24,6 @@
         SELECT *
         FROM t_table_column
         WHERE t_table_column.table_id = #{tableId}
+        ORDER BY id
     </select>
 </mapper>

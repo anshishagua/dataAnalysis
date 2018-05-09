@@ -15,4 +15,9 @@ public class Count extends FunctionNode implements AggregationNode {
     public Count(List<Node> children) {
         super("count", children);
     }
+
+    @Override
+    public int requiredArgumentSize() {
+        return 1;
+    }
 }

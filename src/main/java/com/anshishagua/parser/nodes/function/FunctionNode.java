@@ -60,4 +60,8 @@ public class FunctionNode extends AbstractNode<Void> {
 
         return builder.toString();
     }
+
+    public int requiredArgumentSize() {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -1,6 +1,6 @@
 package com.anshishagua.parser;
 
-import com.anshishagua.FunctionRegistry;
+import com.anshishagua.parser.nodes.function.FunctionRegistry;
 import com.anshishagua.antlr4.ExpressionRuleBaseVisitor;
 import com.anshishagua.antlr4.ExpressionRuleParser;
 import com.anshishagua.parser.nodes.bool.And;
@@ -300,11 +300,7 @@ public class ExpressionVisitor extends ExpressionRuleBaseVisitor<Node> {
             children.add(visit(context.expression(i)));
         }
 
-        if (functionName.equals("sum")) {
-            return new Sum(children);
-        }
-
-        return FunctionRegistry.newNode(functionName, children);
+        return FunctionRegistry.createNode(functionName, children);
     }
 
     @Override
