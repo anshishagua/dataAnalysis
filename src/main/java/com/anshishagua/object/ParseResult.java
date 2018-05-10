@@ -1,10 +1,10 @@
 package com.anshishagua.object;
 
+import com.anshishagua.parser.BasicType;
 import com.anshishagua.parser.nodes.Node;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -31,10 +31,12 @@ public class ParseResult {
     private Exception exception;
     @JsonIgnore
     private Node astTree;
+    private BasicType resultType;
     private Set<TableColumn> columns = new HashSet<>();
     private Set<Table> tables = new HashSet<>();
     private Set<SystemParameter> systemParameters = new HashSet<>();
     private ParseType parseType = ParseType.UNKNOWN;
+    @JsonIgnore
     private List<Node> aggregationNodes = new ArrayList<>();
 
     public static ParseResult ok(ParseType parseType, String originalExpression) {
@@ -45,6 +47,7 @@ public class ParseResult {
         result.originalExpression = originalExpression;
         result.parseType = parseType;
         result.success = true;
+        result.errorMessage = "";
 
         return result;
     }
@@ -105,6 +108,14 @@ public class ParseResult {
 
     public void setAstTree(Node astTree) {
         this.astTree = astTree;
+    }
+
+    public BasicType getResultType() {
+        return resultType;
+    }
+
+    public void setResultType(BasicType resultType) {
+        this.resultType = resultType;
     }
 
     public Set<TableColumn> getColumns() {

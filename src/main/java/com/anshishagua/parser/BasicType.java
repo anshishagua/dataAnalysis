@@ -36,8 +36,14 @@ public enum BasicType {
 
     public static final Set<BasicType> NUMERIC_TYPES = new HashSet<>(Arrays.asList(new BasicType[] {Short, Integer, Long, Float, Double}));
 
+    public static final Set<BasicType> DECIMAL_TYPES = new HashSet<>(Arrays.asList(Float, Double));
+
     public boolean isNumeric() {
         return NUMERIC_TYPES.contains(this);
+    }
+
+    public boolean isDecimal() {
+        return DECIMAL_TYPES.contains(this);
     }
 
     public boolean isBoolean() {

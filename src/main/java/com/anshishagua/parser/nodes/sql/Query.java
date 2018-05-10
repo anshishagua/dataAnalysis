@@ -34,6 +34,12 @@ public class Query extends AbstractNode<Void> {
         selectFields.add(node);
     }
 
+    public void from(String tableName) {
+        Objects.requireNonNull(tableName);
+
+        fromTables.add(new Table(tableName));
+    }
+
     public void from(Node node) {
         Objects.requireNonNull(node);
 

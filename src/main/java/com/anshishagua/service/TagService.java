@@ -123,9 +123,7 @@ public class TagService {
             return parseResults.get(0);
         }
 
-        ParseResult parseResult = new ParseResult();
-        parseResult.setSuccess(true);
-        parseResult.setOriginalExpression(expression);
+        ParseResult parseResult = ParseResult.ok(parseType, expression);
         parseResult.setAstTree(parser.getAstTree());
         parseResult.setColumns(analyzer.getColumns());
         parseResult.setTables(analyzer.getTables());

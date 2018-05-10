@@ -1,6 +1,7 @@
 package com.anshishagua.utils;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -12,6 +13,10 @@ import java.util.Set;
  */
 
 public class CollectionUtils {
+    public static boolean hasMultiplyElement(Collection<?> collection) {
+        return collection != null && collection.size() >= 2;
+    }
+
     public static boolean hasSingleElement(Iterable<?> collection) {
         if (collection == null) {
             return false;

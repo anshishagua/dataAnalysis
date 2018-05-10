@@ -19,6 +19,15 @@ public class SQLGenerateResult {
     private Set<String> targetTables = new HashSet<>();
     private List<String> tempTables = new ArrayList<>();
 
+    public static SQLGenerateResult ok() {
+        SQLGenerateResult result = new SQLGenerateResult();
+
+        result.setSuccess(true);
+        result.setErrorMessage("");
+
+        return result;
+    }
+
     public static SQLGenerateResult error(String errorMessage) {
         SQLGenerateResult result = new SQLGenerateResult();
 
