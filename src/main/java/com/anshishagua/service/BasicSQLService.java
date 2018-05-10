@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +31,10 @@ public class BasicSQLService {
     @Autowired
     private TableRelationService tableRelationService;
 
+    public String generateTempTableName() {
+        return "tmp_table_" + UUID.randomUUID().toString().replace("-", "");
+    }
+
     public String createTemporaryTable(String tableName, List<TableColumn> columns) {
         StringBuilder builder = new StringBuilder();
 
@@ -42,6 +47,10 @@ public class BasicSQLService {
         builder.append(")");
 
         return builder.toString();
+    }
+
+    public String dropTable(String tableName) {
+        return String.format("DROP TABLE IF EXISTS %s", StringUtils.backQuote(tableName));
     }
 
     public SQLGenerateResult generateTableCreateSQL(Table table) {

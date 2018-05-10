@@ -1,5 +1,7 @@
 package com.anshishagua.parser;
 
+import com.anshishagua.object.DataType;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -61,5 +63,36 @@ public enum BasicType {
                 || (a.isTimestamp() && b.isTimestamp())
                 || (a.isDate() && b.isDate())
                 || (a.isString() && b.isString());
+    }
+
+    public DataType toDataType() {
+        DataType dataType = new DataType();
+
+        switch (this) {
+            case Boolean:
+                dataType.setValue("BOOLEAN");
+
+                return dataType;
+            case Integer:
+                dataType.setValue("INT");
+
+                return dataType;
+            case Long:
+                dataType.setValue("BIGINT");
+
+                return dataType;
+            case Float:
+                dataType.setValue("FLOAT");
+
+                return dataType;
+            case Double:
+                dataType.setValue("DOUBLE");
+
+                return dataType;
+            default:
+                dataType.setValue("STRING");
+
+                return dataType;
+        }
     }
 }

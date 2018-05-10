@@ -18,6 +18,15 @@ public class Insert extends AbstractNode<Void> {
     public Insert() {
     }
 
+    public Insert(String tableName, Query query, boolean overwrite) {
+        Objects.requireNonNull(tableName);
+        Objects.requireNonNull(query);
+
+        this.tableName = tableName;
+        this.query = query;
+        this.overwrite = overwrite;
+    }
+
     public String getTableName() {
         return tableName;
     }
@@ -48,6 +57,6 @@ public class Insert extends AbstractNode<Void> {
 
     @Override
     public String toString() {
-        return String.format("INSERT %s `%s` %s", overwrite ? "OVERWRITE" : "INTO", tableName, query);
+        return String.format("INSERT %s TABLE `%s` %s", overwrite ? "OVERWRITE" : "INTO", tableName, query);
     }
 }

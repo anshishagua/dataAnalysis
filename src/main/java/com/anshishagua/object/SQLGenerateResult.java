@@ -17,6 +17,7 @@ public class SQLGenerateResult {
     private List<String> executeSQLs = new ArrayList<>();
     private Set<String> dataSourceTables = new HashSet<>();
     private Set<String> targetTables = new HashSet<>();
+    private List<String> tempTables = new ArrayList<>();
 
     public static SQLGenerateResult error(String errorMessage) {
         SQLGenerateResult result = new SQLGenerateResult();
@@ -51,6 +52,10 @@ public class SQLGenerateResult {
         this.executeSQLs = executeSQLs;
     }
 
+    public void addExecuteSQL(String sql) {
+        this.executeSQLs.add(sql);
+    }
+
     public Set<String> getDataSourceTables() {
         return dataSourceTables;
     }
@@ -65,5 +70,13 @@ public class SQLGenerateResult {
 
     public void setTargetTables(Set<String> targetTables) {
         this.targetTables = targetTables;
+    }
+
+    public void addTempTable(String tempTableName) {
+        this.tempTables.add(tempTableName);
+    }
+
+    public List<String> getTempTables() {
+        return tempTables;
     }
 }

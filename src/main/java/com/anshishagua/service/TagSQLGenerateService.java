@@ -7,10 +7,13 @@ import com.anshishagua.object.TableColumn;
 import com.anshishagua.object.Tag;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.bool.In;
+import com.anshishagua.parser.nodes.comparision.Equal;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
 import com.anshishagua.parser.nodes.sql.Column;
+import com.anshishagua.parser.nodes.sql.Condition;
 import com.anshishagua.parser.nodes.sql.Insert;
 import com.anshishagua.parser.nodes.sql.Join;
+import com.anshishagua.parser.nodes.sql.JoinType;
 import com.anshishagua.parser.nodes.sql.Query;
 import com.anshishagua.utils.CollectionUtils;
 import com.anshishagua.utils.NodeUtils;
@@ -63,6 +66,10 @@ public class TagSQLGenerateService {
     private Query aggregationToSubQuery(AggregationNode node, Table targetTable) {
         Query query = new Query();
 
+        TableColumn primaryKey = targetTable.getPrimaryKeys().get(0);
+
+        query.select(new Column(targetTable.getName(), primaryKey.getName()));
+
         query.select(node);
 
         Set<String> tableNames = NodeUtils.getTableNames(node);
@@ -82,28 +89,70 @@ public class TagSQLGenerateService {
         Join join = basicSQLService.buildJoinClauses(tableNames, targetTable.getName());
         query.join(join);
 
-        List<TableColumn> primaryKeys = targetTable.getPrimaryKeys();
-
-        for (TableColumn primaryKey : primaryKeys) {
-            query.groupBy(new Column(targetTable.getName(), primaryKey.getName()));
-        }
+        query.groupBy(new Column(targetTable.getName(), primaryKey.getName()));
 
         return query;
     }
 
-    private Query buildQuery(Node root, Table targetTable, List<Node> aggregationNodes) {
+    private Query buildQuery(SQLGenerateResult sqlGenerateResult, Node root, Table targetTable, List<Node> aggregationNodes) {
+        TableColumn primaryKey = targetTable.getPrimaryKeys().get(0);
+
+        Set<String> tempTables = new HashSet<>();
+
         for (Node aggregationNode : aggregationNodes) {
             Query query = aggregationToSubQuery((AggregationNode) aggregationNode, targetTable);
 
-            root = TreeTransform.replace(aggregationNode, query);
+            String tempTableName = basicSQLService.generateTempTableName();
+            tempTables.add(tempTableName);
+            sqlGenerateResult.addTempTable(tempTableName);
+
+            List<TableColumn> columns = new ArrayList<>();
+            TableColumn column = new TableColumn();
+
+            column.setName("id");
+            column.setDataType(primaryKey.getDataType());
+            columns.add(column);
+
+            column = new TableColumn();
+            column.setName("aggregation_result");
+            column.setDataType(aggregationNode.getResultType().toDataType());
+            columns.add(column);
+
+            String sql = basicSQLService.createTemporaryTable(tempTableName, columns);
+
+            sqlGenerateResult.addExecuteSQL(sql);
+
+            Insert insert = new Insert(tempTableName, query, true);
+
+            sqlGenerateResult.addExecuteSQL(insert.toString());
+
+            TreeTransform.replace(aggregationNode, new Column(tempTableName, "aggregation_result"));
         }
 
         Query query = new Query();
-        TableColumn primaryKey = targetTable.getPrimaryKeys().get(0);
 
         query.select(new Column(targetTable.getName(), primaryKey.getName()));
 
-        query.from(new com.anshishagua.parser.nodes.sql.Table(targetTable.getName()));
+
+        if (tempTables.isEmpty()) {
+            query.from(new com.anshishagua.parser.nodes.sql.Table(targetTable.getName()));
+        } else {
+            Join join = null;
+
+            for (String tempTableName : tempTables) {
+                Condition joinCondition = new Equal(new Column(tempTableName, "id"), new Column(targetTable.getName(), primaryKey.getName()));
+
+                if (join == null) {
+                    join = new Join(new com.anshishagua.parser.nodes.sql.Table(targetTable.getName()),
+                            new com.anshishagua.parser.nodes.sql.Table(tempTableName),
+                            JoinType.INNER_JOIN, joinCondition);
+                } else {
+                    join = new Join(join, new com.anshishagua.parser.nodes.sql.Table(tempTableName), JoinType.INNER_JOIN, joinCondition);
+                }
+            }
+
+            query.join(join);
+        }
 
         query.where(root);
 
@@ -143,10 +192,10 @@ public class TagSQLGenerateService {
 
         //has filter condition
         if (filterConditionResult.getAstTree() != null) {
-            filterQuery = buildQuery(filterConditionResult.getAstTree(), targetTable, filterConditionResult.getAggregationNodes());
+            filterQuery = buildQuery(result, filterConditionResult.getAstTree(), targetTable, filterConditionResult.getAggregationNodes());
         }
 
-        Query computeQuery = buildQuery(computeConditionResult.getAstTree(), targetTable, computeConditionResult.getAggregationNodes());
+        Query computeQuery = buildQuery(result, computeConditionResult.getAstTree(), targetTable, computeConditionResult.getAggregationNodes());
 
         if (filterQuery != null) {
             computeQuery.and(new In(new Column(targetTable.getName(), primaryKey.getName()), filterQuery));
@@ -165,11 +214,14 @@ public class TagSQLGenerateService {
 
         result.setDataSourceTables(dataSourceTables);
 
-        List<String> executeSQLs = new ArrayList<>();
-        executeSQLs.add(generateTagTableCreateSQL(tag));
-        executeSQLs.add(insert.toString());
+        result.addExecuteSQL(generateTagTableCreateSQL(tag));
+        result.addExecuteSQL(insert.toString());
 
-        result.setExecuteSQLs(executeSQLs);
+        List<String> tempTableNames = result.getTempTables();
+
+        for (String tempTableName : tempTableNames) {
+            result.addExecuteSQL(basicSQLService.dropTable(tempTableName));
+        }
 
         return result;
     }
