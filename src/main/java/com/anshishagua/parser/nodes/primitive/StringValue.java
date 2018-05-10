@@ -4,6 +4,8 @@ import com.anshishagua.parser.BasicType;
 import com.anshishagua.parser.nodes.AbstractNode;
 import com.anshishagua.utils.StringUtils;
 
+import java.util.Objects;
+
 /**
  * User: lixiao
  * Date: 2018/4/19
@@ -25,5 +27,10 @@ public class StringValue extends AbstractNode<String> {
     @Override
     public boolean isConstant() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof StringValue && Objects.equals(this.value, ((StringValue) obj).getValue());
     }
 }

@@ -36,4 +36,9 @@ public class Table extends AbstractNode<Void> {
 
         return String.format("`%s`", tableName);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Table && Objects.equals(this.tableName, ((Table) obj).tableName);
+    }
 }

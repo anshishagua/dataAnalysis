@@ -27,4 +27,9 @@ public class Null extends AbstractNode<String> {
     public boolean isConstant() {
         return true;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Null;
+    }
 }

@@ -47,4 +47,11 @@ public class Column extends AbstractNode<Void> {
 
         return String.format("%s.%s", StringUtils.quote(tableName, "`"), StringUtils.quote(columnName, "`"));
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Column
+                && Objects.equals(this.tableName, ((Column) obj).getTableName())
+                && Objects.equals(this.columnName, ((Column) obj).getColumnName());
+    }
 }

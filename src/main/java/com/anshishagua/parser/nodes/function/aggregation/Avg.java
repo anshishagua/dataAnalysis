@@ -2,6 +2,7 @@ package com.anshishagua.parser.nodes.function.aggregation;
 
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.function.FunctionNode;
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 import java.util.List;
 
@@ -12,6 +13,10 @@ import java.util.List;
  */
 
 public class Avg extends FunctionNode implements AggregationNode {
+    public Avg(Node child) {
+        super("avg", Arrays.asList(new Node[] {child}));
+    }
+
     public Avg(List<Node> children) {
         super("avg", children);
     }

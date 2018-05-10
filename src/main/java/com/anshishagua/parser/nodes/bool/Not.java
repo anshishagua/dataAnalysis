@@ -5,6 +5,8 @@ import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.sql.Condition;
 import edu.emory.mathcs.backport.java.util.Arrays;
 
+import java.util.Objects;
+
 /**
  * User: lixiao
  * Date: 2018/4/20
@@ -24,5 +26,10 @@ public class Not extends AbstractNode<Void> implements Bool {
     @Override
     public Node negate() {
         return getChild(0);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Not && Objects.equals(this.getChild(0), ((Not) obj).getChild(0));
     }
 }
