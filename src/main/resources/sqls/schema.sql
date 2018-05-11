@@ -87,7 +87,7 @@ CREATE TABLE `t_tag`
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `t_tag_group`
@@ -98,7 +98,7 @@ CREATE TABLE `t_tag_group`
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `t_tag_group_tags`
@@ -110,7 +110,7 @@ CREATE TABLE `t_tag_group_tags`
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `t_index_type`
@@ -132,33 +132,35 @@ CREATE TABLE `t_index`
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `t_index_dimension`
 (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `index_id` BIGINT NOT NULL COMMENT '',
+  `order` INTEGER NOT NULL COMMENT '',
   `name` VARCHAR(255) NOT NULL COMMENT '',
   `expression` TEXT NOT NULL COMMENT '',
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `t_index_metric`
 (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `index_id` BIGINT NOT NULL COMMENT '',
+  `order` INTEGER NOT NULL COMMENT '',
   `name` VARCHAR(255) NOT NULL COMMENT '',
   `expression` TEXT NOT NULL COMMENT '',
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `t_data_load_history`
@@ -171,5 +173,41 @@ CREATE TABLE `t_data_load_history`
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `t_task`
+(
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `object_id` BIGINT NOT NULL COMMENT '',
+  `task_type` VARCHAR(25) NOT NULL COMMENT '',
+  `cron_expression` BIGINT NOT NULL COMMENT '',
+  `create_time` DATETIME NOT NULL COMMENT '',
+  `last_updated` DATETIME NOT NULL COMMENT '',
+  `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
+  `deleted` BIT(1) DEFAULT FALSE,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `t_task_dependency`
+(
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `task_id` BIGINT NOT NULL,
+  `dependent_task_id` BIGINT NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `t_task_execution`
+(
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `task_id` BIGINT NOT NULL COMMENT '',
+  `scheduled_execution_time` DATETIME NOT NULL COMMENT '',
+  `create_time` DATETIME NOT NULL COMMENT '',
+  `last_updated` DATETIME NOT NULL COMMENT '',
+  `start_time` DATETIME DEFAULT NULL COMMENT '',
+  `end_time` DATETIME DEFAULT NULL COMMENT '',
+  `status` VARCHAR(32) NOT NULL COMMENT '',
+  `execution_seconds` DOUBLE NOT NULL DEFAULT 0 COMMENT '',
+  `execute_sqls` TEXT COMMENT '',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

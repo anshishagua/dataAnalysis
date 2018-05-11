@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anshishagua.mybatis.mapper.TaskExecutionMapper">
+    <resultMap id="taskExecutionMapper" type="com.anshishagua.compute.TaskExecution">
+        <id column="id" property="id" jdbcType="BIGINT"></id>
+        <result column="task_id" property="taskId" jdbcType="BIGINT"></result>
+        <result column="scheduled_execution_time" property="scheduledExecutionTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="start_time" property="startTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="end_time" property="endTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="status" property="status" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.TaskStatusHandler"></result>
+        <result column="execute_sqls" property="executeSQLs" jdbcType="TEXT"></result>
+    </resultMap>
+    <select id="getById" resultMap="taskExecutionMapper">
+        SELECT *
+        FROM t_task_execution
+        WHERE id = #{id};
+    </select>
+    <select id="getByStatus" resultMap="taskExecutionMapper">
+        SELECT *
+        FROM t_task_execution
+        WHERE `status` = #{status};
+    </select>
+</mapper>
