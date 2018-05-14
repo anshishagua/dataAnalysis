@@ -13,6 +13,17 @@
         <result column="description" property="description" jdbcType="VARCHAR"></result>
         <result column="deleted" property="deleted" jdbcType="BIT"></result>
     </resultMap>
+    <insert id="insert" keyProperty="id" keyColumn="id" useGeneratedKeys="true" flushCache="true">
+        INSERT INTO `t_index_metric`(`index_id`, `order`, `name`, `expression`, `create_time`, `last_updated`, `description`)
+        VALUES (#{indexId},
+                #{order},
+                #{name},
+                #{expression},
+                #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                #{description}
+        )
+    </insert>
     <select id="getByIndexId" resultMap="indexMetricMapper">
         SELECT *
         FROM t_index_metric

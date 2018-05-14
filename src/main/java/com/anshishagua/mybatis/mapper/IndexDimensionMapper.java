@@ -15,4 +15,5 @@ import java.util.List;
 @Mapper
 public interface IndexDimensionMapper {
     List<IndexDimension> getByIndexId(@Param("indexId") long indexId);
+    void insert(IndexDimension dimension);
 }

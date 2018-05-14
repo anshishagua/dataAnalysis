@@ -185,7 +185,7 @@ public class TagSQLGenerateService {
             return result;
         }
 
-        Table targetTable = tag.getTable();
+        Table targetTable = tableService.getById(tag.getTableId());
         TableColumn primaryKey = targetTable.getPrimaryKeys().get(0);
 
         Query filterQuery = null;

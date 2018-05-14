@@ -12,4 +12,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface TaskMapper {
     Task getById(long id);
+    Task getByObjectId(long id);
+    void addNewTask(Task task);
 }

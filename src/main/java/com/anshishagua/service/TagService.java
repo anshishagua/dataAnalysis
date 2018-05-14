@@ -1,11 +1,14 @@
 package com.anshishagua.service;
 
+import com.anshishagua.compute.Task;
 import com.anshishagua.exceptions.SemanticException;
 import com.anshishagua.mybatis.mapper.TagMapper;
+import com.anshishagua.object.CronExpressionConstants;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableRelation;
 import com.anshishagua.object.Tag;
+import com.anshishagua.object.TaskType;
 import com.anshishagua.parser.grammar.ExpressionParser;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
@@ -18,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +42,8 @@ public class TagService {
     private SystemParameterService systemParameterService;
     @Autowired
     private TableRelationService tableRelationService;
+    @Autowired
+    private TaskService taskService;
     @Autowired
     private TagMapper tagMapper;
 
@@ -152,5 +158,23 @@ public class TagService {
         }
 
         return parse(expression, parseType);
+    }
+
+    public void addTag(Tag tag) {
+        tagMapper.insert(tag);
+
+        Task task = new Task();
+        task.setCreateTime(LocalDateTime.now());
+        task.setLastUpdated(LocalDateTime.now());
+        task.setObjectId(tag.getId());
+        task.setTaskType(TaskType.TAG);
+        task.setCronExpression(CronExpressionConstants.EVERY_DAY_AT_ONE_AM);
+        task.setDescription("tag compute");
+
+        taskService.addNewTask(task);
+    }
+
+    public void updateSQLGenerateResult(Tag tag) {
+        tagMapper.updateSQLGenerateResult(tag);
     }
 }

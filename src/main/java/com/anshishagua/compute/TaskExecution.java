@@ -1,6 +1,9 @@
 package com.anshishagua.compute;
 
+import com.anshishagua.object.TaskStatus;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * User: lixiao
@@ -18,7 +21,8 @@ public class TaskExecution {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private int executionSeconds;
-    private String executeSQLs;
+    private List<String> executeSQLs;
+    private TaskStatus status;
 
     public long getId() {
         return id;
@@ -92,11 +96,19 @@ public class TaskExecution {
         this.executionSeconds = executionSeconds;
     }
 
-    public String getExecuteSQLs() {
+    public List<String> getExecuteSQLs() {
         return executeSQLs;
     }
 
-    public void setExecuteSQLs(String executeSQLs) {
+    public void setExecuteSQLs(List<String> executeSQLs) {
         this.executeSQLs = executeSQLs;
+    }
+
+    public void setStatus(TaskStatus status) {
+        this.status = status;
+    }
+
+    public TaskStatus getStatus() {
+        return status;
     }
 }

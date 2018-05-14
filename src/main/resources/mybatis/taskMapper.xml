@@ -12,6 +12,16 @@
         <result column="description" property="descrption" jdbcType="VARCHAR"></result>
         <result column="deleted" property="deleted" jdbcType="BIT"></result>
     </resultMap>
+    <insert id="addNewTask" keyColumn="id" keyProperty="id" useGeneratedKeys="true" flushCache="true">
+        INSERT INTO `t_task`(`object_id`, `task_type`, `cron_expression`, `create_time`, `last_updated`, `description`)
+                VALUES (#{objectId},
+                        #{taskType, typeHandler=com.anshishagua.mybatis.typehandler.TaskTypeHandler},
+                        #{cronExpression},
+                        #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        #{description}
+                )
+    </insert>
     <select id="getById" resultMap="taskMapper">
         SELECT *
         FROM t_task

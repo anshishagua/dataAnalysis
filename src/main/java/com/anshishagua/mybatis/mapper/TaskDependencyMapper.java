@@ -13,5 +13,6 @@ import java.util.List;
 
 @Mapper
 public interface TaskDependencyMapper {
+    TaskDependency getById(long id);
     List<TaskDependency> getAll();
 }

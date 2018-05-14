@@ -99,4 +99,8 @@ public class TableRelationService {
 
         return relation;
     }
+
+    public void addRelation(TableRelation relation) {
+        tableRelationMapper.insert(relation);
+    }
 }

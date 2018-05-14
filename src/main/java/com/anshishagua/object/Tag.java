@@ -24,6 +24,7 @@ public class Tag {
     private LocalDateTime lastUpdated;
     private boolean deleted;
     private String description;
+    private SQLGenerateResult sqlGenerateResult;
 
     public long getId() {
         return id;
@@ -111,6 +112,14 @@ public class Tag {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public SQLGenerateResult getSqlGenerateResult() {
+        return sqlGenerateResult;
+    }
+
+    public void setSqlGenerateResult(SQLGenerateResult sqlGenerateResult) {
+        this.sqlGenerateResult = sqlGenerateResult;
     }
 
     @Override

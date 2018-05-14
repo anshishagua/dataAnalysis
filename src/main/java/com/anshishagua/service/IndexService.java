@@ -5,16 +5,21 @@ import com.anshishagua.mybatis.mapper.IndexDimensionMapper;
 import com.anshishagua.mybatis.mapper.IndexMapper;
 import com.anshishagua.mybatis.mapper.IndexMetricMapper;
 import com.anshishagua.object.Index;
+import com.anshishagua.object.IndexDimension;
+import com.anshishagua.object.IndexMetric;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.ParseResult.ParseType;
-import com.anshishagua.parser.BasicType;
+import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.parser.grammar.ExpressionParser;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
 import com.anshishagua.parser.semantic.SemanticAnalyzer;
+import com.anshishagua.utils.AssertUtils;
 import com.anshishagua.utils.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * User: lixiao
@@ -28,6 +33,8 @@ public class IndexService {
     private TableService tableService;
     @Autowired
     private SystemParameterService systemParameterService;
+    @Autowired
+    private IndexSQLGenerateService indexSQLGenerateService;
 
     @Autowired
     private IndexMapper indexMapper;
@@ -135,5 +142,24 @@ public class IndexService {
         }
 
         return parseResult;
+    }
+
+    public void addIndex(Index index) {
+        Objects.requireNonNull(index);
+        AssertUtils.collectionNotEmpty(index.getDimensions());
+        AssertUtils.collectionNotEmpty(index.getMetrics());
+
+        SQLGenerateResult sqlGenerateResult = indexSQLGenerateService.generate(index);
+        index.setSqlGenerateResult(sqlGenerateResult);
+
+        indexMapper.insert(index);
+
+        for (IndexDimension dimension : index.getDimensions()) {
+            indexDimensionMapper.insert(dimension);
+        }
+
+        for (IndexMetric metric : index.getMetrics()) {
+            indexMetricMapper.insert(metric);
+        }
     }
 }

@@ -15,4 +15,5 @@ import java.util.List;
 public interface TableColumnMapper {
     TableColumn getById(long id);
     List<TableColumn> getByTableId(long id);
+    void addColumn(TableColumn column);
 }

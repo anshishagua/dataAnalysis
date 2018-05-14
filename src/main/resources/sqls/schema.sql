@@ -33,7 +33,7 @@ CREATE TABLE `t_table`
   `alias` varchar(128) NOT NULL DEFAULT '' COMMENT '表名中文名',
   `create_time` DATETIME NOT NULL COMMENT '父级类型',
   `last_updated` DATETIME NOT NULL COMMENT '',
-  `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
+  `description` VARCHAR(64) COMMENT '描述',
   `deleted` BIT(1) NOT NULL DEFAULT FALSE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -50,7 +50,7 @@ CREATE TABLE `t_table_column`
   `alias` varchar(128) NOT NULL DEFAULT '' COMMENT '表名中文名',
   `create_time` DATETIME NOT NULL COMMENT '父级类型',
   `last_updated` DATETIME NOT NULL COMMENT '',
-  `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
+  `description` VARCHAR(64) COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -87,6 +87,7 @@ CREATE TABLE `t_tag`
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
+  `sql_generate_result` TEXT COMMENT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -130,8 +131,9 @@ CREATE TABLE `t_index`
   `type` VARCHAR(16) NOT NULL COMMENT '',
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
-  `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
+  `description` VARCHAR(64) COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
+  `sql_generate_result` TEXT COMMENT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -144,7 +146,7 @@ CREATE TABLE `t_index_dimension`
   `expression` TEXT NOT NULL COMMENT '',
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
-  `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
+  `description` VARCHAR(64) COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -158,7 +160,7 @@ CREATE TABLE `t_index_metric`
   `expression` TEXT NOT NULL COMMENT '',
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
-  `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
+  `description` VARCHAR(64) COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -181,7 +183,7 @@ CREATE TABLE `t_task`
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT NOT NULL COMMENT '',
   `task_type` VARCHAR(25) NOT NULL COMMENT '',
-  `cron_expression` BIGINT NOT NULL COMMENT '',
+  `cron_expression` VARCHAR(32) NOT NULL COMMENT '',
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',

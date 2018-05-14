@@ -7,7 +7,7 @@ package com.anshishagua.object;
  */
 
 public enum TaskType {
-    DATA_LOAD("TABLE_DATA_LOAD", "表数据记载"),
+    DATA_LOAD("DATA_LOAD", "数据加载"),
     TAG("TAG", "标签计算"),
     INDEX("INDEX", "指标计算"),
     UNKNOWN("UNKNOWN", "未知");
@@ -28,5 +28,9 @@ public enum TaskType {
         }
 
         return UNKNOWN;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

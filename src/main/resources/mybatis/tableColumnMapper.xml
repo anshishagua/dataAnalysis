@@ -15,6 +15,19 @@
         <result column="deleted" property="deleted" jdbcType="BIT"></result>
         <result column="type_id" property="typeId" jdbcType="BIGINT"></result>
     </resultMap>
+    <insert id="addColumn" keyColumn="id" keyProperty="id" useGeneratedKeys="true" flushCache="true">
+        INSERT INTO `t_table_column`(`table_id`, `is_primary_key`, `nullable`, `name`, `alias`, `create_time`, `last_updated`, `description`, `type_id`)
+                VALUES (#{tableId},
+                        #{isPrimaryKey},
+                        #{nullable},
+                        #{name},
+                        #{alias},
+                        #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        #{description},
+                        #{typeId}
+                )
+    </insert>
     <select id="getById" resultMap="tableColumnMapper">
         SELECT *
         FROM t_table_column

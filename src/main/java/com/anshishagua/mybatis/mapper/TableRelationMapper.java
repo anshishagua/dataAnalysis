@@ -21,4 +21,5 @@ public interface TableRelationMapper {
                                    @Param("leftColumnName") String leftColumnName,
                                    @Param("rightTableName") String rightTableName,
                                    @Param("rightColumnName") String rightColumnName);
+    void insert(TableRelation relation);
 }

@@ -13,4 +13,5 @@ import org.apache.ibatis.annotations.Mapper;
 public interface IndexMapper {
     Index getById(long id);
     Index getByName(String name);
+    void insert(Index index);
 }

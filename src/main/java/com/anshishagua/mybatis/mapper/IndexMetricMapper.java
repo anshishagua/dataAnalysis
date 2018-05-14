@@ -15,4 +15,5 @@ import java.util.List;
 @Mapper
 public interface IndexMetricMapper {
     List<IndexMetric> getByIndexId(@Param("indexId") long indexId);
+    void insert(IndexMetric metric);
 }

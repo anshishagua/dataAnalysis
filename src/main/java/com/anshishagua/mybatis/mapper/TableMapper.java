@@ -3,6 +3,8 @@ package com.anshishagua.mybatis.mapper;
 import com.anshishagua.object.Table;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * User: lixiao
  * Date: 2018/5/2
@@ -13,4 +15,6 @@ import org.apache.ibatis.annotations.Mapper;
 public interface TableMapper {
     Table getById(long id);
     Table getByName(String name);
+    void insert(Table table);
+    List<Table> list();
 }

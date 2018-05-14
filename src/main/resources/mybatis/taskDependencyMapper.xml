@@ -1,27 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.anshishagua.mybatis.mapper.TagMapper">
-    <resultMap id="tagMapper" type="com.anshishagua.object.Tag">
+<mapper namespace="com.anshishagua.mybatis.mapper.TaskDependencyMapper">
+    <resultMap id="taskDependencyMapper" type="com.anshishagua.compute.TaskDependency">
         <id column="id" property="id" jdbcType="BIGINT"></id>
-        <result column="name" property="name" jdbcType="VARCHAR"></result>
-        <result column="group_id" property="groupId" jdbcType="BIGINT"></result>
-        <result column="table_id" property="tableId" jdbcType="BIGINT"></result>
-        <result column="filter_condition" property="filterCondition" jdbcType="VARCHAR"></result>
-        <result column="compute_condition" property="computeCondition" jdbcType="VARCHAR"></result>
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
-        <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
-        <result column="description" property="description" jdbcType="VARCHAR"></result>
-        <result column="deleted" property="deleted" jdbcType="BIT"></result>
+        <result column="task_id" property="taskId" jdbcType="BIGINT"></result>
+        <result column="dependent_task_id" property="dependentTaskId" jdbcType="BIGINT"></result>
     </resultMap>
-    <select id="getById" resultMap="tagMapper">
+    <select id="getById" resultMap="taskDependencyMapper">
         SELECT *
-        FROM t_tag
-        WHERE id = #{id};
+        FROM t_task_dependency
+        WHERE id = #{id}
     </select>
-    <select id="getByName" resultMap="tagMapper">
+    <select id="getAll" resultMap="taskDependencyMapper">
         SELECT *
-        FROM t_tag
-        WHERE `name` = #{name};
+        FROM t_task_dependency
     </select>
 </mapper>

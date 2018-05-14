@@ -19,4 +19,12 @@ public class TaskService {
     public Task getById(long id) {
         return taskMapper.getById(id);
     }
+
+    public Task getByObjectId(long id) {
+        return taskMapper.getByObjectId(id);
+    }
+
+    public void addNewTask(Task task) {
+        taskMapper.addNewTask(task);
+    }
 }

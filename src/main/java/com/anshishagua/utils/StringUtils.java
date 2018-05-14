@@ -1,5 +1,9 @@
 package com.anshishagua.utils;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import edu.emory.mathcs.backport.java.util.Arrays;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -58,21 +62,28 @@ public class StringUtils {
     }
 
     public static void main(String [] args) {
-        List<Person> list = new ArrayList<>();
+        List<String> sqls = new ArrayList<>();
 
-        list.add(new Person(1, "benben"));
-        list.add(new Person(2, "ba"));
+        sqls.add("a");
+        sqls.add("b");
+        sqls.add("c");
 
-        list.listIterator();
+        String value = JSON.toJSONString(sqls);
 
-        System.out.println(list.indexOf(new Person(2, "ba")));
+        System.out.println(value);
 
-        for (int i = 0; i < 1000000; ++i) {
-            list.add(new Person(1111, "ffff"));
-        }
+        List<String> a = JSON.parseArray(value, String.class);
 
-        for (int i = 0; i < 10000; ++i) {
-            list.remove(i);
-        }
+        System.out.println(a);
+
+        Map<String, String> map = new HashMap<>();
+
+        String prev = map.put("a", "a");
+
+        System.out.println(prev);
+
+        prev = map.put("a", "b");
+
+        System.out.println(prev);
     }
 }

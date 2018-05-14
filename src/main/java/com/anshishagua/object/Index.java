@@ -19,6 +19,7 @@ public class Index {
     private boolean deleted;
     private List<IndexDimension> dimensions;
     private List<IndexMetric> metrics;
+    private SQLGenerateResult sqlGenerateResult;
 
     public long getId() {
         return id;
@@ -90,5 +91,13 @@ public class Index {
 
     public void setMetrics(List<IndexMetric> metrics) {
         this.metrics = metrics;
+    }
+
+    public SQLGenerateResult getSqlGenerateResult() {
+        return sqlGenerateResult;
+    }
+
+    public void setSqlGenerateResult(SQLGenerateResult sqlGenerateResult) {
+        this.sqlGenerateResult = sqlGenerateResult;
     }
 }

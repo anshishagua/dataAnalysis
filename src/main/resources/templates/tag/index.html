@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>标签定义</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+
+<script>
+    $(document).ready(function() {
+        $("#tagName").blur(function() {
+            var tagName = $("#tagName").val();
+
+            if (tagName == "") {
+                $(".tag-name-group").removeClass("has-success");
+                $(".tag-name-group").addClass("has-error");
+                $(".tag-name-group span").addClass("glyphicon-remove");
+                $(".tag-name-group span").removeClass("glyphicon-ok");
+                $(".table-name span").show();
+                $(".table-name label:eq(1)").show();
+
+                return;
+            }
+
+            $.ajax({
+               url: "/tag/check",
+               data: {
+                   tagName: tagName
+               },
+               success: function(data) {
+                   if (!data.success) {
+                       $(".tag-name-group").removeClass("has-success");
+                       $(".tag-name-group").addClass("has-error");
+                       $(".tag-name-group span").removeClass("glyphicon-ok");
+                       $(".tag-name-group span").addClass("glyphicon-remove");
+                       $(".tag-name-group span").show();
+                       $(".tag-name-group label:eq(1)").html(data.errorMessage);
+                       $(".tag-name-group label:eq(1)").show();
+                   } else {
+
+                   }
+               }
+            });
+        });
+
+        $("#filterCondition").blur(function() {
+
+        });
+
+
+
+        $("#addColumnButton").click(function() {
+            console.log("clicked");
+
+            $.ajax({
+                url: "/table/column",
+                success: function(data) {
+                    console.log(data);
+
+                    $("#column-body").append(data);
+                }
+            });
+        });
+
+        $("#column-body").on("click", ".delete-column", function() {
+            $(".delete-column").parents()[1].remove();
+        });
+
+        $("#submit").click(function() {
+            var tagName = $("#tagName").val();
+            var targetTableId = $("#targetTable option:selected").val();
+            var filterCondition = $("#filterCondition").val();
+            var computeCondition = $("#computeCondition").val();
+            var description = $("#description").val();
+
+            $.ajax({
+                url: "/tag/add",
+                dataType: "json",
+                data: {
+                    tagName: tagName,
+                    targetTableId: targetTableId,
+                    description: description,
+                    filterCondition: filterCondition,
+                    computeCondition: computeCondition
+                },
+                success: function(result) {
+                    if (!result.success) {
+                        alert(result.errorMessage);
+                    } else {
+                        alert("添加标签成功");
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<form role="form" action="/tag/add" class="form-horizontal">
+    <div class="form-group tag-name-group has-feedback">
+        <label for="tagName" class="col-sm-2 control-label">标签名</label>
+        <div class="col-sm-6">
+            <input type="text" id="tagName" name="tagName" class="form-control">
+            <span class="glyphicon form-control-feedback" style="display: none"></span>
+        </div>
+        <label class="control-label" for="tagName" style="display: none">标签名不为空</label>
+    </div>
+
+    <div class="form-group">
+        <label for="targetTable" class="control-label col-sm-2">贴标表</label>
+        <div class="col-sm-6">
+            <select class="form-control" name="targetTable" id="targetTable">
+                <#list tables as table>
+                    <option name="${table.name}" value="${table.id}">${table.alias}</option>
+                </#list>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="filterCondition" class="control-label col-sm-2">过滤条件</label>
+        <div class="col-sm-6">
+            <textarea id="filterCondition" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="computeCondition" class="control-label col-sm-2">规则条件</label>
+        <div class="col-sm-6">
+            <textarea id="computeCondition" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="description" class="control-label col-sm-2">描述信息</label>
+        <div class="col-sm-6">
+            <input type="text" id="description" class="form-control">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-info" id="submit">提交</button>
+        </div>
+    </div>
+</form>
+
+</body>
+</html>

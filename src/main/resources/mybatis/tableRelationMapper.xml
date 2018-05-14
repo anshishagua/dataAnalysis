@@ -18,6 +18,16 @@
         <result column="right_column_name" property="rightColumnName" jdbcType="VARCHAR"></result>
         -->
     </resultMap>
+    <insert id="insert" keyColumn="id" keyProperty="id" useGeneratedKeys="true" flushCache="true">
+        INSERT INTO `t_table_relation`(`left_column_id`, `right_column_id`, `join_type`, `create_time`, `last_updated`, `description`)
+                VALUES (#{leftColumnId},
+                        #{rightColumnId},
+                        #{joinType, typeHandler=com.anshishagua.mybatis.typehandler.JoinTypeHandler},
+                        #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        #{description}
+                )
+    </insert>
     <select id="getById" resultMap="tableRelationMapper">
         SELECT *
         FROM t_table_relation

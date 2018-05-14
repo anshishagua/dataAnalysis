@@ -11,14 +11,26 @@
         <result column="description" property="description" jdbcType="VARCHAR"></result>
         <result column="deleted" property="deleted" jdbcType="BIT"></result>
     </resultMap>
+    <insert id="insert" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO `t_table`(`name`, `alias`, `create_time`, `last_updated`, `description`)
+            VALUE (#{name},
+                   #{alias},
+                   #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                   #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                   #{description})
+    </insert>
     <select id="getById" resultMap="tableMapper">
         SELECT *
         FROM t_table
-        WHERE t_table.id = #{id};
+        WHERE t_table.id = #{id}
     </select>
     <select id="getByName" resultMap="tableMapper">
         SELECT *
         FROM t_table
-        WHERE t_table.name = #{name};
+        WHERE t_table.name = #{name}
+    </select>
+    <select id="list" resultMap="tableMapper">
+        SELECT *
+        FROM t_table
     </select>
 </mapper>

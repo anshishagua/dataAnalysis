@@ -13,6 +13,10 @@
     <select id="getById" resultMap="dataTypeMapper">
         SELECT *
         FROM t_data_type
-        WHERE id = #{id};
+        WHERE id = #{id}
+    </select>
+    <select id="list" resultMap="dataTypeMapper">
+        SELECT *
+        FROM t_data_type
     </select>
 </mapper>

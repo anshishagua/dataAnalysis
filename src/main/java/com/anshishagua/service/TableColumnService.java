@@ -29,4 +29,8 @@ public class TableColumnService {
 
         return columns;
     }
+
+    public void addColumn(TableColumn column) {
+        tableColumnMapper.addColumn(column);
+    }
 }

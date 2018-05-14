@@ -1,0 +1,33 @@
+<tr class="column-info">
+    <td>
+        <input type="text" class="form-control column" name="columnName">
+    </td>
+    <td>
+        <input type="text" class="form-control column" name="columnAlias">
+    </td>
+    <td>
+        <select class="form-control" name="dataType">
+            <#list dataTypes as dataType>
+                <option name="${dataType.name}" value="${dataType.id}">${dataType.name}</option>
+            </#list>
+        </select>
+    </td>
+    <td>
+        <select class="form-control" name="isPrimaryKey">
+            <option value="true">是</option>
+            <option value="false">否</option>
+        </select>
+    </td>
+    <td>
+        <select class="form-control" name="nullable">
+            <option value="true">是</option>
+            <option value="false">否</option>
+        </select>
+    </td>
+    <td>
+        <input type="text" class="form-control column" name="columnDescription">
+    </td>
+    <td>
+        <button type="button" class="btn btn-info delete-column">删除</button>
+    </td>
+</tr>

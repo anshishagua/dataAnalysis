@@ -5,14 +5,23 @@
     <resultMap id="indexMapper" type="com.anshishagua.object.Index">
         <id column="id" property="id" jdbcType="BIGINT"></id>
         <result column="name" property="name" jdbcType="VARCHAR"></result>
-        <result column="group_id" property="groupId" jdbcType="BIGINT"></result>
-        <result column="table_id" property="tableId" jdbcType="BIGINT"></result>
         <result column="type" property="indexType" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.IndexTypeHandler"></result>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="description" property="description" jdbcType="VARCHAR"></result>
         <result column="deleted" property="deleted" jdbcType="BIT"></result>
+        <result column="sql_generate_result" property="sqlGenerateResult" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.SQLGenerateResultHandler"></result>
     </resultMap>
+    <insert id="insert" keyColumn="id" keyProperty="id" useGeneratedKeys="true" flushCache="true">
+        INSERT INTO `t_index`(`name`, `type`, `create_time`, `last_updated`, `description`, `sql_generate_result`)
+                VALUES (#{name},
+                        #{indexType, typeHandler=com.anshishagua.mybatis.typehandler.IndexTypeHandler},
+                        #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        #{description},
+                        #{sqlGenerateResult, typeHandler=com.anshishagua.mybatis.typehandler.SQLGenerateResultHandler}
+                )
+    </insert>
     <select id="getById" resultMap="indexMapper">
         SELECT *
         FROM t_index

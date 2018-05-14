@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>表关系定义</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+
+<script>
+    $(document).ready(function() {
+        $("#leftTable").change(function() {
+            var tableId = $(this).find("option:selected").val();
+
+            $.ajax({
+                url: "/table/columns",
+                data: {
+                    tableId: tableId
+                },
+                success: function(data) {
+                    $("#leftColumn").html(data);
+                }
+            });
+        });
+
+        $("#rightTable").change(function() {
+            var tableId = $(this).find("option:selected").val();
+
+            $.ajax({
+                url: "/table/columns",
+                data: {
+                    tableId: tableId
+                },
+                success: function(data) {
+                    $("#rightColumn").html(data);
+                }
+            });
+        });
+
+        $("#submit").click(function() {
+            var leftTable = $("#leftTable option:selected").val();
+            var leftColumn = $("#leftColumn option:selected").val();
+            var rightTable = $("#rightTable option:selected").val();
+            var rightColumn = $("#rightColumn option:selected").val();
+            var joinType = $("#joinType option:selected").val();
+            var description = $("#description").val();
+
+            $.ajax({
+                url: "/tableRelation/add",
+                data: {
+                    leftTable: leftTable,
+                    leftColumn: leftColumn,
+                    rightTable: rightTable,
+                    rightColumn: rightColumn,
+                    joinType: joinType,
+                    description: description
+                },
+                success: function(result) {
+                    if (!result.success) {
+                        alert(result.errorMessage);
+                    } else {
+                        alert("添加模型关系成功");
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<form role="form" action="/tag/add" class="form-horizontal">
+    <div class="form-group left-table has-feedback">
+        <label for="leftTable" class="col-sm-2 control-label">左侧表名</label>
+        <div class="col-sm-6">
+            <select class="form-control" name="leftTable" id="leftTable">
+                <#list tables as table>
+                    <option name="${table.name}" value="${table.id}">${table.alias}</option>
+                </#list>
+            </select>
+            <span class="glyphicon form-control-feedback" style="display: none"></span>
+        </div>
+    </div>
+
+    <div class="form-group left-column has-feedback">
+        <label for="leftColumn" class="col-sm-2 control-label">左侧字段名</label>
+        <div class="col-sm-6">
+            <select class="form-control" name="leftColumn" id="leftColumn">
+
+            </select>
+            <span class="glyphicon form-control-feedback" style="display: none"></span>
+        </div>
+    </div>
+
+    <div class="form-group join-type has-feedback">
+        <label for="joinType" class="col-sm-2 control-label">关联类型</label>
+        <div class="col-sm-6">
+            <select class="form-control" name="joinType" id="joinType">
+                <#list joinTypes as joinType>
+                    <option name="${joinType.description}" value="${joinType.value}">${joinType.description}</option>
+                </#list>
+            </select>
+            <span class="glyphicon form-control-feedback" style="display: none"></span>
+        </div>
+    </div>
+
+    <div class="form-group right-table has-feedback">
+        <label for="rightTable" class="col-sm-2 control-label">右侧表名</label>
+        <div class="col-sm-6">
+            <select class="form-control" name="rightTable" id="rightTable">
+                <#list tables as table>
+                    <option name="${table.name}" value="${table.id}">${table.alias}</option>
+                </#list>
+            </select>
+            <span class="glyphicon form-control-feedback" style="display: none"></span>
+        </div>
+    </div>
+
+    <div class="form-group right-column has-feedback">
+        <label for="rightColumn" class="col-sm-2 control-label">右侧字段名</label>
+        <div class="col-sm-6">
+            <select class="form-control" name="rightColumn" id="rightColumn">
+
+            </select>
+            <span class="glyphicon form-control-feedback" style="display: none"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="description" class="control-label col-sm-2">描述信息</label>
+        <div class="col-sm-6">
+            <input type="text" id="description" class="form-control">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-info" id="submit">提交</button>
+        </div>
+    </div>
+</form>
+
+</body>
+</html>

@@ -16,4 +16,5 @@ import java.util.List;
 public interface TaskExecutionMapper {
     TaskExecution getById(long id);
     List<TaskExecution> getByStatus(TaskStatus taskStatus);
+    void update(TaskExecution taskExecution);
 }

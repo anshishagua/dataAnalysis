@@ -11,7 +11,7 @@
         <result column="start_time" property="startTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="end_time" property="endTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="status" property="status" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.TaskStatusHandler"></result>
-        <result column="execute_sqls" property="executeSQLs" jdbcType="TEXT"></result>
+        <result column="execute_sqls" property="executeSQLs" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.ExecuteSQLsHandler"></result>
     </resultMap>
     <select id="getById" resultMap="taskExecutionMapper">
         SELECT *
@@ -23,4 +23,12 @@
         FROM t_task_execution
         WHERE `status` = #{status};
     </select>
+    <update id="update" parameterType="com.anshishagua.compute.TaskExecution">
+        UPDATE t_task_execution
+        SET start_time = #{startTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+        end_time = #{endTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+        `status` = #{status, typeHandler=com.anshishagua.mybatis.typehandler.TaskStatusHandler},
+        json_info = #{jsonInfo}
+        WHERE id = #{id}
+    </update>
 </mapper>
