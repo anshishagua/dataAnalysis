@@ -34,7 +34,7 @@ public class IndexController {
     @Autowired
     private IndexSQLGenerateService indexSQLGenerateService;
 
-    @RequestMapping("/aaa")
+    @RequestMapping("")
     public ModelAndView index() {
         ModelAndView modelAndView = new ModelAndView();
 
@@ -113,5 +113,23 @@ public class IndexController {
         index.setMetrics(metrics);
 
         indexService.addIndex(index);
+    }
+
+    @RequestMapping("/dimension")
+    public ModelAndView dimension() {
+        ModelAndView modelAndView = new ModelAndView();
+
+        modelAndView.setViewName("index/dimension");
+
+        return modelAndView;
+    }
+
+    @RequestMapping("/metric")
+    public ModelAndView metric() {
+        ModelAndView modelAndView = new ModelAndView();
+
+        modelAndView.setViewName("index/metric");
+
+        return modelAndView;
     }
 }

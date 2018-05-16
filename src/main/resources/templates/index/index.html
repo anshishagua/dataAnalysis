@@ -1,10 +1,181 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>指标定义</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
 </head>
 <body>
-        Hello, ${name}
+
+<script>
+    $(document).ready(function() {
+        $("#tagName").blur(function() {
+            var tagName = $("#tagName").val();
+
+            if (tagName == "") {
+                $(".tag-name-group").removeClass("has-success");
+                $(".tag-name-group").addClass("has-error");
+                $(".tag-name-group span").addClass("glyphicon-remove");
+                $(".tag-name-group span").removeClass("glyphicon-ok");
+                $(".table-name span").show();
+                $(".table-name label:eq(1)").show();
+
+                return;
+            }
+
+            $.ajax({
+                url: "/tag/check",
+                data: {
+                    tagName: tagName
+                },
+                success: function(data) {
+                    if (!data.success) {
+                        $(".tag-name-group").removeClass("has-success");
+                        $(".tag-name-group").addClass("has-error");
+                        $(".tag-name-group span").removeClass("glyphicon-ok");
+                        $(".tag-name-group span").addClass("glyphicon-remove");
+                        $(".tag-name-group span").show();
+                        $(".tag-name-group label:eq(1)").html(data.errorMessage);
+                        $(".tag-name-group label:eq(1)").show();
+                    } else {
+
+                    }
+                }
+            });
+        });
+
+        $("#addDimension").click(function() {
+            $.ajax({
+                url: "/index/dimension",
+                success: function(data) {
+                    $("#dimensions-body").append(data);
+                }
+            });
+        });
+
+        $("#addMetric").click(function() {
+            $.ajax({
+                url: "/index/metric",
+                success: function(data) {
+                    $("#metrics-body").append(data);
+                }
+            });
+        });
+
+        $("#dimensions-body").on("click", ".delete-dimension", function() {
+            $(".delete-dimension").parents()[1].remove();
+        });
+
+        $("#metrics-body").on("click", ".delete-metric", function() {
+            $(".delete-metric").parents()[1].remove();
+        });
+
+        $("#addColumnButton").click(function() {
+            console.log("clicked");
+
+            $.ajax({
+                url: "/table/column",
+                success: function(data) {
+                    console.log(data);
+
+                    $("#column-body").append(data);
+                }
+            });
+        });
+
+        $("#column-body").on("click", ".delete-column", function() {
+            $(".delete-column").parents()[1].remove();
+        });
+
+        $("#submit").click(function() {
+            var tagName = $("#tagName").val();
+            var targetTableId = $("#targetTable option:selected").val();
+            var filterCondition = $("#filterCondition").val();
+            var computeCondition = $("#computeCondition").val();
+            var description = $("#description").val();
+
+            $.ajax({
+                url: "/tag/add",
+                dataType: "json",
+                data: {
+                    tagName: tagName,
+                    targetTableId: targetTableId,
+                    description: description,
+                    filterCondition: filterCondition,
+                    computeCondition: computeCondition
+                },
+                success: function(result) {
+                    if (!result.success) {
+                        alert(result.errorMessage);
+                    } else {
+                        alert("添加标签成功");
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<form role="form" action="/tag/add" class="form-horizontal">
+    <div class="form-group index-name-group has-feedback">
+        <label for="indexName" class="col-sm-2 control-label">指标名称</label>
+        <div class="col-sm-6">
+            <input type="text" id="indexName" name="indexName" class="form-control">
+            <span class="glyphicon form-control-feedback" style="display: none"></span>
+        </div>
+        <label class="control-label" for="indexName" style="display: none">指标名称不为空</label>
+    </div>
+
+    <div class="form-group">
+        <label for="description" class="control-label col-sm-2">描述信息</label>
+        <div class="col-sm-6">
+            <input type="text" id="description" class="form-control">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" id="addDimension" class="btn btn-info">增加指标维度</button>
+        </div>
+    </div>
+
+    <div class="index-dimensions">
+        <table id="dimensions" class="table table-striped table-bordered">
+            <thead>
+            <th>名称</th>
+            <th>表达式</th>
+            <th>描述</th>
+            </thead>
+            <tbody id="dimensions-body"></tbody>
+        </table>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" id="addMetric" class="btn btn-info">增加指标聚合</button>
+        </div>
+    </div>
+
+    <div class="index-metrics">
+        <table id="metrics" class="table table-striped table-bordered">
+            <thead>
+            <th>名称</th>
+            <th>表达式</th>
+            <th>描述</th>
+            </thead>
+            <tbody id="metrics-body"></tbody>
+        </table>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-info" id="submit">提交</button>
+        </div>
+    </div>
+</form>
+
 </body>
 </html>
