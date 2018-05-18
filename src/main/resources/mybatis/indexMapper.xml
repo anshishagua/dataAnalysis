@@ -22,6 +22,11 @@
                         #{sqlGenerateResult, typeHandler=com.anshishagua.mybatis.typehandler.SQLGenerateResultHandler}
                 )
     </insert>
+    <update id="updateSQLGenerateResult" flushCache="true">
+        UPDATE `t_index`
+        SET sql_generate_result = #{sqlGenerateResult, typeHandler=com.anshishagua.mybatis.typehandler.SQLGenerateResultHandler}
+        WHERE id = #{id}
+    </update>
     <select id="getById" resultMap="indexMapper">
         SELECT *
         FROM t_index
@@ -31,5 +36,9 @@
         SELECT *
         FROM t_index
         WHERE `name` = #{name};
+    </select>
+    <select id="list" resultMap="indexMapper">
+        SELECT *
+        FROM t_index
     </select>
 </mapper>

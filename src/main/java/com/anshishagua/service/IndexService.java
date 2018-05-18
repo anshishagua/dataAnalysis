@@ -1,15 +1,19 @@
 package com.anshishagua.service;
 
+import com.anshishagua.compute.Task;
 import com.anshishagua.exceptions.SemanticException;
 import com.anshishagua.mybatis.mapper.IndexDimensionMapper;
 import com.anshishagua.mybatis.mapper.IndexMapper;
 import com.anshishagua.mybatis.mapper.IndexMetricMapper;
+import com.anshishagua.object.CronExpressionConstants;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.IndexDimension;
 import com.anshishagua.object.IndexMetric;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.ParseResult.ParseType;
 import com.anshishagua.object.SQLGenerateResult;
+import com.anshishagua.object.Table;
+import com.anshishagua.object.TaskType;
 import com.anshishagua.parser.grammar.ExpressionParser;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
@@ -19,7 +23,11 @@ import com.anshishagua.utils.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * User: lixiao
@@ -35,6 +43,10 @@ public class IndexService {
     private SystemParameterService systemParameterService;
     @Autowired
     private IndexSQLGenerateService indexSQLGenerateService;
+    @Autowired
+    private TaskService taskService;
+    @Autowired
+    private TaskDependencyService taskDependencyService;
 
     @Autowired
     private IndexMapper indexMapper;
@@ -42,6 +54,10 @@ public class IndexService {
     private IndexDimensionMapper indexDimensionMapper;
     @Autowired
     private IndexMetricMapper indexMetricMapper;
+
+    public List<Index> getAll() {
+        return indexMapper.list();
+    }
 
     public Index getById(long id) {
         Index index = indexMapper.getById(id);
@@ -161,5 +177,32 @@ public class IndexService {
         for (IndexMetric metric : index.getMetrics()) {
             indexMetricMapper.insert(metric);
         }
+
+        index.setSqlGenerateResult(indexSQLGenerateService.generate(index));
+
+        indexMapper.updateSQLGenerateResult(index);
+
+        Task task = new Task();
+        task.setCreateTime(LocalDateTime.now());
+        task.setLastUpdated(LocalDateTime.now());
+        task.setObjectId(index.getId());
+        task.setTaskType(TaskType.INDEX);
+        task.setCronExpression(CronExpressionConstants.EVERY_DAY_AT_ONE_AM);
+        task.setDescription("index compute");
+
+        taskService.addNewTask(task);
+
+        Set<String> tableNames = sqlGenerateResult.getDataSourceTables();
+        List<Task> dependentTasks = new ArrayList<>();
+
+        for (String tableName : tableNames) {
+            Table table = tableService.getByName(tableName);
+
+            Task dependentTask = taskService.getByTaskTypeAndObjectId(TaskType.DATA_LOAD, table.getId());
+
+            dependentTasks.add(dependentTask);
+        }
+
+        taskDependencyService.add(task, dependentTasks);
     }
 }

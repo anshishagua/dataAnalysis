@@ -7,6 +7,10 @@
         <result column="task_id" property="taskId" jdbcType="BIGINT"></result>
         <result column="dependent_task_id" property="dependentTaskId" jdbcType="BIGINT"></result>
     </resultMap>
+    <insert id="insert" keyProperty="id" keyColumn="id" flushCache="true" useGeneratedKeys="true">
+        INSERT INTO `t_task_dependency`(`task_id`, `dependent_task_id`)
+              VALUES (#{taskId}, #{dependentTaskId})
+    </insert>
     <select id="getById" resultMap="taskDependencyMapper">
         SELECT *
         FROM t_task_dependency

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>任务依赖</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+    <script src="/static/js/echarts.min.js"></script>
+</head>
+<body>
+
+<table class="table table-striped">
+    <thead>
+        <th>任务ID</th>
+        <th>依赖任务ID</th>
+    </thead>
+    <tbody>
+    <#list dependencies as dependency>
+        <tr>
+            <td>${dependency.taskId}</td>
+            <td>${dependency.dependentTaskId}</td>
+        </tr>
+    </#list>
+    </tbody>
+</table>
+<div id="main" style="height: 500px; width: 500px; margin: 0; padding: 0"></div>
+
+<script>
+    var myChart = echarts.init(document.getElementById('main'));
+    option = {
+        title: {
+            text: '任务依赖图'
+        },
+        tooltip: {
+            formatter: function (x) {
+                return x.data.des;
+            }
+        },
+        series: [
+            {
+                type: 'graph',
+                layout: 'force',
+                symbolSize: 80,
+                roam: true,
+                edgeSymbol: ['circle', 'arrow'],
+                edgeSymbolSize: [4, 10],
+                edgeLabel: {
+                    normal: {
+                        textStyle: {
+                            fontSize: 20
+                        }
+                    }
+                },
+                force: {
+                    repulsion: 2500,
+                    edgeLength: [10, 50]
+                },
+                draggable: true,
+                itemStyle: {
+                    normal: {
+                    }
+                },
+                lineStyle: {
+                    normal: {
+                        width: 2
+                    }
+                },
+                label: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                        }
+                    }
+                },
+                data: ${vertices},
+                links: ${links}
+            }
+        ]
+    };
+    myChart.setOption(option);
+</script>
+
+</body>
+</html>

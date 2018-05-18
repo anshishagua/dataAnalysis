@@ -167,7 +167,7 @@ public class TagSQLGenerateService {
         String filterCondition = tag.getFilterCondition();
         String computeCondition = tag.getComputeCondition();
 
-        ParseResult filterConditionResult = tagService.parseFilterCondition(filterCondition);
+        ParseResult filterConditionResult = tagService.parseFilterCondition(filterCondition, tag.getTableId());
 
         if (!filterConditionResult.isSuccess()) {
             result.setSuccess(false);
@@ -176,7 +176,7 @@ public class TagSQLGenerateService {
             return result;
         }
 
-        ParseResult computeConditionResult = tagService.parseComputeCondition(computeCondition);
+        ParseResult computeConditionResult = tagService.parseComputeCondition(computeCondition, tag.getTableId());
 
         if (!computeConditionResult.isSuccess()) {
             result.setSuccess(false);

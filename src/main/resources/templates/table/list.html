@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>定义表</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+    <table class="table table-striped">
+        <thead>
+            <th>ID</th>
+            <th>表名</th>
+            <th>别名</th>
+            <th>描述</th>
+            <th>创建时间</th>
+            <th>查看详情</th>
+        </thead>
+        <tbody>
+            <#list tables as table>
+                <tr>
+                    <td>${table.id}</td>
+                    <td>${table.name}</td>
+                    <td>${table.alias}</td>
+                    <td>${table.description}</td>
+                    <td>${table.createTime}</td>
+                    <td><a href="/table/detail?id=${table.id}">点击</a></td>
+                </tr>
+            </#list>
+        </tbody>
+    </table>
+
+    <a href="/table">定义新表</a>
+</body>

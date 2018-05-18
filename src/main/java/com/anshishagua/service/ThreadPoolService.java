@@ -1,7 +1,9 @@
 package com.anshishagua.service;
 
 import com.anshishagua.compute.Task;
+import com.anshishagua.compute.TaskExecution;
 import com.anshishagua.object.SQLGenerateResult;
+import com.anshishagua.object.SQLTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,17 @@ public class ThreadPoolService {
 
     @Autowired
     private SQLExecuteService sqlExecuteService;
+
+    public void submit(TaskExecution taskExecution) {
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executorService;
+
+        LOG.info("Thread pool active count: {}, pool size: {}, queue size: {}",
+                threadPoolExecutor.getActiveCount(),
+                threadPoolExecutor.getPoolSize(),
+                threadPoolExecutor.getQueue().size());
+
+        executorService.submit(new SQLTask(taskExecution));
+    }
 
     public void submit(Task task, LocalDateTime scheduledExecutionTime, SQLGenerateResult sqlGenerateResult) {
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executorService;

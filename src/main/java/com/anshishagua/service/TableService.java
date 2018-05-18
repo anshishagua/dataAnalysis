@@ -8,9 +8,12 @@ import com.anshishagua.object.TableColumn;
 import com.anshishagua.object.TaskType;
 import com.anshishagua.utils.AssertUtils;
 import org.apache.logging.log4j.core.util.CronExpression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -24,12 +27,18 @@ import java.util.stream.Collectors;
 
 @Service
 public class TableService {
+    private static final Logger LOG = LoggerFactory.getLogger(TableService.class);
+
     @Autowired
     private TableMapper tableMapper;
     @Autowired
     private TaskService taskService;
     @Autowired
     private TableColumnService tableColumnService;
+    @Autowired
+    private BasicSQLService basicSQLService;
+    @Autowired
+    private HiveService hiveService;
 
     public Table getById(long id) {
         Table table = tableMapper.getById(id);
@@ -81,5 +90,13 @@ public class TableService {
         task.setDescription("aaaa");
 
         taskService.addNewTask(task);
+
+        String sql = basicSQLService.createTableSQL(table);
+
+        try {
+            hiveService.execute(sql);
+        } catch (SQLException ex) {
+            LOG.error("Failed to execute {}", sql, ex);
+        }
     }
 }

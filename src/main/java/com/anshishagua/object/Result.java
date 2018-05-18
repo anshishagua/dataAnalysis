@@ -9,6 +9,7 @@ package com.anshishagua.object;
 public class Result {
     private boolean success;
     private String errorMessage;
+    private String info;
 
     public Result(boolean success, String errorMessage) {
         this.success = success;
@@ -19,8 +20,23 @@ public class Result {
         return new Result(true, "");
     }
 
+    public static Result ok(String info) {
+        Result result = new Result(true, "");
+        result.info = info;
+
+        return result;
+    }
+
     public static Result error(String errorMessage) {
         return new Result(false, errorMessage);
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getInfo() {
+        return info;
     }
 
     public boolean isSuccess() {

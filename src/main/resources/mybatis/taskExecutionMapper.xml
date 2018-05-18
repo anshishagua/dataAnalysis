@@ -5,30 +5,52 @@
     <resultMap id="taskExecutionMapper" type="com.anshishagua.compute.TaskExecution">
         <id column="id" property="id" jdbcType="BIGINT"></id>
         <result column="task_id" property="taskId" jdbcType="BIGINT"></result>
-        <result column="scheduled_execution_time" property="scheduledExecutionTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="execute_date" property="executeDate" jdbcType="VARCHAR"></result>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="start_time" property="startTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="end_time" property="endTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="status" property="status" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.TaskStatusHandler"></result>
+        <result column="execution_seconds" property="executionSeconds" jdbcType="INTEGER"></result>
         <result column="execute_sqls" property="executeSQLs" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.ExecuteSQLsHandler"></result>
     </resultMap>
+    <insert id="insert" keyColumn="id" keyProperty="id" useGeneratedKeys="true" flushCache="true">
+        INSERT INTO `t_task_execution`(`task_id`, `execute_date`, `create_time`, `last_updated`, `start_time`, `status`, `execute_sqls`)
+        VALUES (#{taskId},
+                #{executeDate},
+                #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                #{startTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                #{status, typeHandler=com.anshishagua.mybatis.typehandler.TaskStatusHandler},
+                #{executeSQLs, typeHandler=com.anshishagua.mybatis.typehandler.ExecuteSQLsHandler}
+        )
+    </insert>
+    <update id="update" flushCache="true">
+        UPDATE `t_task_execution`
+        SET last_updated = #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+            end_time = #{endTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+            `status` = #{status, typeHandler=com.anshishagua.mybatis.typehandler.TaskStatusHandler},
+            execution_seconds = #{executionSeconds}
+        WHERE id = #{id}
+    </update>
+    <select id="getByTaskIdAndDate" resultMap="taskExecutionMapper">
+        SELECT *
+        FROM t_task_execution
+        WHERE task_id = #{taskId}
+        AND execute_date = #{executeDate}
+    </select>
     <select id="getById" resultMap="taskExecutionMapper">
         SELECT *
         FROM t_task_execution
-        WHERE id = #{id};
+        WHERE id = #{id}
     </select>
     <select id="getByStatus" resultMap="taskExecutionMapper">
         SELECT *
         FROM t_task_execution
-        WHERE `status` = #{status};
+        WHERE `status` = #{status}
     </select>
-    <update id="update" parameterType="com.anshishagua.compute.TaskExecution">
-        UPDATE t_task_execution
-        SET start_time = #{startTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
-        end_time = #{endTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
-        `status` = #{status, typeHandler=com.anshishagua.mybatis.typehandler.TaskStatusHandler},
-        json_info = #{jsonInfo}
-        WHERE id = #{id}
-    </update>
+    <select id="list" resultMap="taskExecutionMapper">
+        SELECT *
+        FROM t_task_execution
+    </select>
 </mapper>

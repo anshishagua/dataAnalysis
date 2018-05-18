@@ -1,6 +1,5 @@
 package com.anshishagua.object;
 
-import com.anshishagua.compute.Task;
 import com.anshishagua.compute.TaskExecution;
 import com.anshishagua.service.SQLExecuteService;
 import com.anshishagua.service.TaskExecutionService;
@@ -10,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
@@ -47,13 +45,19 @@ public class SQLTask implements Callable<Void> {
             LocalDateTime startTime = taskExecution.getStartTime();
             LocalDateTime endTime = LocalDateTime.now();
             taskExecution.setEndTime(endTime);
+            taskExecution.setStatus(TaskStatus.FINISHED_SUCCESS);
             int executionSeconds = (int) ChronoUnit.SECONDS.between(startTime, endTime);
 
             taskExecution.setExecutionSeconds(executionSeconds);
             taskExecutionService.update(taskExecution);
         } catch (SQLException ex) {
+            taskExecution.setStatus(TaskStatus.FINISHED_FAILED);
+            taskExecutionService.update(taskExecution);
+
             LOG.error("Failed to execute sqls {}", sqls, ex);
         }
+
+        LOG.info("Execution done");
 
         return null;
     }

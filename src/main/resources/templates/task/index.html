@@ -2,9 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>任务调度</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
 </head>
 <body>
-
+    <table class="table table-striped">
+        <thead>
+            <th>任务ID</th>
+            <th>关联对象ID</th>
+            <th>任务类型</th>
+            <th>Cron表达式</th>
+            <th>创建时间</th>
+            <th>上次更新时间</th>
+            <th>任务描述</th>
+        </thead>
+        <tbody>
+            <#list tasks as task>
+                <tr>
+                    <td>${task.id}</td>
+                    <td>${task.objectId}</td>
+                    <td>${task.taskType.description}</td>
+                    <td>${task.cronExpression}</td>
+                    <td>${task.createTime}</td>
+                    <td>${task.lastUpdated}</td>
+                    <td>${task.description}</td>
+                </tr>
+            </#list>
+        </tbody>
+    </table>
 </body>
 </html>

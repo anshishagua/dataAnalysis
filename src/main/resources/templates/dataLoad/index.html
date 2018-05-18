@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>数据</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+
+<script>
+    $(document).ready(function() {
+        $("#tagName").blur(function() {
+            var tagName = $("#tagName").val();
+
+            if (tagName == "") {
+                $(".tag-name-group").removeClass("has-success");
+                $(".tag-name-group").addClass("has-error");
+                $(".tag-name-group span").addClass("glyphicon-remove");
+                $(".tag-name-group span").removeClass("glyphicon-ok");
+                $(".table-name span").show();
+                $(".table-name label:eq(1)").show();
+
+                return;
+            }
+
+            $.ajax({
+                url: "/tag/check",
+                data: {
+                    tagName: tagName
+                },
+                success: function(data) {
+                    if (!data.success) {
+                        $(".tag-name-group").removeClass("has-success");
+                        $(".tag-name-group").addClass("has-error");
+                        $(".tag-name-group span").removeClass("glyphicon-ok");
+                        $(".tag-name-group span").addClass("glyphicon-remove");
+                        $(".tag-name-group span").show();
+                        $(".tag-name-group label:eq(1)").html(data.errorMessage);
+                        $(".tag-name-group label:eq(1)").show();
+                    } else {
+
+                    }
+                }
+            });
+        });
+
+        $("#filterCondition").blur(function() {
+
+        });
+
+
+
+        $("#addColumnButton").click(function() {
+            console.log("clicked");
+
+            $.ajax({
+                url: "/table/column",
+                success: function(data) {
+                    console.log(data);
+
+                    $("#column-body").append(data);
+                }
+            });
+        });
+
+        $("#column-body").on("click", ".delete-column", function() {
+            $(".delete-column").parents()[1].remove();
+        });
+
+        $("#submit").click(function() {
+            var tableName = $("#tableName").val();
+            var date = $("#date").val();
+            var uploadFile = $("#file").get(0).files[0];
+
+            var data = new FormData();
+            data.append("tableName", tableName);
+            data.append("date", date);
+            data.append("uploadFile", uploadFile);
+
+            $.ajax({
+                url: "/dataLoad/upload",
+                type: "POST",
+                data: data,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(result) {
+                    if (!result.success) {
+                        alert(result.errorMessage);
+                    } else {
+                        var message = "加载数据成功,";
+
+                        message += result.info;
+
+                        alert(message);
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<form role="form" action="/tag/add" class="form-horizontal">
+    <div class="form-group table-name-group has-feedback">
+        <label for="tableName" class="col-sm-2 control-label">表名</label>
+        <div class="col-sm-6">
+            <select class="form-control" name="tableName" id="tableName">
+                <#list tables as table>
+                    <option name="${table.alias}" value="${table.name}">${table.alias}</option>
+                </#list>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="date" class="control-label col-sm-2">日期</label>
+        <div class="col-sm-6">
+            <input type="text" id="date" class="form-control">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="file" class="control-label col-sm-2">文件</label>
+        <div class="col-sm-6">
+            <input type="file" id="file" name="file" class="form-control">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-info" id="submit">上传</button>
+        </div>
+    </div>
+</form>
+
+</body>
+</html>

@@ -5,6 +5,7 @@ import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableColumn;
 import com.anshishagua.object.TableRelation;
+import com.anshishagua.object.Tag;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.comparision.Equal;
 import com.anshishagua.parser.nodes.sql.Column;
@@ -122,6 +123,24 @@ public class BasicSQLService {
         builder.append(columns.stream().map(column -> String.format("%s %s", StringUtils.backQuote(column.getName()), column.getDataType().getValue())).collect(Collectors.joining(", ")));
 
         builder.append(")");
+
+        return builder.toString();
+    }
+
+    public String createTableSQL(Table table) {
+        Objects.requireNonNull(table);
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("CREATE TABLE IF NOT EXISTS ").append(StringUtils.backQuote(table.getName()));
+
+        builder.append(" (");
+
+        builder.append(table.getColumns().stream().map(column -> String.format("%s %s", StringUtils.backQuote(column.getName()), column.getDataType().getValue())).collect(Collectors.joining(", ")));
+
+        builder.append(")");
+
+        builder.append(" ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n'");
 
         return builder.toString();
     }

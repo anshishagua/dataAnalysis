@@ -15,4 +15,5 @@ import java.util.List;
 public interface TaskDependencyMapper {
     TaskDependency getById(long id);
     List<TaskDependency> getAll();
+    void insert(TaskDependency dependency);
 }

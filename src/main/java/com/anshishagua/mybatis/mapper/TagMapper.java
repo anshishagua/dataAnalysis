@@ -14,5 +14,6 @@ public interface TagMapper {
     Tag getById(long id);
     Tag getByName(String name);
     void insert(Tag tag);
+    void update(Tag tag);
     void updateSQLGenerateResult(Tag tag);
 }

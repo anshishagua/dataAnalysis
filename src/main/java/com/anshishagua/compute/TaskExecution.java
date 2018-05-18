@@ -15,13 +15,14 @@ public class TaskExecution {
     private long id;
     private long taskId;
     private Task task;
-    private LocalDateTime scheduledExecutionTime;
+    private String executeDate;
     private LocalDateTime createTime;
     private LocalDateTime lastUpdated;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private int executionSeconds;
     private List<String> executeSQLs;
+    private String sqlString;
     private TaskStatus status;
 
     public long getId() {
@@ -48,12 +49,12 @@ public class TaskExecution {
         this.task = task;
     }
 
-    public LocalDateTime getScheduledExecutionTime() {
-        return scheduledExecutionTime;
+    public String getExecuteDate() {
+        return executeDate;
     }
 
-    public void setScheduledExecutionTime(LocalDateTime scheduledExecutionTime) {
-        this.scheduledExecutionTime = scheduledExecutionTime;
+    public void setExecuteDate(String executeDate) {
+        this.executeDate = executeDate;
     }
 
     public LocalDateTime getCreateTime() {
@@ -102,6 +103,11 @@ public class TaskExecution {
 
     public void setExecuteSQLs(List<String> executeSQLs) {
         this.executeSQLs = executeSQLs;
+        this.sqlString = executeSQLs.toString();
+    }
+
+    public String getSqlString() {
+        return sqlString;
     }
 
     public void setStatus(TaskStatus status) {

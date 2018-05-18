@@ -73,45 +73,46 @@
             $(".delete-metric").parents()[1].remove();
         });
 
-        $("#addColumnButton").click(function() {
-            console.log("clicked");
-
-            $.ajax({
-                url: "/table/column",
-                success: function(data) {
-                    console.log(data);
-
-                    $("#column-body").append(data);
-                }
-            });
-        });
-
-        $("#column-body").on("click", ".delete-column", function() {
-            $(".delete-column").parents()[1].remove();
-        });
-
         $("#submit").click(function() {
-            var tagName = $("#tagName").val();
-            var targetTableId = $("#targetTable option:selected").val();
-            var filterCondition = $("#filterCondition").val();
-            var computeCondition = $("#computeCondition").val();
+            var indexName = $("#indexName").val();
             var description = $("#description").val();
+            var dimensions = [];
+            var metrics = [];
+
+            $(".dimension-info").each(function() {
+                var dimension = {};
+
+                dimension.name = $(this).find(".dimensionName").val();
+                dimension.expression = $(this).find(".expression").val();
+                dimension.description = $(this).find(".description").val();
+
+                dimensions.push(dimension);
+            });
+
+            $(".metric-info").each(function() {
+                var metric = {};
+
+                metric.name = $(this).find(".metricName").val();
+                metric.expression = $(this).find(".metricExpression").val();
+                metric.description = $(this).find(".description").val();
+
+                metrics.push(metric);
+            });
 
             $.ajax({
-                url: "/tag/add",
+                url: "/index/add",
                 dataType: "json",
                 data: {
-                    tagName: tagName,
-                    targetTableId: targetTableId,
+                    indexName: indexName,
                     description: description,
-                    filterCondition: filterCondition,
-                    computeCondition: computeCondition
+                    dimensions: JSON.stringify(dimensions),
+                    metrics: JSON.stringify(metrics)
                 },
                 success: function(result) {
                     if (!result.success) {
                         alert(result.errorMessage);
                     } else {
-                        alert("添加标签成功");
+                        alert("添加指标成功");
                     }
                 }
             });

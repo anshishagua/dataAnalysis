@@ -74,9 +74,29 @@ public class TableController {
         return basicSQLService.generateTableCreateSQL(table);
     }
 
-    @RequestMapping("/show")
-    public ModelAndView show(@RequestParam("id") long id) {
+    @RequestMapping("/list")
+    public ModelAndView list() {
         ModelAndView modelAndView = new ModelAndView();
+
+        List<Table> tables = tableService.getAllTables();
+
+        modelAndView.addObject("tables", tables);
+        modelAndView.setViewName("table/list");
+
+        return modelAndView;
+    }
+
+    @RequestMapping("/detail")
+    public ModelAndView detail(@RequestParam("id") long id) {
+        ModelAndView modelAndView = new ModelAndView();
+
+        Table table = tableService.getById(id);
+
+        List<TableColumn> columns = table.getColumns();
+        modelAndView.addObject("table", table);
+        modelAndView.addObject("columns", columns);
+
+        modelAndView.setViewName("table/detail");
 
         return modelAndView;
     }

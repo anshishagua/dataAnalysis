@@ -7,7 +7,6 @@ import com.anshishagua.parser.nodes.sql.JoinType;
 import com.anshishagua.service.TableColumnService;
 import com.anshishagua.service.TableRelationService;
 import com.anshishagua.service.TableService;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 /**

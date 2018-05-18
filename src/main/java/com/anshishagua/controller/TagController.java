@@ -109,7 +109,7 @@ public class TagController {
 
     @RequestMapping("/add")
     @ResponseBody
-    Result add(@RequestParam("tagName") String tagName,
+    public Result add(@RequestParam("tagName") String tagName,
                @RequestParam("description") String description,
                @RequestParam("targetTableId") long targetTableId,
                @RequestParam("filterCondition") String filterCondition,
@@ -127,13 +127,13 @@ public class TagController {
 
         tag.setTableId(targetTableId);
 
-        ParseResult parseResult = tagService.parseFilterCondition(filterCondition);
+        ParseResult parseResult = tagService.parseFilterCondition(filterCondition, targetTableId);
 
         if (!parseResult.isSuccess()) {
             return Result.error(String.format("过滤条件%s错误:%s", filterCondition, parseResult.getErrorMessage()));
         }
 
-        parseResult = tagService.parseComputeCondition(computeCondition);
+        parseResult = tagService.parseComputeCondition(computeCondition, targetTableId);
 
         if (!parseResult.isSuccess()) {
             return Result.error(String.format("规则条件%s错误:%s", computeCondition, parseResult.getErrorMessage()));
@@ -154,9 +154,6 @@ public class TagController {
 
         tagService.addTag(tag);
 
-        tag.setSqlGenerateResult(sqlGenerateService.generate(tag));
-
-        tagService.updateSQLGenerateResult(tag);
 
         return Result.ok();
     }

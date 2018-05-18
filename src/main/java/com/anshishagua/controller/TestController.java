@@ -67,7 +67,8 @@ public class TestController {
 
     @RequestMapping("/parse")
     @ResponseBody
-    public ParseResult parse(@RequestParam("expression") String expression) {
-        return tagService.parseFilterCondition(expression);
+    public ParseResult parse(@RequestParam("expression") String expression,
+                             @RequestParam("targetTableId") long targetTableId) {
+        return tagService.parseFilterCondition(expression, targetTableId);
     }
 }

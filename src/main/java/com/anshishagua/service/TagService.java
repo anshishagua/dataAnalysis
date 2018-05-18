@@ -5,6 +5,7 @@ import com.anshishagua.exceptions.SemanticException;
 import com.anshishagua.mybatis.mapper.TagMapper;
 import com.anshishagua.object.CronExpressionConstants;
 import com.anshishagua.object.ParseResult;
+import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableRelation;
 import com.anshishagua.object.Tag;
@@ -39,11 +40,17 @@ public class TagService {
     @Autowired
     private TableService tableService;
     @Autowired
+    private TagSQLGenerateService sqlGenerateService;
+    @Autowired
+    private TagService tagService;
+    @Autowired
     private SystemParameterService systemParameterService;
     @Autowired
     private TableRelationService tableRelationService;
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private TaskDependencyService taskDependencyService;
     @Autowired
     private TagMapper tagMapper;
 
@@ -67,7 +74,7 @@ public class TagService {
         return tag;
     }
 
-    private ParseResult parse(String expression, ParseResult.ParseType parseType) {
+    private ParseResult parse(String expression, ParseResult.ParseType parseType, long targetTableId) {
         ExpressionParser parser = new ExpressionParser(expression);
 
         try {
@@ -100,7 +107,7 @@ public class TagService {
 
         List<Table> tables = new ArrayList<>(analyzer.getTables());
 
-        Table mainTable = tableService.getByName("student");
+        Table mainTable = tableService.getById(targetTableId);
 
         tables.remove(mainTable);
 
@@ -140,28 +147,37 @@ public class TagService {
         return parseResult;
     }
 
-    public ParseResult parseFilterCondition(String expression) {
+    public ParseResult parseFilterCondition(String expression, long targetTableId) {
         ParseResult.ParseType parseType = ParseResult.ParseType.TAG_FILTER_CONDITION;
 
         if (Strings.isNullOrEmpty(expression)) {
             return ParseResult.ok(parseType, expression == null ? "" : expression);
         }
 
-        return parse(expression, parseType);
+        return parse(expression, parseType, targetTableId);
     }
 
-    public ParseResult parseComputeCondition(String expression) {
+    public ParseResult parseComputeCondition(String expression, long targetTableId) {
         ParseResult.ParseType parseType = ParseResult.ParseType.TAG_COMPUTE_CONDITION;
 
         if (Strings.isNullOrEmpty(expression)) {
             return ParseResult.error(parseType, expression, "Tag compute condition could not be empty");
         }
 
-        return parse(expression, parseType);
+        return parse(expression, parseType, targetTableId);
+    }
+
+    public void updateTag(Tag tag) {
+
     }
 
     public void addTag(Tag tag) {
         tagMapper.insert(tag);
+
+        SQLGenerateResult sqlGenerateResult = sqlGenerateService.generate(tag);
+        tag.setSqlGenerateResult(sqlGenerateResult);
+
+        tagService.updateSQLGenerateResult(tag);
 
         Task task = new Task();
         task.setCreateTime(LocalDateTime.now());
@@ -172,6 +188,19 @@ public class TagService {
         task.setDescription("tag compute");
 
         taskService.addNewTask(task);
+
+        Set<String> tableNames = sqlGenerateResult.getDataSourceTables();
+        List<Task> dependentTasks = new ArrayList<>();
+
+        for (String tableName : tableNames) {
+            Table table = tableService.getByName(tableName);
+
+            Task dependentTask = taskService.getByTaskTypeAndObjectId(TaskType.DATA_LOAD, table.getId());
+
+            dependentTasks.add(dependentTask);
+        }
+
+        taskDependencyService.add(task, dependentTasks);
     }
 
     public void updateSQLGenerateResult(Tag tag) {

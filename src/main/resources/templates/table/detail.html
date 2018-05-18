@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>表格详情</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+<table class="table table-striped">
+    <thead>
+    <th>ID</th>
+    <th>名称</th>
+    <th>别名</th>
+    <th>类型</th>
+    <th>是否为主键</th>
+    <th>是否为空</th>
+    <th>描述</th>
+    <th>创建时间</th>
+    </thead>
+    <tbody>
+    <#list columns as column>
+        <tr>
+            <td>${column.id}</td>
+            <td>${column.name}</td>
+            <td>${column.alias}</td>
+            <td>${column.dataType.name}</td>
+            <td>${column.isPrimaryKey()?string('是', '否')}</td>
+            <td>${column.nullable?string('是', '否')}</td>
+            <td>${column.description!}</td>
+            <td>${column.createTime}</td>
+        </tr>
+    </#list>
+    </tbody>
+</table>
+</body>

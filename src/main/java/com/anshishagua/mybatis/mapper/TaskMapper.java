@@ -1,7 +1,11 @@
 package com.anshishagua.mybatis.mapper;
 
 import com.anshishagua.compute.Task;
+import com.anshishagua.object.TaskType;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * User: lixiao
@@ -12,6 +16,8 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface TaskMapper {
     Task getById(long id);
+    Task getByTaskTypeAndObjectId(@Param("taskType") String taskType, @Param("objectId") long objectId);
     Task getByObjectId(long id);
     void addNewTask(Task task);
+    List<Task> list();
 }

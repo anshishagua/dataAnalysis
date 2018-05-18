@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
  */
 
 public class Tag {
+    private static final long NO_ID = -1;
+
     private long id;
     private String name;
     private long groupId;
@@ -25,6 +27,10 @@ public class Tag {
     private boolean deleted;
     private String description;
     private SQLGenerateResult sqlGenerateResult;
+
+    public Tag() {
+        id = NO_ID;
+    }
 
     public long getId() {
         return id;

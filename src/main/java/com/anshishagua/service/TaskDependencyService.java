@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 /**
  * User: lixiao
@@ -33,7 +35,7 @@ public class TaskDependencyService {
         return taskDependencyMapper.getAll();
     }
 
-    public List<Task> getDependentTasks(Task task) {
+    public List<Task> getDependentTasks2(Task task) {
         DependencyTreeNode root = dependentGraph.get(task);
 
         if (root == null || root.getChildren().isEmpty()) {
@@ -72,5 +74,32 @@ public class TaskDependencyService {
 
             dependentGraph.addDependency(task, dependentTask);
         }
+    }
+
+    public void add(Task task, List<Task> dependentTasks) {
+        Objects.requireNonNull(task);
+        Objects.requireNonNull(dependentTasks);
+
+        for (Task dependentTask : dependentTasks) {
+            dependentGraph.addDependency(task, dependentTask);
+
+            TaskDependency dependency = new TaskDependency();
+            dependency.setTaskId(task.getId());
+            dependency.setDependentTaskId(dependentTask.getId());
+
+            taskDependencyMapper.insert(dependency);
+        }
+    }
+
+    public List<Task> getDependentTasks(Task task) {
+        Objects.requireNonNull(task);
+
+        DependencyTreeNode node = dependentGraph.get(task);
+
+        if (node == null) {
+            return Collections.emptyList();
+        }
+
+        return node.getChildren().stream().map(it -> it.getTask()).collect(Collectors.toList());
     }
 }

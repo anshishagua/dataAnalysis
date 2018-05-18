@@ -9,7 +9,7 @@
         <result column="cron_expression" property="cronExpression" jdbcType="VARCHAR"></result>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
-        <result column="description" property="descrption" jdbcType="VARCHAR"></result>
+        <result column="description" property="description" jdbcType="VARCHAR"></result>
         <result column="deleted" property="deleted" jdbcType="BIT"></result>
     </resultMap>
     <insert id="addNewTask" keyColumn="id" keyProperty="id" useGeneratedKeys="true" flushCache="true">
@@ -25,6 +25,21 @@
     <select id="getById" resultMap="taskMapper">
         SELECT *
         FROM t_task
-        WHERE id = #{id};
+        WHERE id = #{id}
+    </select>
+    <select id="list" resultMap="taskMapper">
+        SELECT *
+        FROM t_task
+    </select>
+    <select id="getByObjectId" resultMap="taskMapper">
+        SELECT *
+        FROM t_task
+        WHERE `object_id` = #{id}
+    </select>
+    <select id="getByTaskTypeAndObjectId" resultMap="taskMapper">
+        SELECT *
+        FROM t_task
+        WHERE `object_id` = #{objectId}
+        AND task_type = #{taskType}
     </select>
 </mapper>

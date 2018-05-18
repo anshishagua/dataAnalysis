@@ -3,8 +3,8 @@ package com.anshishagua.parser.nodes.bool;
 import com.anshishagua.parser.nodes.AbstractNode;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.sql.Condition;
-import edu.emory.mathcs.backport.java.util.Arrays;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**

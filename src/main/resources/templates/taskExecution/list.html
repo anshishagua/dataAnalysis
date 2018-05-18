@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>任务表</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+<table class="table table-striped">
+    <thead>
+    <th>ID</th>
+    <th>调度任务ID</th>
+    <th>任务状态</th>
+    <th>执行日期</th>
+    <th>创建时间</th>
+    <th>开始时间</th>
+    <th>结束时间</th>
+    <th>运行时长(s)</th>
+    <th>执行SQL列表</th>
+    </thead>
+    <tbody>
+    <#list taskExecutions as taskExecution>
+    <tr>
+        <td>${taskExecution.id}</td>
+        <td>${taskExecution.taskId}</td>
+        <td>${taskExecution.status}</td>
+        <td>${taskExecution.executeDate}</td>
+        <td>${taskExecution.createTime}</td>
+        <td>${taskExecution.startTime}</td>
+        <td>${taskExecution.endTime!}</td>
+        <td>${taskExecution.executionSeconds}</td>
+        <td>${taskExecution.sqlString}</td>
+    </tr>
+    </#list>
+    </tbody>
+</table>
+
+</body>

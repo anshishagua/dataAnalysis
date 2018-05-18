@@ -1,10 +1,14 @@
 package com.anshishagua.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.IndexDimension;
 import com.anshishagua.object.IndexMetric;
 import com.anshishagua.object.IndexType;
 import com.anshishagua.object.ParseResult;
+import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.service.IndexSQLGenerateService;
 import com.anshishagua.service.IndexService;
@@ -13,7 +17,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
@@ -75,6 +78,91 @@ public class IndexController {
         return indexSQLGenerateService.generate(index);
     }
 
+    @RequestMapping("/add")
+    @ResponseBody
+    public Result add(@RequestParam("indexName") String indexName,
+                      @RequestParam("description") String description,
+                      @RequestParam("dimensions") String dimensionsString,
+                      @RequestParam("metrics") String metricsString) {
+        Index index = new Index();
+        index.setName(indexName);
+        index.setDescription(description);
+        index.setIndexType(IndexType.BASIC);
+        index.setCreateTime(LocalDateTime.now());
+        index.setLastUpdated(LocalDateTime.now());
+
+        List<IndexDimension> indexDimensions = new ArrayList<>();
+
+        JSONArray jsonArray = JSON.parseArray(dimensionsString);
+
+        for (int i = 0; i < jsonArray.size(); ++i) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+            String dimensionName = jsonObject.getString("name");
+            String expression = jsonObject.getString("expression");
+            String dimensionDescription = jsonObject.getString("description");
+
+            ParseResult parseResult = indexService.parseDimension(expression);
+
+            if (!parseResult.isSuccess()) {
+                return Result.error(parseResult.getErrorMessage());
+            }
+
+            IndexDimension dimension = new IndexDimension();
+            dimension.setName(dimensionName);
+            dimension.setExpression(expression);
+            dimension.setDescription(dimensionDescription);
+            dimension.setOrder(i);
+            dimension.setDataType(parseResult.getResultType());
+            dimension.setCreateTime(LocalDateTime.now());
+            dimension.setLastUpdated(LocalDateTime.now());
+
+            indexDimensions.add(dimension);
+        }
+
+        List<IndexMetric> indexMetrics = new ArrayList<>();
+
+        jsonArray = JSON.parseArray(metricsString);
+
+        for (int i = 0; i < jsonArray.size(); ++i) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+            String metricName = jsonObject.getString("name");
+            String expression = jsonObject.getString("expression");
+            String metricDescription = jsonObject.getString("description");
+
+            ParseResult parseResult = indexService.parseMetric(expression);
+
+            if (!parseResult.isSuccess()) {
+                return Result.error(parseResult.getErrorMessage());
+            }
+
+            IndexMetric metric = new IndexMetric();
+            metric.setName(metricName);
+            metric.setExpression(expression);
+            metric.setDescription(metricDescription);
+            metric.setOrder(i);
+            metric.setDataType(parseResult.getResultType());
+            metric.setCreateTime(LocalDateTime.now());
+            metric.setLastUpdated(LocalDateTime.now());
+
+            indexMetrics.add(metric);
+        }
+
+        index.setDimensions(indexDimensions);
+        index.setMetrics(indexMetrics);
+
+        SQLGenerateResult sqlGenerateResult = indexSQLGenerateService.generate(index);
+
+        if (!sqlGenerateResult.isSuccess()) {
+            return Result.error(sqlGenerateResult.getErrorMessage());
+        }
+
+        indexService.addIndex(index);
+
+        return Result.ok();
+    }
+
     @RequestMapping("/insert")
     public void insert() {
         Index index = new Index();
@@ -129,6 +217,18 @@ public class IndexController {
         ModelAndView modelAndView = new ModelAndView();
 
         modelAndView.setViewName("index/metric");
+
+        return modelAndView;
+    }
+
+    @RequestMapping("/list")
+    public ModelAndView list() {
+        ModelAndView modelAndView = new ModelAndView();
+
+        List<Index> indices = indexService.getAll();
+
+        modelAndView.addObject("indices", indices);
+        modelAndView.setViewName("index/list");
 
         return modelAndView;
     }

@@ -33,4 +33,8 @@ public enum TaskType {
     public String getDescription() {
         return description;
     }
+
+    public String getValue() {
+        return value;
+    }
 }
