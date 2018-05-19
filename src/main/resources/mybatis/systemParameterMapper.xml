@@ -11,8 +11,16 @@
         <result column="description" property="description" jdbcType="VARCHAR"></result>
         <result column="deleted" property="deleted" jdbcType="BIT"></result>
         <result column="type_id" property="typeId" jdbcType="BIGINT"></result>
-        <!--<association property="dataType" column="type_id" resultMap="com.anshishagua.mybatis.mapper.DataTypeMapper.dataTypeMapper"></association>-->
     </resultMap>
+    <insert id="insert" keyProperty="id" keyColumn="id" useGeneratedKeys="true" flushCache="true">
+        INSERT INTO `t_system_parameter`(`value`, `name`, `create_time`, `last_updated`, `description`, `type_id`)
+                VALUES (#{value},
+                        #{name},
+                        #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        #{description},
+                        #{typeId})
+    </insert>
     <select id="getById" resultMap="systemParameterMapper">
         SELECT *
         FROM t_system_parameter
@@ -22,5 +30,9 @@
         SELECT *
         FROM t_system_parameter
         WHERE t_system_parameter.`name` = #{name};
+    </select>
+    <select id="list" resultMap="systemParameterMapper">
+        SELECT *
+        FROM t_system_parameter
     </select>
 </mapper>

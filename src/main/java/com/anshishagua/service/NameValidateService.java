@@ -13,11 +13,15 @@ import java.util.Objects;
 
 @Service
 public class NameValidateService {
-    public boolean isValidTableName(String tableName) {
-        Objects.requireNonNull(tableName);
+    public boolean isValidSystemParamName(String name) {
+        return isValidIdentifier(name);
+    }
 
-        for (int i = 0; i < tableName.length(); ++i) {
-            char ch = tableName.charAt(i);
+    private boolean isValidIdentifier(String id) {
+        Objects.requireNonNull(id);
+
+        for (int i = 0; i < id.length(); ++i) {
+            char ch = id.charAt(i);
 
             if (i == 0 && !Character.isAlphabetic(ch)) {
                 return false;
@@ -29,6 +33,10 @@ public class NameValidateService {
         }
 
         return true;
+    }
+
+    public boolean isValidTableName(String tableName) {
+        return isValidIdentifier(tableName);
     }
 
     private boolean isValidName(String name) {

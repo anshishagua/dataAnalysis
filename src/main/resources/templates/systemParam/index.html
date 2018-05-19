@@ -1,10 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>系统参数</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
 </head>
 <body>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#addSystemParam").click(function() {
+            $.ajax({
+               url: "/systemParam/newParam",
+               success: function(data) {
+                   $("#param-body").append(data);
+               }
+            });
+        });
 
+        $("#submit").click(function() {
+            var systemParams = [];
+
+            $(".param-info").each(function() {
+                var name = $(this).find("input[name=paramName]").val();
+                var value = $(this).find("input[name=paramValue]").val();
+                var dataType = $(this).find("select[name=dataType] option:selected").val();
+                var description = $(this).find("input[name=description]").val();
+
+                var systemParam = {
+                    name: name,
+                    value: value,
+                    dataType : dataType,
+                    description: description
+                };
+
+                systemParams.push(systemParam);
+            });
+
+            $.ajax({
+                url: "/systemParam/add",
+                dataType: "json",
+                data: {
+                    systemParams: JSON.stringify(systemParams)
+                },
+                success: function(result) {
+                    if (result.success) {
+                        alert("添加系统参数成功");
+                        location.href = "/systemParam/";
+                    } else {
+                        alert("添加系统参数失败:" + result.errorMessage);
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+    <div class="container">
+        <div class="row">
+            <h2>系统参数</h2>
+        </div>
+        <div class="row">
+            <table class="table table-striped">
+                <thead>
+                <th>ID</th>
+                <th>名称</th>
+                <th>值</th>
+                <th>类型</th>
+                <th>描述</th>
+                </thead>
+                <tbody>
+                <#list parameters as parameter>
+                <tr>
+                    <td>${parameter.id}</td>
+                    <td>${parameter.name}</td>
+                    <td>${parameter.value}</td>
+                    <td>${parameter.dataType.name}</td>
+                    <td>${parameter.description}</td>
+                </tr>
+                </#list>
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <button id="addSystemParam" class="btn btn-info">增加系统参数</button>
+        </div>
+        <div class="row">
+            <table class="table table-striped">
+                <thead>
+                    <th>名称</th>
+                    <th>值</th>
+                    <th>类型</th>
+                    <th>描述</th>
+                </thead>
+                <tbody id="param-body">
+
+                </tbody>
+            </table>
+        </div>
+        <button class="btn btn-info" id="submit">提交</button>
+    </div>
 </body>
-</html>

@@ -1,0 +1,22 @@
+<tr class="param-info">
+    <td>
+        <input type="text" class="form-control column" name="paramName">
+    </td>
+    <td>
+        <input type="text" class="form-control column" name="paramValue">
+    </td>
+    <td>
+        <select class="form-control" name="dataType">
+            <#list dataTypes as dataType>
+            <option name="${dataType.name}" value="${dataType.id}">${dataType.name}</option>
+        </#list>
+        </select>
+    </td>
+
+    <td>
+        <input type="text" class="form-control column" name="description">
+    </td>
+    <td>
+        <button type="button" class="btn btn-info delete">删除</button>
+    </td>
+</tr>

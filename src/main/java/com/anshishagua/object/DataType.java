@@ -98,6 +98,10 @@ public class DataType {
             return BasicType.String;
         }
 
+        if (value.equals("DATE")) {
+            return BasicType.Date;
+        }
+
         return null;
     }
 

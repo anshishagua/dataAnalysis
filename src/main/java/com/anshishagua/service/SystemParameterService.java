@@ -5,6 +5,9 @@ import com.anshishagua.object.SystemParameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
+
 /**
  * User: lixiao
  * Date: 2018/5/2
@@ -36,5 +39,21 @@ public class SystemParameterService {
         }
 
         return systemParameter;
+    }
+
+    public List<SystemParameter> getAll() {
+        List<SystemParameter> result = systemParameterMapper.list();
+
+        for (SystemParameter systemParameter : result) {
+            systemParameter.setDataType(dataTypeService.getTypeById(systemParameter.getTypeId()));
+        }
+
+        return result;
+    }
+
+    public void add(SystemParameter systemParameter) {
+        Objects.requireNonNull(systemParameter);
+
+        systemParameterMapper.insert(systemParameter);
     }
 }
