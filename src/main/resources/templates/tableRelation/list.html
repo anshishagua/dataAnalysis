@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>模型关系列表</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <h2>表关联关系列表</h2>
+    </div>
+    <div class="row">
+        <table class="table table-striped">
+            <thead>
+            <th>ID</th>
+            <th>表名</th>
+            <th>列名</th>
+            <th>关联类型</th>
+            <th>表名</th>
+            <th>列名</th>
+            </thead>
+            <tbody>
+            <#list relations as relation>
+            <tr>
+                <td>${relation.id}</td>
+                <td>${relation.leftTable.name}</td>
+                <td>${relation.leftColumn.name}</td>
+                <td>${relation.joinType.description}</td>
+                <td>${relation.rightTable.name}</td>
+                <td>${relation.rightColumn.name}</td>
+            </tr>
+            </#list>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>

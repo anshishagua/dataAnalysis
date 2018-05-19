@@ -33,4 +33,9 @@
         SELECT *
         FROM t_table
     </select>
+    <select id="tableNameLike" resultType="string">
+        SELECT `name`
+        FROM t_table
+        WHERE `name` LIKE CONCAT(CONCAT(#{tableName},'%'))
+    </select>
 </mapper>

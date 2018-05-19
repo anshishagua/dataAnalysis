@@ -12,6 +12,9 @@ import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.service.IndexSQLGenerateService;
 import com.anshishagua.service.IndexService;
+import com.anshishagua.service.MetaDataService;
+import com.anshishagua.service.NameValidateService;
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +39,10 @@ public class IndexController {
     private IndexService indexService;
     @Autowired
     private IndexSQLGenerateService indexSQLGenerateService;
+    @Autowired
+    private MetaDataService metaDataService;
+    @Autowired
+    private NameValidateService nameValidateService;
 
     @RequestMapping("")
     public ModelAndView index() {
@@ -43,7 +50,11 @@ public class IndexController {
 
         modelAndView.setViewName("index/index");
 
-        modelAndView.addObject("name", "benben");
+        modelAndView.addObject("bools", metaDataService.getBoolOperators());
+        modelAndView.addObject("compares", metaDataService.getCompareOperators());
+        modelAndView.addObject("operators", metaDataService.getOperators());
+        modelAndView.addObject("functions", metaDataService.getFunctionNames());
+        modelAndView.addObject("tableColumns", metaDataService.getTableColumns());
 
         return modelAndView;
     }
@@ -81,13 +92,26 @@ public class IndexController {
     @RequestMapping("/add")
     @ResponseBody
     public Result add(@RequestParam("indexName") String indexName,
+                      @RequestParam("indexType") String indexType,
                       @RequestParam("description") String description,
                       @RequestParam("dimensions") String dimensionsString,
                       @RequestParam("metrics") String metricsString) {
+        if (Strings.isNullOrEmpty(indexName)) {
+            return Result.error("指标名为空");
+        }
+
+        if (!nameValidateService.isValidIndexName(indexName)) {
+            return Result.error(String.format("指标名%s不合法"));
+        }
+
+        if (indexService.getByName(indexName) != null) {
+            return Result.error(String.format("指标%s已存在", indexName));
+        }
+
         Index index = new Index();
         index.setName(indexName);
         index.setDescription(description);
-        index.setIndexType(IndexType.BASIC);
+        index.setIndexType(IndexType.parseByValue(indexType));
         index.setCreateTime(LocalDateTime.now());
         index.setLastUpdated(LocalDateTime.now());
 

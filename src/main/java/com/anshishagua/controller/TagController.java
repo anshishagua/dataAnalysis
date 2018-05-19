@@ -5,10 +5,13 @@ import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.Tag;
+import com.anshishagua.service.MetaDataService;
+import com.anshishagua.service.NameValidateService;
 import com.anshishagua.service.SQLExecuteService;
 import com.anshishagua.service.TableService;
 import com.anshishagua.service.TagSQLGenerateService;
 import com.anshishagua.service.TagService;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +44,10 @@ public class TagController {
     private SQLExecuteService sqlExecuteService;
     @Autowired
     private TableService tableService;
+    @Autowired
+    private MetaDataService metaDataService;
+    @Autowired
+    private NameValidateService nameValidateService;
 
     @RequestMapping("/generate")
     @ResponseBody
@@ -101,6 +108,11 @@ public class TagController {
 
         List<Table> tables = tableService.getAllTables();
 
+        modelAndView.addObject("bools", metaDataService.getBoolOperators());
+        modelAndView.addObject("compares", metaDataService.getCompareOperators());
+        modelAndView.addObject("operators", metaDataService.getOperators());
+        modelAndView.addObject("functions", metaDataService.getFunctionNames());
+        modelAndView.addObject("tableColumns", metaDataService.getTableColumns());
         modelAndView.addObject("tables", tables);
         modelAndView.setViewName("tag/index");
 
@@ -114,6 +126,17 @@ public class TagController {
                @RequestParam("targetTableId") long targetTableId,
                @RequestParam("filterCondition") String filterCondition,
                @RequestParam("computeCondition") String computeCondition) {
+        if (Strings.isNullOrEmpty(tagName)) {
+            return Result.error("标签名为空");
+        }
+
+        if (!nameValidateService.isValidTagName(tagName)) {
+            return Result.error(String.format("标签名%s不合法:", tagName));
+        }
+
+        if (tagService.getByName(tagName) != null) {
+            return Result.error(String.format("标签%s已存在", tagName));
+        }
 
         Tag tag = new Tag();
         tag.setName(tagName);

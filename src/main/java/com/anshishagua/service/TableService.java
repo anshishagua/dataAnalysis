@@ -40,6 +40,10 @@ public class TableService {
     @Autowired
     private HiveService hiveService;
 
+    public List<String> tableNameLike(String tableName) {
+        return tableMapper.tableNameLike(tableName);
+    }
+
     public Table getById(long id) {
         Table table = tableMapper.getById(id);
 
@@ -53,7 +57,15 @@ public class TableService {
     }
 
     public List<Table> getAllTables() {
-        return tableMapper.list();
+        List<Table> tables = tableMapper.list();
+
+        for (Table table : tables) {
+            List<TableColumn> columns = tableColumnService.getTableColumns(table.getId());
+            table.setColumns(columns);
+            table.setPrimaryKeys(columns.stream().filter(it -> it.isPrimaryKey()).collect(Collectors.toList()));
+        }
+
+        return tables;
     }
 
     public Table getByName(String name) {

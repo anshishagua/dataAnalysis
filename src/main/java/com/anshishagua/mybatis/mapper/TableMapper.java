@@ -2,6 +2,7 @@ package com.anshishagua.mybatis.mapper;
 
 import com.anshishagua.object.Table;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,4 +18,5 @@ public interface TableMapper {
     Table getByName(String name);
     void insert(Table table);
     List<Table> list();
+    List<String> tableNameLike(@Param("tableName") String tableName);
 }

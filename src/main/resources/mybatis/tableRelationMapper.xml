@@ -49,4 +49,12 @@
             INNER JOIN t_table left_table ON left_table_column.table_id = left_table.id AND left_table.`name` = #{leftTableName}
             INNER JOIN t_table right_table ON right_table_column.table_id = right_table.id AND right_table.`name` = #{rightTableName}
     </select>
+    <select id="list" resultMap="tableRelationMapper">
+        SELECT t_table_relation.*
+        FROM t_table_relation INNER JOIN t_table_column left_table_column ON t_table_relation.left_column_id = left_table_column.id
+            INNER JOIN t_table_column right_table_column
+                ON t_table_relation.right_column_id = right_table_column.id
+            INNER JOIN t_table left_table ON left_table_column.table_id = left_table.id
+            INNER JOIN t_table right_table ON right_table_column.table_id = right_table.id
+    </select>
 </mapper>

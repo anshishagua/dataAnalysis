@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +113,19 @@ public class TaskDependencyController {
             list.add(data);
         });
 
+        List<Map<String, String>> categories = new ArrayList<>();
+        Map<String, String> map = new HashMap<>();
+        map.put("name", "表");
+        categories.add(map);
+        map = new HashMap<>();
+        map.put("name", "标签");
+        categories.add(map);
+        map = new HashMap<>();
+        map.put("name", "指标");
+        categories.add(map);
+
+        modelAndView.addObject("nodeTypes", JSON.toJSONString(Arrays.asList("表", "标签", "指标")));
+        modelAndView.addObject("categories", JSON.toJSONString(categories));
         modelAndView.addObject("vertices", JSON.toJSONString(list));
         modelAndView.addObject("links", JSON.toJSONString(edges));
         modelAndView.addObject("dependencies", dependencies);

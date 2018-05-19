@@ -70,4 +70,16 @@ public class TableRelationController {
 
         return Result.ok();
     }
+
+    @RequestMapping("/list")
+    public ModelAndView list() {
+        ModelAndView modelAndView = new ModelAndView();
+
+        List<TableRelation> relations = tableRelationService.getAllRelations();
+
+        modelAndView.addObject("relations", relations);
+        modelAndView.setViewName("tableRelation/list");
+
+        return modelAndView;
+    }
 }

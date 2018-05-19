@@ -234,4 +234,10 @@ public class TableController {
 
         return modelAndView;
     }
+
+    @RequestMapping("/search")
+    @ResponseBody
+    public List<String> search(@RequestParam("term") String keyword) {
+        return tableService.tableNameLike(keyword);
+    }
 }
