@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>标签列表</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <table class="table table-striped">
+                <thead>
+                <th>ID</th>
+                <th>名称</th>
+                <th>贴标表</th>
+                <th>过滤条件</th>
+                <th>规则条件</th>
+                <th>描述</th>
+                <th>创建时间</th>
+                <th>执行</th>
+                </thead>
+                <tbody>
+                <#list tags as tag>
+                <tr>
+                    <td>${tag.id}</td>
+                    <td>${tag.name}</td>
+                    <td>${tag.table.name}</td>
+                    <td>${tag.filterCondition!}</td>
+                    <td>${tag.computeCondition}</td>
+                    <td>${tag.description}</td>
+                    <td>${tag.createTime}</td>
+                    <td><a href="/taskExecution/execute?type=TAG&objectId=${tag.id}">执行</a></td>
+                </tr>
+                </#list>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>

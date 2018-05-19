@@ -43,4 +43,8 @@
         FROM t_tag
         WHERE `name` = #{name};
     </select>
+    <select id="list" resultMap="tagMapper">
+        SELECT *
+        FROM t_tag
+    </select>
 </mapper>

@@ -206,4 +206,14 @@ public class TagService {
     public void updateSQLGenerateResult(Tag tag) {
         tagMapper.updateSQLGenerateResult(tag);
     }
+
+    public List<Tag> getAll() {
+        List<Tag> tags = tagMapper.list();
+
+        for (Tag tag : tags) {
+            tag.setTable(tableService.getById(tag.getTableId()));
+        }
+
+        return tags;
+    }
 }

@@ -74,8 +74,4 @@ public class TypeUtils {
                 return Result.error(String.format("不识别的类型:%s", type));
         }
     }
-
-    public static void main(String [] args) {
-        System.out.println(INT_PATTERN.matcher("-111").matches());
-    }
 }

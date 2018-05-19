@@ -119,6 +119,17 @@ public class TagController {
         return modelAndView;
     }
 
+    @RequestMapping("/list")
+    public ModelAndView list() {
+        ModelAndView modelAndView = new ModelAndView("tag/list");
+
+        List<Tag> tags = tagService.getAll();
+
+        modelAndView.addObject("tags", tags);
+
+        return modelAndView;
+    }
+
     @RequestMapping("/add")
     @ResponseBody
     public Result add(@RequestParam("tagName") String tagName,
@@ -176,7 +187,6 @@ public class TagController {
         tag.setSqlGenerateResult(result);
 
         tagService.addTag(tag);
-
 
         return Result.ok();
     }

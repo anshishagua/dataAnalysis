@@ -3,6 +3,8 @@ package com.anshishagua.mybatis.mapper;
 import com.anshishagua.object.Tag;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * User: lixiao
  * Date: 2018/5/2
@@ -16,4 +18,5 @@ public interface TagMapper {
     void insert(Tag tag);
     void update(Tag tag);
     void updateSQLGenerateResult(Tag tag);
+    List<Tag> list();
 }
