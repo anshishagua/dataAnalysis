@@ -5,6 +5,8 @@ import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.Tag;
+import com.anshishagua.service.BasicSQLService;
+import com.anshishagua.service.HiveService;
 import com.anshishagua.service.MetaDataService;
 import com.anshishagua.service.NameValidateService;
 import com.anshishagua.service.SQLExecuteService;
@@ -48,6 +50,10 @@ public class TagController {
     private MetaDataService metaDataService;
     @Autowired
     private NameValidateService nameValidateService;
+    @Autowired
+    private BasicSQLService basicSQLService;
+    @Autowired
+    private HiveService hiveService;
 
     @RequestMapping("/generate")
     @ResponseBody
@@ -187,6 +193,16 @@ public class TagController {
         tag.setSqlGenerateResult(result);
 
         tagService.addTag(tag);
+
+        String sql = basicSQLService.createTagSQL(tag);
+
+        try {
+            hiveService.execute(sql);
+        } catch (SQLException ex) {
+            LOG.error("Failed to create tag table {}", tag.getId(), ex);
+
+            return Result.error("创建标签hive表失败:" + ex.toString());
+        }
 
         return Result.ok();
     }

@@ -10,11 +10,15 @@ import com.anshishagua.object.IndexType;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;
+import com.anshishagua.service.BasicSQLService;
+import com.anshishagua.service.HiveService;
 import com.anshishagua.service.IndexSQLGenerateService;
 import com.anshishagua.service.IndexService;
 import com.anshishagua.service.MetaDataService;
 import com.anshishagua.service.NameValidateService;
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +40,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/index")
 public class IndexController {
+    private static final Logger LOG = LoggerFactory.getLogger(IndexController.class);
+
     @Autowired
     private IndexService indexService;
     @Autowired
@@ -43,6 +50,10 @@ public class IndexController {
     private MetaDataService metaDataService;
     @Autowired
     private NameValidateService nameValidateService;
+    @Autowired
+    private BasicSQLService basicSQLService;
+    @Autowired
+    private HiveService hiveService;
 
     @RequestMapping("")
     public ModelAndView index() {
@@ -183,6 +194,16 @@ public class IndexController {
         }
 
         indexService.addIndex(index);
+
+        String sql = basicSQLService.createIndexSQL(index);
+
+        try {
+            hiveService.execute(sql);
+        } catch (SQLException ex) {
+            LOG.error("Failed to create index table {}", index.getId(), ex);
+
+            return Result.error("创建指标hive表失败:" + ex.toString());
+        }
 
         return Result.ok();
     }

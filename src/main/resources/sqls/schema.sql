@@ -43,7 +43,6 @@ CREATE TABLE `t_table_column`
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `table_id` BIGINT NOT NULL COMMENT '',
   `type_id` BIGINT NOT NULL COMMENT '',
-  `order` INTEGER NOT NULL COMMENT '',
   `is_primary_key` BIT(1) NOT NULL DEFAULT FALSE,
   `nullable` BIT(1) NOT NULL DEFAULT TRUE,
   `name` varchar(128) NOT NULL DEFAULT '' COMMENT '表名英文名',
@@ -213,3 +212,18 @@ CREATE TABLE `t_task_execution`
   `execute_sqls` TEXT COMMENT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'INT', '整形', null, '', b'0');
+insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'BIGINT', '长整形', null, '', b'0');
+insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'STRING', '字符串', null, '', b'0');
+insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'FLOAT', '浮点型', null, '', b'0');
+insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'DOUBLE', '双精度浮点型', null, '', b'0');
+insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'BOOLEAN', '布尔型', null, '', b'0');
+insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'DATE', '日期型', null, '', b'0');
+
+
+
+insert into `test`.`t_join_type` ( `value`) values ( 'INNER JOIN');
+insert into `test`.`t_join_type` ( `value`) values ( 'LEFT JOIN');
+insert into `test`.`t_join_type` ( `value`) values ( 'RIGHT JOIN');

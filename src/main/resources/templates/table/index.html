@@ -105,7 +105,12 @@
                    columns: JSON.stringify(columns)
                },
                success: function(result) {
-
+                   if (result.success) {
+                       alert("创建表成功");
+                       location.href = "/table/list";
+                   } else {
+                       alert("创建表失败:" + result.errorMessage);
+                   }
                }
            });
         });

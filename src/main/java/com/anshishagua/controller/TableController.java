@@ -9,7 +9,10 @@ import com.anshishagua.object.Table;
 import com.anshishagua.object.TableColumn;
 import com.anshishagua.service.BasicSQLService;
 import com.anshishagua.service.DataTypeService;
+import com.anshishagua.service.HiveService;
+import com.anshishagua.service.NameValidateService;
 import com.anshishagua.service.TableService;
+import com.google.common.base.Strings;
 import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +48,10 @@ public class TableController {
     private DataTypeService dataTypeService;
     @Autowired
     private BasicSQLService basicSQLService;
+    @Autowired
+    private HiveService hiveService;
+    @Autowired
+    private NameValidateService nameValidateService;
 
     @RequestMapping("")
     public ModelAndView index() {
@@ -114,10 +122,19 @@ public class TableController {
     }
 
     @RequestMapping("/add")
-    public ModelAndView add(@RequestParam("name") String name,
-                            @RequestParam("alias") String alias,
-                            @RequestParam("description") String description,
-                            @RequestParam("columns") String columnString) {
+    @ResponseBody
+    public Result add(@RequestParam("name") String name,
+                      @RequestParam("alias") String alias,
+                      @RequestParam("description") String description,
+                      @RequestParam("columns") String columnString) {
+        if (Strings.isNullOrEmpty(name)) {
+            return Result.error("表名为空");
+        }
+
+        if (!nameValidateService.isValidTableName(name)) {
+            return Result.error("表名不合法");
+        }
+
         Table table = new Table();
         table.setName(name);
         table.setAlias(alias);
@@ -137,6 +154,7 @@ public class TableController {
             column.setName(jsonObject.getString("name"));
             column.setAlias(jsonObject.getString("alias"));
             column.setTypeId(jsonObject.getLong("dataType"));
+            column.setDataType(dataTypeService.getTypeById(column.getTypeId()));
             column.setPrimaryKey(jsonObject.getBoolean("isPrimaryKey"));
             column.setNullable(jsonObject.getBoolean("nullable"));
             column.setCreateTime(LocalDateTime.now());
@@ -145,16 +163,43 @@ public class TableController {
             columns.add(column);
         }
 
+        if (columns.isEmpty()) {
+            return Result.error("表" + name + "列为空");
+        }
+
+        long count = columns.stream().filter(column -> column.isPrimaryKey()).count();
+
+        if (count == 0) {
+            return Result.error("没有选择主键");
+        }
+
+        if (count > 1) {
+            return Result.error("只能有唯一主键");
+        }
+
+        count = columns.stream().filter(column -> column.isPrimaryKey() && column.isNullable()).count();
+
+        if (count > 0) {
+            return Result.error("主键不能为空");
+        }
+
         table.setColumns(columns);
 
         tableService.addNewTable(table);
 
-        ModelAndView modelAndView = new ModelAndView();
+        String sql = basicSQLService.createTableSQL(table);
 
-        modelAndView.addObject("tableName", name);
-        modelAndView.setViewName("table/result");
+        LOG.info("Start to create hive table:{}", sql);
 
-        return modelAndView;
+        try {
+            hiveService.execute(sql);
+        } catch (SQLException ex) {
+            LOG.error("Failed to create table", ex);
+
+            return Result.error(String.format("创建hive表%s失败:%s", table.getName(), ex.toString()));
+        }
+
+        return Result.ok();
     }
 
     @RequestMapping("/column")

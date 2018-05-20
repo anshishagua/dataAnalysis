@@ -128,6 +128,7 @@ public class HiveService {
         String path = String.format("%s/%s.db/%s/%s", hiveHdfsUri, database, tableName, hdfsFileName);
 
         Configuration configuration = new Configuration();
+
         FileSystem fileSystem = FileSystem.get(URI.create(path), configuration);
 
         Path src = new Path(localFile);

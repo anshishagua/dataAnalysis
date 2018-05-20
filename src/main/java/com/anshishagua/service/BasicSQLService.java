@@ -1,6 +1,7 @@
 package com.anshishagua.service;
 
 import com.anshishagua.exceptions.UnableToJoinException;
+import com.anshishagua.object.Index;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableColumn;
@@ -34,6 +35,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class BasicSQLService {
+    @Autowired
+    private TagSQLGenerateService tagSQLGenerateService;
+    @Autowired
+    private IndexSQLGenerateService indexSQLGenerateService;
+
     private static class TreeNode {
         private int group;
         private String value;
@@ -143,6 +149,14 @@ public class BasicSQLService {
         builder.append(" ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n'");
 
         return builder.toString();
+    }
+
+    public String createTagSQL(Tag tag) {
+        return tagSQLGenerateService.generateTagTableCreateSQL(tag);
+    }
+
+    public String createIndexSQL(Index index) {
+        return indexSQLGenerateService.createIndexCreateSQL(index);
     }
 
     public String dropTable(String tableName) {

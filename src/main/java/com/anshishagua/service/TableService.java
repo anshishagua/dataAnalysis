@@ -91,8 +91,6 @@ public class TableService {
             tableColumnService.addColumn(tableColumn);
         }
 
-        System.out.println(table.getId());
-
         Task task = new Task();
         task.setCreateTime(LocalDateTime.now());
         task.setLastUpdated(LocalDateTime.now());
@@ -102,13 +100,5 @@ public class TableService {
         task.setDescription("aaaa");
 
         taskService.addNewTask(task);
-
-        String sql = basicSQLService.createTableSQL(table);
-
-        try {
-            hiveService.execute(sql);
-        } catch (SQLException ex) {
-            LOG.error("Failed to execute {}", sql, ex);
-        }
     }
 }
