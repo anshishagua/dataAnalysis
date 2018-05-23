@@ -185,7 +185,8 @@ public class TagService {
         task.setObjectId(tag.getId());
         task.setTaskType(TaskType.TAG);
         task.setCronExpression(CronExpressionConstants.EVERY_DAY_AT_ONE_AM);
-        task.setDescription("tag compute");
+        task.setDescription(String.format("Tag[%d:%s] task", tag.getId(), tag.getName()));
+        task.setResources(sqlGenerateResult.getDataSourceTables().size());
 
         taskService.addNewTask(task);
 

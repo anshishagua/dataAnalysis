@@ -5,6 +5,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hive.jdbc.HivePreparedStatement;
+import org.apache.hive.jdbc.HiveStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -60,6 +63,20 @@ public class HiveService {
         hiveDataSource = dataSource;
     }
 
+    public ResultSet executeQuery(String sql) throws SQLException {
+        if (hiveDataSource == null) {
+            initDataSource();
+        }
+
+        Connection connection = hiveDataSource.getConnection();
+
+        Statement statement = connection.createStatement();
+
+        LOG.info("Execute {}", sql);
+
+        return statement.executeQuery(sql);
+    }
+
     public void execute(String sql) throws SQLException {
         if (hiveDataSource == null) {
             initDataSource();
@@ -67,7 +84,7 @@ public class HiveService {
 
         Connection connection = hiveDataSource.getConnection();
 
-        PreparedStatement statement = connection.prepareStatement(sql);
+        Statement statement = connection.createStatement();
 
         LOG.info("Execute {}", sql);
 
@@ -103,9 +120,9 @@ public class HiveService {
 
         Connection connection = hiveDataSource.getConnection();
 
-        for (String sql : sqls) {
-            PreparedStatement statement = connection.prepareStatement(sql);
+        Statement statement = connection.createStatement();
 
+        for (String sql : sqls) {
             LOG.info("Execute {}", sql);
 
             statement.execute(sql);

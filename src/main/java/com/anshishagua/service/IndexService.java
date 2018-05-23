@@ -171,10 +171,12 @@ public class IndexService {
         indexMapper.insert(index);
 
         for (IndexDimension dimension : index.getDimensions()) {
+            dimension.setIndexId(index.getId());
             indexDimensionMapper.insert(dimension);
         }
 
         for (IndexMetric metric : index.getMetrics()) {
+            metric.setIndexId(index.getId());
             indexMetricMapper.insert(metric);
         }
 
@@ -188,7 +190,8 @@ public class IndexService {
         task.setObjectId(index.getId());
         task.setTaskType(TaskType.INDEX);
         task.setCronExpression(CronExpressionConstants.EVERY_DAY_AT_ONE_AM);
-        task.setDescription("index compute");
+        task.setDescription(String.format("Index[%d:%s] task", index.getId(), index.getName()));
+        task.setResources(sqlGenerateResult.getDataSourceTables().size());
 
         taskService.addNewTask(task);
 

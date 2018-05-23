@@ -14,6 +14,7 @@ import java.util.List;
 public class TaskExecution {
     private long id;
     private long taskId;
+    private int locks;
     private Task task;
     private String executeDate;
     private LocalDateTime createTime;
@@ -24,6 +25,7 @@ public class TaskExecution {
     private List<String> executeSQLs;
     private String sqlString;
     private TaskStatus status;
+    private String errorMessage;
 
     public long getId() {
         return id;
@@ -47,6 +49,14 @@ public class TaskExecution {
 
     public void setTask(Task task) {
         this.task = task;
+    }
+
+    public int getLocks() {
+        return locks;
+    }
+
+    public void setLocks(int locks) {
+        this.locks = locks;
     }
 
     public String getExecuteDate() {
@@ -116,5 +126,13 @@ public class TaskExecution {
 
     public TaskStatus getStatus() {
         return status;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 }

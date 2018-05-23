@@ -5,6 +5,7 @@
     <resultMap id="taskExecutionMapper" type="com.anshishagua.compute.TaskExecution">
         <id column="id" property="id" jdbcType="BIGINT"></id>
         <result column="task_id" property="taskId" jdbcType="BIGINT"></result>
+        <result column="locks" property="locks" jdbcType="INTEGER"></result>
         <result column="execute_date" property="executeDate" jdbcType="VARCHAR"></result>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
@@ -13,24 +14,33 @@
         <result column="status" property="status" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.TaskStatusHandler"></result>
         <result column="execution_seconds" property="executionSeconds" jdbcType="INTEGER"></result>
         <result column="execute_sqls" property="executeSQLs" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.ExecuteSQLsHandler"></result>
+        <result column="error_message" property="errorMessage" jdbcType="VARCHAR"></result>
     </resultMap>
     <insert id="insert" keyColumn="id" keyProperty="id" useGeneratedKeys="true" flushCache="true">
-        INSERT INTO `t_task_execution`(`task_id`, `execute_date`, `create_time`, `last_updated`, `start_time`, `status`, `execute_sqls`)
+        INSERT INTO `t_task_execution`(`task_id`, `locks`, `execute_date`, `create_time`, `last_updated`, `start_time`, `status`, `execute_sqls`, `error_message`)
         VALUES (#{taskId},
+                #{locks},
                 #{executeDate},
                 #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
                 #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
                 #{startTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
                 #{status, typeHandler=com.anshishagua.mybatis.typehandler.TaskStatusHandler},
                 #{executeSQLs, typeHandler=com.anshishagua.mybatis.typehandler.ExecuteSQLsHandler}
+                #{errorMessage}
         )
     </insert>
     <update id="update" flushCache="true">
         UPDATE `t_task_execution`
-        SET last_updated = #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
-            end_time = #{endTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+        SET `task_id` = #{taskId},
+            `locks` = #{locks},
+            `execute_date` = #{executeDate},
+            `start_time` = #{startTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+            `last_updated` = #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+            `end_time` = #{endTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
             `status` = #{status, typeHandler=com.anshishagua.mybatis.typehandler.TaskStatusHandler},
-            execution_seconds = #{executionSeconds}
+            `execute_sqls` = #{executeSQLs, typeHandler=com.anshishagua.mybatis.typehandler.ExecuteSQLsHandler},
+            `execution_seconds` = #{executionSeconds},
+            `error_message` = #{errorMessage}
         WHERE id = #{id}
     </update>
     <select id="getByTaskIdAndDate" resultMap="taskExecutionMapper">
@@ -52,5 +62,6 @@
     <select id="list" resultMap="taskExecutionMapper">
         SELECT *
         FROM t_task_execution
+        ORDER BY `last_updated` DESC
     </select>
 </mapper>

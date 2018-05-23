@@ -1,10 +1,13 @@
 package com.anshishagua.controller;
 
+import com.anshishagua.compute.Task;
 import com.anshishagua.object.Result;
 import com.anshishagua.object.Table;
 import com.anshishagua.service.HiveService;
-import com.anshishagua.service.SQLExecuteService;
 import com.anshishagua.service.TableService;
+import com.anshishagua.service.TaskDependencyService;
+import com.anshishagua.service.TaskExecutionService;
+import com.anshishagua.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +39,13 @@ public class DataLoadController {
     @Autowired
     private TableService tableService;
     @Autowired
-    private SQLExecuteService sqlExecuteService;
-    @Autowired
     private HiveService hiveService;
+    @Autowired
+    private TaskService taskService;
+    @Autowired
+    private TaskDependencyService taskDependencyService;
+    @Autowired
+    private TaskExecutionService taskExecutionService;
 
     @Value("${hive.data.upload.file.path}")
     private String uploadDirectoryName;
@@ -80,6 +87,13 @@ public class DataLoadController {
         } catch (IOException ex) {
             return Result.error(String.format("加载数据失败:%s", ex.getMessage()));
         }
+
+        Table table = tableService.getByName(tableName);
+        Task task = taskService.getByObjectId(table.getId());
+
+        List<Long> taskIds = taskDependencyService.getDownStreamTaskIds(task.getId());
+
+        taskExecutionService.executeTasks(taskIds, date, true);
 
         target.delete();
 

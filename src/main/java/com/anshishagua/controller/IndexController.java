@@ -26,10 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * User: lixiao
@@ -276,5 +278,46 @@ public class IndexController {
         modelAndView.setViewName("index/list");
 
         return modelAndView;
+    }
+
+    @RequestMapping("/data")
+    public ModelAndView data(@RequestParam("id") long indexId) {
+        ModelAndView modelAndView = new ModelAndView("index/data");
+
+        Index index = indexService.getById(indexId);
+
+        modelAndView.addObject("indexName", index.getName());
+
+        List<String> tableHeaders = new ArrayList<>();
+        tableHeaders.addAll(index.getDimensions().stream().map(dimension -> dimension.getName()).collect(Collectors.toList()));
+        tableHeaders.addAll(index.getMetrics().stream().map(metric -> metric.getName()).collect(Collectors.toList()));
+
+        String sql = "SELECT * FROM index_" + indexId;
+
+        List<List<String>> result = new ArrayList<>();
+
+        ResultSet resultSet = null;
+        try {
+           resultSet = hiveService.executeQuery(sql);
+
+           int columns = tableHeaders.size();
+
+           while (resultSet.next()) {
+                List<String> list = new ArrayList<>();
+
+                for (int i = 1; i <= columns; ++i) {
+                    list.add(resultSet.getString(i));
+                }
+
+                result.add(list);
+           }
+        } catch (SQLException ex) {
+            LOG.error("Failed to execute sql {}", sql, ex);
+        }
+
+        modelAndView.addObject("tableHeaders", tableHeaders);
+        modelAndView.addObject("result", result);
+
+        return  modelAndView;
     }
 }

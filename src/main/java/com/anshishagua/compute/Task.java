@@ -12,9 +12,12 @@ import java.util.Objects;
  */
 
 public class Task {
+    public static final int NO_RESOURCE = 0;
+
     private long id;
     private long objectId;
     private TaskType taskType;
+    private int resources;
     private String cronExpression;
     private LocalDateTime createTime;
     private LocalDateTime lastUpdated;
@@ -43,6 +46,14 @@ public class Task {
 
     public void setTaskType(TaskType taskType) {
         this.taskType = taskType;
+    }
+
+    public int getResources() {
+        return resources;
+    }
+
+    public void setResources(int resources) {
+        this.resources = resources;
     }
 
     public String getCronExpression() {

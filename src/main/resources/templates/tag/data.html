@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>标签数据</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <h2>标签名:${tagName!}</h2>
+    </div>
+    <div class="row">
+        <table class="table table-striped">
+            <thead>
+                <th>对象ID</th>
+            </thead>
+            <tbody>
+            <#list ids as id>
+            <tr>
+                <td>${id}</td>
+            </tr>
+            </#list>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>

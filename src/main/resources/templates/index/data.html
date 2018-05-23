@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>指标数据</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <h2>指标名:${indexName!}</h2>
+    </div>
+    <div class="row">
+        <table class="table table-striped">
+            <thead>
+                <#list tableHeaders as header>
+                    <th>${header}</th>
+                </#list>
+            </thead>
+            <tbody>
+                <#list result as rowData>
+                <tr>
+                    <#list rowData as data>
+                        <td>${data}</td>
+                    </#list>
+                </tr>
+                </#list>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>

@@ -50,7 +50,13 @@ public class TaskExecutionService {
     }
 
     public List<TaskExecution> getAll() {
-        return taskExecutionMapper.list();
+        List<TaskExecution> list = taskExecutionMapper.list();
+
+        list.forEach(it -> {
+            it.setTask(taskService.getById(it.getTaskId()));
+        });
+
+        return list;
     }
 
     public void insert(TaskExecution taskExecution) {
@@ -95,19 +101,46 @@ public class TaskExecutionService {
         }
     }
 
-    public void executeTask(Task task, String executeDate) {
+    public void executeTask(long taskId, String executeDate, boolean forceToReExecute) {
+        Objects.requireNonNull(executeDate);
+
+        Task task = taskService.getById(taskId);
+
+        if (task == null) {
+            LOG.error("Task {} not found", taskId);
+
+            return;
+        }
+
+        executeTask(task, executeDate, forceToReExecute);
+    }
+
+    public void executeTasks(List<Long> taskIds, String executeDate, boolean forceToReExecute) {
+        Objects.requireNonNull(taskIds);
+
+        taskIds.forEach(taskId -> executeTask(taskId, executeDate, forceToReExecute));
+    }
+
+    public void executeTasks(List<Long> taskIds, String executeDate) {
+        Objects.requireNonNull(taskIds);
+
+        taskIds.forEach(taskId -> executeTask(taskId, executeDate, false));
+    }
+
+    public void executeTask(Task task, String executeDate, boolean forceToReExecute) {
         Objects.requireNonNull(task);
 
         TaskExecution taskExecution = getByTask(task.getId(), executeDate);
 
         if (taskExecution == null) {
             taskExecution = new TaskExecution();
-            taskExecution.setStartTime(LocalDateTime.now());
             taskExecution.setCreateTime(LocalDateTime.now());
             taskExecution.setLastUpdated(LocalDateTime.now());
             taskExecution.setTaskId(task.getId());
-            taskExecution.setStatus(TaskStatus.RUNNING);
+            taskExecution.setStatus(TaskStatus.READY_TO_RUN);
             taskExecution.setExecuteDate(executeDate);
+            taskExecution.setExecutionSeconds(-1);
+            taskExecution.setLocks(task.getResources());
 
             List<String> sqls = new ArrayList<>();
 
@@ -123,36 +156,29 @@ public class TaskExecutionService {
 
             taskExecution.setExecuteSQLs(sqls);
 
-            taskExecutionMapper.insert(taskExecution);
+            insert(taskExecution);
 
             threadPoolService.submit(taskExecution);
-        }
-    }
+        } else {
 
-    public void executeTask(long taskId, String executeDate) {
-        Task task = taskService.getById(taskId);
+            if (forceToReExecute) {
+                threadPoolService.submit(taskExecution);
 
-        if (task == null) {
-            LOG.error("Task {} not found", taskId);
+                return;
+            }
 
-            return;
-        }
+            TaskStatus taskStatus = taskExecution.getStatus();
 
-        List<Task> dependentTasks = taskDependencyService.getDependentTasks(task);
+            if (taskStatus == TaskStatus.FINISHED_FAILED) {
+                //restart task
+                taskExecution.setStatus(TaskStatus.READY_TO_RUN);
+                taskExecution.setLastUpdated(LocalDateTime.now());
+                taskExecution.setEndTime(null);
+                taskExecution.setExecutionSeconds(-1);
 
-        for (Task dependentTask : dependentTasks) {
-            TaskExecution taskExecution = getByTask(dependentTask.getId(), executeDate);
+                update(taskExecution);
 
-            if (taskExecution == null) {
-
-            } else {
-                TaskStatus taskStatus = taskExecution.getStatus();
-
-                if (taskStatus == TaskStatus.FINISHED_SUCCESS) {
-                    continue;
-                } else {
-
-                }
+                threadPoolService.submit(taskExecution);
             }
         }
     }

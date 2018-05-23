@@ -8,10 +8,11 @@ package com.anshishagua.object;
 
 public enum TaskStatus {
     READY_TO_RUN("READY_TO_RUN", "等待运行"),
+    LOCKING("LOCKING", "等待依赖任务执行完毕"),
     RUNNING("RUNNING", "运行中"),
     FINISHED_SUCCESS("FINISHED_SUCCESS", "运行成功"),
-    WAIT_DATA("WAIT_DATA", "等待数据"),
     FINISHED_FAILED("FINISHED_FAILED", "运行失败"),
+    NOT_YET_SCHEDULED("NOT_YET_SCHEDULED", "调度执行时间未到"),
     UNKNOWN("UNKNOWN", "未知状态");
 
     private String value;

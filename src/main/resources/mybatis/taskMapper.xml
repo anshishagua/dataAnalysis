@@ -6,6 +6,7 @@
         <id column="id" property="id" jdbcType="BIGINT"></id>
         <result column="object_id" property="objectId" jdbcType="BIGINT"></result>
         <result column="task_type" property="taskType" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.TaskTypeHandler"></result>
+        <result column="resources" property="resources" jdbcType="INTEGER"></result>
         <result column="cron_expression" property="cronExpression" jdbcType="VARCHAR"></result>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
@@ -13,9 +14,10 @@
         <result column="deleted" property="deleted" jdbcType="BIT"></result>
     </resultMap>
     <insert id="addNewTask" keyColumn="id" keyProperty="id" useGeneratedKeys="true" flushCache="true">
-        INSERT INTO `t_task`(`object_id`, `task_type`, `cron_expression`, `create_time`, `last_updated`, `description`)
+        INSERT INTO `t_task`(`object_id`, `task_type`, `resources`, `cron_expression`, `create_time`, `last_updated`, `description`)
                 VALUES (#{objectId},
                         #{taskType, typeHandler=com.anshishagua.mybatis.typehandler.TaskTypeHandler},
+                        #{resources},
                         #{cronExpression},
                         #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
                         #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},

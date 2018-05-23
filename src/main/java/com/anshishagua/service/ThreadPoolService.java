@@ -6,7 +6,6 @@ import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.SQLTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,9 +25,6 @@ public class ThreadPoolService {
     public static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors() + 1;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-
-    @Autowired
-    private SQLExecuteService sqlExecuteService;
 
     public void submit(TaskExecution taskExecution) {
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executorService;

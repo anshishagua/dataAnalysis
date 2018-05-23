@@ -181,6 +181,7 @@ CREATE TABLE `t_task`
 (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT NOT NULL COMMENT '',
+  `resources` INTEGER NOT NULL COMMENT '',
   `task_type` VARCHAR(25) NOT NULL COMMENT '',
   `cron_expression` VARCHAR(32) NOT NULL COMMENT '',
   `create_time` DATETIME NOT NULL COMMENT '',
@@ -202,7 +203,8 @@ CREATE TABLE `t_task_execution`
 (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `task_id` BIGINT NOT NULL COMMENT '',
-  `scheduled_execution_time` DATETIME NOT NULL COMMENT '',
+  `locks` INTEGER NOT NULL COMMENT '',
+  `execute_date` DATETIME NOT NULL COMMENT '',
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
   `start_time` DATETIME DEFAULT NULL COMMENT '',
@@ -210,6 +212,7 @@ CREATE TABLE `t_task_execution`
   `status` VARCHAR(32) NOT NULL COMMENT '',
   `execution_seconds` DOUBLE NOT NULL DEFAULT 0 COMMENT '',
   `execute_sqls` TEXT COMMENT '',
+  `error_message` TEXT COMMENT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

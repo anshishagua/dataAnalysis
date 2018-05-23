@@ -13,6 +13,7 @@
     <thead>
     <th>ID</th>
     <th>调度任务ID</th>
+    <th>任务类型</th>
     <th>任务状态</th>
     <th>执行日期</th>
     <th>创建时间</th>
@@ -20,19 +21,22 @@
     <th>结束时间</th>
     <th>运行时长(s)</th>
     <th>执行SQL列表</th>
+    <th>失败信息</th>
     </thead>
     <tbody>
     <#list taskExecutions as taskExecution>
     <tr>
         <td>${taskExecution.id}</td>
         <td>${taskExecution.taskId}</td>
-        <td>${taskExecution.status}</td>
+        <td>${taskExecution.task.taskType.description}</td>
+        <td>${taskExecution.status.description}</td>
         <td>${taskExecution.executeDate}</td>
         <td>${taskExecution.createTime}</td>
-        <td>${taskExecution.startTime}</td>
+        <td>${taskExecution.startTime!}</td>
         <td>${taskExecution.endTime!}</td>
         <td>${taskExecution.executionSeconds}</td>
         <td>${taskExecution.sqlString}</td>
+        <td>${taskExecution.errorMessage!}</td>
     </tr>
     </#list>
     </tbody>

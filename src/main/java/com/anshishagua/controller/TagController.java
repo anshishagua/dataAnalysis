@@ -23,8 +23,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -205,5 +207,32 @@ public class TagController {
         }
 
         return Result.ok();
+    }
+
+    @RequestMapping("/data")
+    public ModelAndView data(@RequestParam("id") long tagId) {
+        ModelAndView modelAndView = new ModelAndView("tag/data");
+
+        Tag tag = tagService.getById(tagId);
+
+        modelAndView.addObject("tagName", tag == null ? "" : tag.getName());
+
+        ResultSet resultSet = null;
+        String sql = "SELECT id FROM tag_" + tagId;
+        List<Long> ids = new ArrayList<>();
+
+        try {
+            resultSet = hiveService.executeQuery(sql);
+
+            while (resultSet.next()) {
+                ids.add(resultSet.getLong(1));
+            }
+        } catch (SQLException ex) {
+            LOG.error("Failed to execute sql {}", sql, ex);
+        }
+
+        modelAndView.addObject("ids", ids);
+
+        return modelAndView;
     }
 }

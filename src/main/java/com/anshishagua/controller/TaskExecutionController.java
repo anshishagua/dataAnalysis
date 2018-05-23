@@ -52,7 +52,7 @@ public class TaskExecutionController {
 
     @RequestMapping("/execute")
     public ModelAndView execute(@RequestParam("type") String type,
-                                @RequestParam("objectId") long objectId) {
+                                @RequestParam("objectId") long objectId, @RequestParam(value = "force", defaultValue = "false") boolean force) {
         TaskType taskType = TaskType.parseByValue(type);
         Task task = null;
 
@@ -64,7 +64,7 @@ public class TaskExecutionController {
 
         LocalDate today = LocalDate.now();
 
-        taskExecutionService.executeTask(task, today.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+        taskExecutionService.executeTask(task, today.format(DateTimeFormatter.ofPattern("yyyyMMdd")), force);
         ModelAndView modelAndView = new ModelAndView();
 
         modelAndView.addObject("taskExecutions", taskExecutionService.getAll());

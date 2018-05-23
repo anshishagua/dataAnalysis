@@ -97,7 +97,8 @@ public class TableService {
         task.setObjectId(table.getId());
         task.setTaskType(TaskType.DATA_LOAD);
         task.setCronExpression(CronExpressionConstants.EVERY_DAY_AT_ONE_AM);
-        task.setDescription("aaaa");
+        task.setDescription(String.format("Table[%d:%s] data load task", table.getId(), table.getName()));
+        task.setResources(1);
 
         taskService.addNewTask(task);
     }

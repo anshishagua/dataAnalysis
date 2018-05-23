@@ -2,12 +2,14 @@ package com.anshishagua.service;
 
 import com.anshishagua.compute.Task;
 import com.anshishagua.compute.TaskDependency;
+import com.anshishagua.compute.TaskDependencyGraph;
 import com.anshishagua.compute.TaskDependentGraph;
 import com.anshishagua.compute.TaskDependentGraph.DependencyTreeNode;
 import com.anshishagua.mybatis.mapper.TaskDependencyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -30,6 +32,7 @@ public class TaskDependencyService {
     private TaskDependencyMapper taskDependencyMapper;
 
     private TaskDependentGraph dependentGraph = new TaskDependentGraph();
+    private TaskDependencyGraph taskDependencyGraph;
 
     public List<TaskDependency> getAllDependencies() {
         return taskDependencyMapper.getAll();
@@ -76,12 +79,27 @@ public class TaskDependencyService {
         }
     }
 
+    @PostConstruct
+    public void buildTaskDependencyGraph() {
+        taskDependencyGraph = new TaskDependencyGraph();
+
+        List<TaskDependency> dependencies = getAllDependencies();
+
+        for (TaskDependency dependency : dependencies) {
+            Task task = taskService.getById(dependency.getTaskId());
+            Task dependentTask = taskService.getById(dependency.getDependentTaskId());
+
+            taskDependencyGraph.addDependency(task, dependentTask);
+        }
+    }
+
     public void add(Task task, List<Task> dependentTasks) {
         Objects.requireNonNull(task);
         Objects.requireNonNull(dependentTasks);
 
         for (Task dependentTask : dependentTasks) {
             dependentGraph.addDependency(task, dependentTask);
+            taskDependencyGraph.addDependency(task, dependentTask);
 
             TaskDependency dependency = new TaskDependency();
             dependency.setTaskId(task.getId());
@@ -89,6 +107,10 @@ public class TaskDependencyService {
 
             taskDependencyMapper.insert(dependency);
         }
+    }
+
+    public List<Long> getDownStreamTaskIds(long taskId) {
+        return taskDependencyGraph.getDownStreamTaskIds(taskId);
     }
 
     public List<Task> getDependentTasks(Task task) {
