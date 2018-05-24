@@ -229,18 +229,34 @@
                         <button class="btn menu">表</button>
                         <ul>
                             <#list tableColumns?keys as tableName>
-                            <button class="btn table-name menu">${tableName}</button>
+                                <button class="btn table-name menu">${tableName}</button>
 
-                            <ul>
-                                <#assign columns = tableColumns[tableName]>
-                                <#list columns as column>
-                                <li><button class="btn column">${column}</button></li>
+                                <ul>
+                                    <#assign columns = tableColumns[tableName]>
+                                    <#list columns as column>
+                                        <li><button class="btn column">${column}</button></li>
+                                    </#list>
+                                </ul>
                             </#list>
                         </ul>
-                    </#list>
-                    </ul>
                     </li>
+                    <li>
+                        <button class="btn menu">基础指标</button>
+                        <ul>
+                            <#list indices as index>
+                                <button class="btn index-name menu">${index.name}</button>
 
+                                <ul>
+                                    <#list index.dimensions as dimension>
+                                        <li><button class="btn dimension">${dimension.name}</button></li>
+                                    </#list>
+                                    <#list index.metrics as metric>
+                                        <li><button class="btn metric">${metric.name}</button></li>
+                                    </#list>
+                                </ul>
+                            </#list>
+                        </ul>
+                    </li>
                     </ul>
                 </div>
             </div>

@@ -1,8 +1,10 @@
 package com.anshishagua.controller;
 
 import com.anshishagua.compute.Task;
+import com.anshishagua.compute.TaskExecution;
 import com.anshishagua.object.Result;
 import com.anshishagua.object.Table;
+import com.anshishagua.object.TaskStatus;
 import com.anshishagua.service.HiveService;
 import com.anshishagua.service.TableService;
 import com.anshishagua.service.TaskDependencyService;
@@ -22,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,14 +85,46 @@ public class DataLoadController {
             return Result.error(String.format("保存文件失败:%s", ex.getMessage()));
         }
 
+        Table table = tableService.getByName(tableName);
+        Task task = taskService.getByObjectId(table.getId());
+
+        TaskExecution taskExecution = taskExecutionService.getByTask(task.getId(), date);
+
+        if (taskExecution == null) {
+            taskExecution = new TaskExecution();
+            taskExecution.setTask(task);
+            taskExecution.setTaskId(task.getId());
+            taskExecution.setLocks(1);
+            taskExecution.setCreateTime(LocalDateTime.now());
+        }
+
+        taskExecution.setStartTime(LocalDateTime.now());
+
         try {
             hiveService.load(outputFileName, tableName);
         } catch (IOException ex) {
+            taskExecution.setStatus(TaskStatus.FINISHED_FAILED);
+            taskExecution.setErrorMessage(ex.toString());
+            taskExecution.setEndTime(LocalDateTime.now());
+            if (taskExecution.getId() == TaskExecution.NO_ID) {
+                taskExecutionService.insert(taskExecution);
+            } else {
+                taskExecutionService.update(taskExecution);
+            }
+
             return Result.error(String.format("加载数据失败:%s", ex.getMessage()));
         }
 
-        Table table = tableService.getByName(tableName);
-        Task task = taskService.getByObjectId(table.getId());
+        taskExecution.setStatus(TaskStatus.FINISHED_SUCCESS);
+        taskExecution.setEndTime(LocalDateTime.now());
+        taskExecution.setExecuteDate(date);
+        taskExecution.setLastUpdated(LocalDateTime.now());
+
+        if (taskExecution.getId() == TaskExecution.NO_ID) {
+            taskExecutionService.insert(taskExecution);
+        } else {
+            taskExecutionService.update(taskExecution);
+        }
 
         List<Long> taskIds = taskDependencyService.getDownStreamTaskIds(task.getId());
 

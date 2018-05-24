@@ -109,6 +109,10 @@ public class TaskDependencyService {
         }
     }
 
+    public List<Long> getUpStreamTaskIds(long taskId) {
+        return taskDependencyGraph.getUpStreamTaskIds(taskId);
+    }
+
     public List<Long> getDownStreamTaskIds(long taskId) {
         return taskDependencyGraph.getDownStreamTaskIds(taskId);
     }

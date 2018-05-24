@@ -16,10 +16,12 @@ import java.util.Objects;
 public class TaskDependencyGraph {
     private Map<Long, Task> taskDataMap;
     private Map<Long, List<Long>> dependencyMap;
+    private Map<Long, List<Long>> dependentMap;
 
     public TaskDependencyGraph() {
         taskDataMap = new HashMap<>();
         dependencyMap = new HashMap<>();
+        dependentMap = new HashMap<>();
     }
 
     public void addDependency(Task task, Task dependingTask) {
@@ -43,6 +45,20 @@ public class TaskDependencyGraph {
         taskIds.add(task.getId());
 
         dependencyMap.put(dependingTask.getId(), taskIds);
+
+        taskIds = dependentMap.get(task.getId());
+
+        if (taskIds == null) {
+            taskIds = new ArrayList<>();
+        }
+
+        taskIds.add(dependingTask.getId());
+
+        dependentMap.put(task.getId(), taskIds);
+    }
+
+    public List<Long> getUpStreamTaskIds(long taskId) {
+        return dependentMap.get(taskId);
     }
 
     public List<Long> getDownStreamTaskIds(long taskId) {

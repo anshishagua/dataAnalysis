@@ -48,6 +48,21 @@ public class SQLTask implements Callable<Void> {
 
     @Override
     public Void call() {
+        List<Long> taskIds = taskDependencyService.getUpStreamTaskIds(taskExecution.getTaskId());
+
+        for (Long taskId : taskIds) {
+            TaskExecution execution = taskExecutionService.getByTask(taskId, taskExecution.getExecuteDate());
+
+            if (execution == null || execution.getStatus() != TaskStatus.FINISHED_SUCCESS) {
+                LOG.info(String.format("Date:%s, task %d wait for task %d to run success",
+                        taskExecution.getExecuteDate(),
+                        taskExecution.getTaskId(), execution == null ? -1 : execution.getTaskId()));
+
+                return null;
+            }
+        }
+
+        /*
         int locks = taskExecution.getLocks();
 
         if (locks > 0) {
@@ -56,6 +71,7 @@ public class SQLTask implements Callable<Void> {
 
             return null;
         }
+        */
 
         taskExecution.setStartTime(LocalDateTime.now());
         taskExecution.setEndTime(null);

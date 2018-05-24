@@ -3,6 +3,7 @@ package com.anshishagua.compute;
 import com.anshishagua.object.TaskStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,7 +13,8 @@ import java.util.List;
  */
 
 public class TaskExecution {
-    private long id;
+    public static final long NO_ID = -1;
+    private long id = NO_ID;
     private long taskId;
     private int locks;
     private Task task;
@@ -22,10 +24,10 @@ public class TaskExecution {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private int executionSeconds;
-    private List<String> executeSQLs;
-    private String sqlString;
+    private List<String> executeSQLs = new ArrayList<>();
+    private String sqlString = "";
     private TaskStatus status;
-    private String errorMessage;
+    private String errorMessage = "";
 
     public long getId() {
         return id;
