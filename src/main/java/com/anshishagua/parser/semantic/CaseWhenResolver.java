@@ -1,7 +1,10 @@
 package com.anshishagua.parser.semantic;
 
 import com.anshishagua.exceptions.SemanticException;
+import com.anshishagua.parser.BasicType;
 import com.anshishagua.parser.nodes.conditional.CaseWhen;
+
+import java.util.stream.Collectors;
 
 /**
  * User: lixiao
@@ -12,6 +15,22 @@ import com.anshishagua.parser.nodes.conditional.CaseWhen;
 public class CaseWhenResolver implements TypeResolver<CaseWhen> {
     @Override
     public void resolve(CaseWhen node) throws SemanticException {
-        node.setResultType(node.getElseNode().getResultType());
+        BasicType resultType = null;
+
+        for (BasicType type : node.getThenNodes().stream().map(it -> it.getResultType()).collect(Collectors.toList())) {
+            if (resultType == null) {
+                resultType = type;
+            } else if (type.getPriority() > resultType.getPriority()) {
+                resultType = type;
+            }
+        }
+
+        BasicType type = node.getElseNode().getResultType();
+
+        if (type.getPriority() > resultType.getPriority()) {
+            resultType = type;
+        }
+
+        node.setResultType(resultType);
     }
 }

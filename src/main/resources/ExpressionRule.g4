@@ -64,12 +64,11 @@ decimal
     : sign? (Dot number | number Dot number)
     ;
 
-string
-    : SINGLE_QUOTE stringContent SINGLE_QUOTE
-    ;
+string:
+    STRING;
 
-stringContent
-    : .*
+STRING
+    : '\'' ~[']* '\''
     ;
 
 intNumber
@@ -245,8 +244,9 @@ Like
     : 'LIKE'
     ;
 
-SINGLE_QUOTE
-    : '\'';
+
+//SINGLE_QUOTE
+//    : '\'';
 
 ID
     : [a-zA-Z_]+

@@ -1,5 +1,7 @@
 package com.anshishagua.parser;
 
+import com.anshishagua.parser.nodes.comparision.Like;
+import com.anshishagua.parser.nodes.function.FunctionNode;
 import com.anshishagua.parser.nodes.function.FunctionRegistry;
 import com.anshishagua.antlr4.ExpressionRuleBaseVisitor;
 import com.anshishagua.antlr4.ExpressionRuleParser;
@@ -81,9 +83,9 @@ public class ExpressionVisitor extends ExpressionRuleBaseVisitor<Node> {
 
     @Override
     public Node visitString(ExpressionRuleParser.StringContext context) {
-        String value = context.stringContent().getText();
+        String value = context.getText();
 
-        return new StringValue(value);
+        return new StringValue(value.substring(1, value.length() - 1));
     }
 
     @Override
@@ -167,6 +169,10 @@ public class ExpressionVisitor extends ExpressionRuleBaseVisitor<Node> {
 
         if (context.conditionRightHandSide().Not() != null) {
             return new Not(visit(context.conditionRightHandSide().operand(0)));
+        }
+
+        if (context.conditionRightHandSide().Like() != null) {
+            return new Like(node, visit(context.conditionRightHandSide().operand(0)));
         }
 
         return visitChildren(context);
@@ -300,7 +306,7 @@ public class ExpressionVisitor extends ExpressionRuleBaseVisitor<Node> {
             children.add(visit(context.expression(i)));
         }
 
-        return FunctionRegistry.createNode(functionName, children);
+        return new FunctionNode(functionName, children);
     }
 
     @Override

@@ -1,4 +1,4 @@
-// Generated from /Users/lixiao/code/expressionParser/src/main/resources/ExpressionRule.g4 by ANTLR 4.7
+// Generated from /Users/lixiao/code/dataAnalysis/src/main/resources/ExpressionRule.g4 by ANTLR 4.7
 package com.anshishagua.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -67,16 +67,6 @@ public interface ExpressionRuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitString(ExpressionRuleParser.StringContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ExpressionRuleParser#stringContent}.
-	 * @param ctx the parse tree
-	 */
-	void enterStringContent(ExpressionRuleParser.StringContentContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ExpressionRuleParser#stringContent}.
-	 * @param ctx the parse tree
-	 */
-	void exitStringContent(ExpressionRuleParser.StringContentContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ExpressionRuleParser#intNumber}.
 	 * @param ctx the parse tree

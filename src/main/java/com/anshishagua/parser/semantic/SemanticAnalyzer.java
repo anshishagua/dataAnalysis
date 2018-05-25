@@ -8,6 +8,7 @@ import com.anshishagua.object.TableColumn;
 import com.anshishagua.parser.BasicType;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.function.FunctionNode;
+import com.anshishagua.parser.nodes.function.MultiFunctionNode;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
 import com.anshishagua.parser.nodes.sql.Column;
 import com.anshishagua.parser.nodes.primitive.Variable;
@@ -138,9 +139,20 @@ public class SemanticAnalyzer {
                     throw new SemanticException("Function " + functionName + " not found");
                 }
 
-                int args = functionNode.requiredArgumentSize();
+                Node newNode = FunctionRegistry.createNode(functionName, node.getChildren());
+                Node parent = node.getParent();
 
-                if (node.getChildren().size() != args) {
+                if (parent != null) {
+                    newNode.setParent(node.getParent());
+                    node.getParent().setChild(node.getIndex(), newNode);
+                } else {
+                    astTree = newNode;
+                }
+
+                node = newNode;
+                int args = ((FunctionNode) node).requiredArgumentSize();
+
+                if (!(node instanceof MultiFunctionNode) && (node.getChildren().size() != args)) {
                     throw new SemanticException(String.format("Function %s should have %d argument%s, actual: %d", functionName, args, args > 1 ? "s" : "", node.getChildren().size()));
                 }
             }
@@ -150,7 +162,7 @@ public class SemanticAnalyzer {
             }
         };
 
-        TreeNodeWalker.preOrder(astTree, consumer);
+        TreeNodeWalker.leafToRootOrder(astTree, consumer);
     }
 
     private void analyzeType2(Node root) throws SemanticException {
@@ -186,5 +198,9 @@ public class SemanticAnalyzer {
         analyzeTableColumn();
         analyzeFunction();
         analyzeType();
+    }
+
+    public Node getAstTree() {
+        return astTree;
     }
 }

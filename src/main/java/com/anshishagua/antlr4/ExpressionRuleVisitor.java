@@ -1,4 +1,4 @@
-// Generated from /Users/lixiao/code/expressionParser/src/main/resources/ExpressionRule.g4 by ANTLR 4.7
+// Generated from /Users/lixiao/code/dataAnalysis/src/main/resources/ExpressionRule.g4 by ANTLR 4.7
 package com.anshishagua.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -46,12 +46,6 @@ public interface ExpressionRuleVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitString(ExpressionRuleParser.StringContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ExpressionRuleParser#stringContent}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStringContent(ExpressionRuleParser.StringContentContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ExpressionRuleParser#intNumber}.
 	 * @param ctx the parse tree

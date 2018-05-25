@@ -1,4 +1,4 @@
-// Generated from /Users/lixiao/code/expressionParser/src/main/resources/ExpressionRule.g4 by ANTLR 4.7
+// Generated from /Users/lixiao/code/dataAnalysis/src/main/resources/ExpressionRule.g4 by ANTLR 4.7
 package com.anshishagua.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -83,18 +83,6 @@ public class ExpressionRuleBaseListener implements ExpressionRuleListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitString(ExpressionRuleParser.StringContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStringContent(ExpressionRuleParser.StringContentContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStringContent(ExpressionRuleParser.StringContentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

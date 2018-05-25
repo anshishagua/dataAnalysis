@@ -1,7 +1,7 @@
 package com.anshishagua.parser.nodes.function.aggregation;
 
 import com.anshishagua.parser.nodes.Node;
-import com.anshishagua.parser.nodes.function.FunctionNode;
+import com.anshishagua.parser.nodes.function.UnaryFunctionNode;
 
 import java.util.List;
 
@@ -11,13 +11,8 @@ import java.util.List;
  * Time: 下午11:33
  */
 
-public class Sum extends FunctionNode implements AggregationNode {
+public class Sum extends UnaryFunctionNode implements AggregationNode {
     public Sum(List<Node> children) {
         super("sum", children);
-    }
-
-    @Override
-    public int requiredArgumentSize() {
-        return 1;
     }
 }
