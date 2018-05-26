@@ -129,6 +129,21 @@
             }
         });
 
+        $(".dimension,.metric").click(function() {
+            var indexName = $(this).parent().parent().prev().text();
+            var field = $(this).html();
+
+            var value = indexName + "." + field;
+
+            if (focus != null) {
+                var html = focus.val();
+
+                html += " " + value;
+
+                focus.val(html);
+            }
+        });
+
         $("#submit").click(function() {
             var indexName = $("#indexName").val();
             var indexType = $("#indexType").val();
@@ -171,6 +186,8 @@
                         alert(result.errorMessage);
                     } else {
                         alert("添加指标成功");
+
+                        location.href = "/index/list";
                     }
                 }
             });
@@ -181,6 +198,18 @@
         });
 
         $(".menu").next().toggle();
+
+        $("#indexType").change(function() {
+            var value = $(this).find(":selected").val();
+
+            if (value == "BASIC") {
+                $(".table-list").show();
+                $(".basic-index-list").hide();
+            } else {
+                $(".table-list").hide();
+                $(".basic-index-list").show();
+            }
+        });
     });
 </script>
 
@@ -226,7 +255,7 @@
                         </ul>
                     </li>
                     <li>
-                        <button class="btn menu">表</button>
+                        <button class="btn menu table-list">表</button>
                         <ul>
                             <#list tableColumns?keys as tableName>
                                 <button class="btn table-name menu">${tableName}</button>
@@ -241,15 +270,18 @@
                         </ul>
                     </li>
                     <li>
-                        <button class="btn menu">基础指标</button>
+                        <button class="btn menu basic-index-list">基础指标</button>
                         <ul>
                             <#list indices as index>
                                 <button class="btn index-name menu">${index.name}</button>
 
                                 <ul>
+                                    维度
                                     <#list index.dimensions as dimension>
                                         <li><button class="btn dimension">${dimension.name}</button></li>
                                     </#list>
+
+                                    度量
                                     <#list index.metrics as metric>
                                         <li><button class="btn metric">${metric.name}</button></li>
                                     </#list>

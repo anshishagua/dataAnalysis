@@ -9,6 +9,7 @@ import com.anshishagua.object.CronExpressionConstants;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.IndexDimension;
 import com.anshishagua.object.IndexMetric;
+import com.anshishagua.object.IndexType;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.ParseResult.ParseType;
 import com.anshishagua.object.SQLGenerateResult;
@@ -56,7 +57,14 @@ public class IndexService {
     private IndexMetricMapper indexMetricMapper;
 
     public List<Index> getAll() {
-        return indexMapper.list();
+        List<Index> indices = indexMapper.list();
+
+        for (Index index : indices) {
+            index.setDimensions(indexDimensionMapper.getByIndexId(index.getId()));
+            index.setMetrics(indexMetricMapper.getByIndexId(index.getId()));
+        }
+
+        return indices;
     }
 
     public Index getById(long id) {
@@ -90,9 +98,10 @@ public class IndexService {
             return ParseResult.error(parseType, expression, ex.getMessage());
         }
 
-        SemanticAnalyzer analyzer = new SemanticAnalyzer(parser.getAstTree());
+        SemanticAnalyzer analyzer = new SemanticAnalyzer(parser.getAstTree(), parseType);
         analyzer.setTableService(tableService);
         analyzer.setSystemParameterService(systemParameterService);
+        analyzer.setIndexService(this);
 
         try {
             analyzer.analyze();
@@ -101,19 +110,20 @@ public class IndexService {
         }
 
         ParseResult parseResult = ParseResult.ok(parseType, expression);
-        parseResult.setAstTree(parser.getAstTree());
+        parseResult.setAstTree(analyzer.getAstTree());
         parseResult.setColumns(analyzer.getColumns());
         parseResult.setTables(analyzer.getTables());
         parseResult.setSystemParameters(analyzer.getSystemParameters());
         parseResult.setParseType(parseType);
         parseResult.setAggregationNodes(analyzer.getAggregationNodes());
-        parseResult.setResultType(parser.getAstTree().getResultType());
+        parseResult.setResultType(analyzer.getAstTree().getResultType());
 
         return parseResult;
     }
 
-    public ParseResult parseDimension(String expression) {
-        ParseResult parseResult = parse(ParseType.BASE_INDEX_DIMENSION, expression);
+    public ParseResult parseDimension(String expression, IndexType indexType) {
+        ParseResult parseResult = indexType == IndexType.BASIC ?
+                parse(ParseType.BASE_INDEX_DIMENSION, expression) : parse(ParseType.DERIVED_INDEX_DIMENSION, expression);
 
         if (!parseResult.isSuccess()) {
             return parseResult;
@@ -136,8 +146,9 @@ public class IndexService {
         return parseResult;
     }
 
-    public ParseResult parseMetric(String expression) {
-        ParseResult parseResult = parse(ParseType.BASE_INDEX_METRIC, expression);
+    public ParseResult parseMetric(String expression, IndexType indexType) {
+        ParseResult parseResult = indexType == IndexType.BASIC ?
+                parse(ParseType.BASE_INDEX_METRIC, expression) : parse(ParseType.DERIVED_INDEX_METRIC, expression);
 
         if (!parseResult.isSuccess()) {
             return parseResult;

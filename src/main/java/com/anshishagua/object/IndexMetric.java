@@ -3,6 +3,7 @@ package com.anshishagua.object;
 import com.anshishagua.parser.BasicType;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * User: lixiao
@@ -16,6 +17,7 @@ public class IndexMetric {
     private int order;
     private String name;
     private String expression;
+    private long typeId;
     private BasicType dataType;
     private LocalDateTime createTime;
     private LocalDateTime lastUpdated;
@@ -62,6 +64,14 @@ public class IndexMetric {
         this.expression = expression;
     }
 
+    public long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(long typeId) {
+        this.typeId = typeId;
+    }
+
     public BasicType getDataType() {
         return dataType;
     }
@@ -100,5 +110,15 @@ public class IndexMetric {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof IndexMetric && ((IndexMetric) obj).getId() == id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

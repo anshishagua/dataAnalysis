@@ -15,6 +15,11 @@
         FROM t_data_type
         WHERE id = #{id}
     </select>
+    <select id="getByValue" resultMap="dataTypeMapper">
+        SELECT *
+        FROM t_data_type
+        WHERE `value` = #{value}
+    </select>
     <select id="list" resultMap="dataTypeMapper">
         SELECT *
         FROM t_data_type

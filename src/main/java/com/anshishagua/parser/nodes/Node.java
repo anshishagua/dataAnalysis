@@ -13,6 +13,7 @@ import java.util.List;
 public interface Node extends Expression {
     List<Node> getChildren();
     BasicType getResultType();
+    void setResultType(BasicType type);
     boolean isConstant();
     Node getParent();
     void setParent(Node parent);

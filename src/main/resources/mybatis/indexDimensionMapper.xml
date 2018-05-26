@@ -8,17 +8,19 @@
         <result column="order" property="order" jdbcType="INTEGER"></result>
         <result column="name" property="name" jdbcType="VARCHAR"></result>
         <result column="expression" property="expression" jdbcType="VARCHAR"></result>
+        <result column="type_id" property="typeId" jdbcType="BIGINT"></result>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="description" property="description" jdbcType="VARCHAR"></result>
         <result column="deleted" property="deleted" jdbcType="BIT"></result>
     </resultMap>
     <insert id="insert" keyProperty="id" keyColumn="id" useGeneratedKeys="true" flushCache="true">
-        INSERT INTO `t_index_dimension`(`index_id`, `order`, `name`, `expression`, `create_time`, `last_updated`, `description`)
+        INSERT INTO `t_index_dimension`(`index_id`, `order`, `name`, `expression`, `type_id`, `create_time`, `last_updated`, `description`)
         VALUES (#{indexId},
                 #{order},
                 #{name},
                 #{expression},
+                #{typeId},
                 #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
                 #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
                 #{description}

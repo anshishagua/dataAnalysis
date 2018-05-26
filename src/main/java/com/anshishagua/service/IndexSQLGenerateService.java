@@ -83,7 +83,7 @@ public class IndexSQLGenerateService {
         Set<String> tableNames = new HashSet<>();
 
         for (IndexDimension dimension : dimensions) {
-            ParseResult parseResult = indexService.parseDimension(dimension.getExpression());
+            ParseResult parseResult = indexService.parseDimension(dimension.getExpression(), index.getIndexType());
 
             if (!parseResult.isSuccess()) {
                 return SQLGenerateResult.error(parseResult.getErrorMessage());
@@ -96,7 +96,7 @@ public class IndexSQLGenerateService {
         }
 
         for (IndexMetric metric : metrics) {
-            ParseResult parseResult = indexService.parseMetric(metric.getExpression());
+            ParseResult parseResult = indexService.parseMetric(metric.getExpression(), index.getIndexType());
 
             if (!parseResult.isSuccess()) {
                 return SQLGenerateResult.error(parseResult.getErrorMessage());

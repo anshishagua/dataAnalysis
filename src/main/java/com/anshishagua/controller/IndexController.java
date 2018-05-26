@@ -3,6 +3,7 @@ package com.anshishagua.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.anshishagua.object.DataType;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.IndexDimension;
 import com.anshishagua.object.IndexMetric;
@@ -11,6 +12,7 @@ import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.service.BasicSQLService;
+import com.anshishagua.service.DataTypeService;
 import com.anshishagua.service.HiveService;
 import com.anshishagua.service.IndexSQLGenerateService;
 import com.anshishagua.service.IndexService;
@@ -56,6 +58,8 @@ public class IndexController {
     private BasicSQLService basicSQLService;
     @Autowired
     private HiveService hiveService;
+    @Autowired
+    private DataTypeService dataTypeService;
 
     @RequestMapping("")
     public ModelAndView index() {
@@ -63,6 +67,7 @@ public class IndexController {
 
         modelAndView.setViewName("index/index");
 
+        modelAndView.addObject("indices", indexService.getAll());
         modelAndView.addObject("bools", metaDataService.getBoolOperators());
         modelAndView.addObject("compares", metaDataService.getCompareOperators());
         modelAndView.addObject("operators", metaDataService.getOperators());
@@ -80,14 +85,16 @@ public class IndexController {
 
     @RequestMapping("/parseDimension")
     @ResponseBody
-    public ParseResult parseDimension(@RequestParam("expression") String expression) {
-        return indexService.parseDimension(expression);
+    public ParseResult parseDimension(@RequestParam("expression") String expression,
+                                      @RequestParam("indexType") String indexTypeString) {
+        return indexService.parseDimension(expression, IndexType.parseByValue(indexTypeString));
     }
 
     @RequestMapping("/parseMetric")
     @ResponseBody
-    public ParseResult parseMetric(@RequestParam("expression") String expression) {
-        return indexService.parseMetric(expression);
+    public ParseResult parseMetric(@RequestParam("expression") String expression,
+                                   @RequestParam("indexType") String indexTypeString) {
+        return indexService.parseMetric(expression, IndexType.parseByValue(indexTypeString));
     }
 
     @RequestMapping("/generate")
@@ -105,13 +112,15 @@ public class IndexController {
     @RequestMapping("/add")
     @ResponseBody
     public Result add(@RequestParam("indexName") String indexName,
-                      @RequestParam("indexType") String indexType,
+                      @RequestParam("indexType") String indexTypeString,
                       @RequestParam("description") String description,
                       @RequestParam("dimensions") String dimensionsString,
                       @RequestParam("metrics") String metricsString) {
         if (Strings.isNullOrEmpty(indexName)) {
             return Result.error("指标名为空");
         }
+
+        IndexType indexType = IndexType.parseByValue(indexTypeString);
 
         if (!nameValidateService.isValidIndexName(indexName)) {
             return Result.error(String.format("指标名%s不合法"));
@@ -124,7 +133,8 @@ public class IndexController {
         Index index = new Index();
         index.setName(indexName);
         index.setDescription(description);
-        index.setIndexType(IndexType.parseByValue(indexType));
+
+        index.setIndexType(indexType);
         index.setCreateTime(LocalDateTime.now());
         index.setLastUpdated(LocalDateTime.now());
 
@@ -139,7 +149,7 @@ public class IndexController {
             String expression = jsonObject.getString("expression");
             String dimensionDescription = jsonObject.getString("description");
 
-            ParseResult parseResult = indexService.parseDimension(expression);
+            ParseResult parseResult = indexService.parseDimension(expression, indexType);
 
             if (!parseResult.isSuccess()) {
                 return Result.error(parseResult.getErrorMessage());
@@ -153,6 +163,14 @@ public class IndexController {
             dimension.setDataType(parseResult.getResultType());
             dimension.setCreateTime(LocalDateTime.now());
             dimension.setLastUpdated(LocalDateTime.now());
+            DataType dataType = parseResult.getResultType().toDataType();
+            dataType = dataTypeService.getTypeByValue(dataType.getValue());
+
+            if (dataType == null) {
+                return Result.error("Could not find type:" + dataType.getValue());
+            }
+
+            dimension.setTypeId(dataType.getId());
 
             indexDimensions.add(dimension);
         }
@@ -168,7 +186,7 @@ public class IndexController {
             String expression = jsonObject.getString("expression");
             String metricDescription = jsonObject.getString("description");
 
-            ParseResult parseResult = indexService.parseMetric(expression);
+            ParseResult parseResult = indexService.parseMetric(expression, indexType);
 
             if (!parseResult.isSuccess()) {
                 return Result.error(parseResult.getErrorMessage());
@@ -182,6 +200,15 @@ public class IndexController {
             metric.setDataType(parseResult.getResultType());
             metric.setCreateTime(LocalDateTime.now());
             metric.setLastUpdated(LocalDateTime.now());
+
+            DataType dataType = parseResult.getResultType().toDataType();
+            dataType = dataTypeService.getTypeByValue(dataType.getValue());
+
+            if (dataType == null) {
+                return Result.error("Could not find type:" + dataType.getValue());
+            }
+
+            metric.setTypeId(dataType.getId());
 
             indexMetrics.add(metric);
         }

@@ -32,6 +32,12 @@ public class CaseWhen extends AbstractNode<Void> {
         this.whenNodes = new ArrayList<>(whenNodes);
         this.thenNodes = new ArrayList<>(thenNodes);
         this.elseNode = elseNode;
+
+        List<Node> children = new ArrayList<>(whenNodes.size() + thenNodes.size() + 1);
+        children.addAll(whenNodes);
+        children.addAll(thenNodes);
+        children.add(elseNode);
+        setChildren(children);
     }
 
     public List<Node> getWhenNodes() {

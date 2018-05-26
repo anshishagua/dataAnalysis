@@ -83,7 +83,7 @@ public class TagService {
             return ParseResult.error(parseType, expression, ex.getMessage());
         }
 
-        SemanticAnalyzer analyzer = new SemanticAnalyzer(parser.getAstTree());
+        SemanticAnalyzer analyzer = new SemanticAnalyzer(parser.getAstTree(), parseType);
         analyzer.setTableService(tableService);
         analyzer.setSystemParameterService(systemParameterService);
 
@@ -137,7 +137,7 @@ public class TagService {
         }
 
         ParseResult parseResult = ParseResult.ok(parseType, expression);
-        parseResult.setAstTree(parser.getAstTree());
+        parseResult.setAstTree(analyzer.getAstTree());
         parseResult.setColumns(analyzer.getColumns());
         parseResult.setTables(analyzer.getTables());
         parseResult.setSystemParameters(analyzer.getSystemParameters());

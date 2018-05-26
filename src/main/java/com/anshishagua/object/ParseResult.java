@@ -22,6 +22,8 @@ public class ParseResult {
         TAG_COMPUTE_CONDITION,
         BASE_INDEX_DIMENSION,
         BASE_INDEX_METRIC,
+        DERIVED_INDEX_DIMENSION,
+        DERIVED_INDEX_METRIC,
         UNKNOWN
     }
 

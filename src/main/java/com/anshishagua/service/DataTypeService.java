@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * User: lixiao
@@ -20,6 +21,12 @@ public class DataTypeService {
 
     public DataType getTypeById(long id) {
         return dataTypeMapper.getById(id);
+    }
+
+    public DataType getTypeByValue(String value) {
+        Objects.requireNonNull(value);
+
+        return dataTypeMapper.getByValue(value);
     }
 
     public List<DataType> getAll() {

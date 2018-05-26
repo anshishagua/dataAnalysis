@@ -2,6 +2,7 @@ package com.anshishagua.object;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * User: lixiao
@@ -99,5 +100,15 @@ public class Index {
 
     public void setSqlGenerateResult(SQLGenerateResult sqlGenerateResult) {
         this.sqlGenerateResult = sqlGenerateResult;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Index && ((Index) obj).getId() == id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

@@ -1,5 +1,10 @@
 package com.anshishagua.parser.semantic;
 
+import com.anshishagua.object.Index;
+import com.anshishagua.object.IndexDimension;
+import com.anshishagua.object.IndexMetric;
+import com.anshishagua.object.ParseResult;
+import com.anshishagua.object.ParseResult.ParseType;
 import com.anshishagua.parser.nodes.function.FunctionRegistry;
 import com.anshishagua.exceptions.SemanticException;
 import com.anshishagua.object.SystemParameter;
@@ -12,8 +17,11 @@ import com.anshishagua.parser.nodes.function.MultiFunctionNode;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
 import com.anshishagua.parser.nodes.sql.Column;
 import com.anshishagua.parser.nodes.primitive.Variable;
+import com.anshishagua.service.IndexService;
 import com.anshishagua.service.SystemParameterService;
 import com.anshishagua.service.TableService;
+import com.anshishagua.service.TagService;
+import com.anshishagua.utils.CollectionUtils;
 import com.anshishagua.utils.TreeNodeWalker;
 
 import java.util.ArrayList;
@@ -23,6 +31,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * User: lixiao
@@ -34,15 +43,23 @@ public class SemanticAnalyzer {
     private Node astTree;
     private SystemParameterService systemParameterService;
     private TableService tableService;
+    private IndexService indexService;
+    private TagService tagService;
+    private ParseType parseType;
     private Set<Table> tables = new HashSet<>();
     private Set<TableColumn> columns = new HashSet<>();
+    private Set<Index> indices = new HashSet<>();
+    private Set<IndexDimension> indexDimensions = new HashSet<>();
+    private Set<IndexMetric> indexMetrics = new HashSet<>();
     private Set<SystemParameter> systemParameters = new HashSet<>();
     private List<Node> aggregationNodes = new ArrayList<>();
 
-    public SemanticAnalyzer(Node astTree) {
+    public SemanticAnalyzer(Node astTree, ParseType parseType) {
         Objects.requireNonNull(astTree);
+        Objects.requireNonNull(parseType);
 
         this.astTree = astTree;
+        this.parseType = parseType;
     }
 
     public void setSystemParameterService(SystemParameterService systemParameterService) {
@@ -51,6 +68,14 @@ public class SemanticAnalyzer {
 
     public void setTableService(TableService tableService) {
         this.tableService = tableService;
+    }
+
+    public void setIndexService(IndexService indexService) {
+        this.indexService = indexService;
+    }
+
+    public void setTagService(TagService tagService) {
+        this.tagService = tagService;
     }
 
     public Set<Table> getTables() {
@@ -88,7 +113,71 @@ public class SemanticAnalyzer {
 
                 systemParameters.add(systemParameter);
 
-                ((Variable) node).setResultType(basicType);
+                node.setResultType(basicType);
+            }
+        };
+
+        TreeNodeWalker.preOrder(astTree, consumer);
+    }
+
+    private void analyzeIndexDimension() throws SemanticException {
+        Consumer<Node> consumer = (Node node) -> {
+            if (node instanceof Column) {
+                String indexName = ((Column) node).getTableName();
+                String dimensionName = ((Column) node).getColumnName();
+
+                Index index = indexService.getByName(indexName);
+
+                if (index == null) {
+                    throw new SemanticException("Index " + indexName + " not found");
+                }
+
+                List<IndexDimension> dimensions = index.getDimensions();
+
+                List<IndexDimension> result  = dimensions.stream().filter(it -> it.getName().equals(dimensionName)).collect(Collectors.toList());
+
+                IndexDimension dimension = CollectionUtils.hasSingleElement(result) ? result.get(0) : null;
+
+                if (dimension == null) {
+                    throw new SemanticException(String.format("Dimension %s.%s not found", indexName, dimensionName));
+                }
+
+                indices.add(index);
+                indexDimensions.add(dimension);
+
+                node.setResultType(dimension.getDataType());
+            }
+        };
+
+        TreeNodeWalker.preOrder(astTree, consumer);
+    }
+
+    private void analyzeIndexMetric() throws SemanticException {
+        Consumer<Node> consumer = (Node node) -> {
+            if (node instanceof Column) {
+                String indexName = ((Column) node).getTableName();
+                String metricName = ((Column) node).getColumnName();
+
+                Index index = indexService.getByName(indexName);
+
+                if (index == null) {
+                    throw new SemanticException("Index " + indexName + " not found");
+                }
+
+                List<IndexMetric> metrics = index.getMetrics();
+
+                List<IndexMetric> result  = metrics.stream().filter(it -> it.getName().equals(metricName)).collect(Collectors.toList());
+
+                IndexMetric metric = CollectionUtils.hasSingleElement(result) ? result.get(0) : null;
+
+                if (metric == null) {
+                    throw new SemanticException(String.format("Metric %s.%s not found", indexName, metricName));
+                }
+
+                indices.add(index);
+                indexMetrics.add(metric);
+
+                node.setResultType(metric.getDataType());
             }
         };
 
@@ -122,7 +211,7 @@ public class SemanticAnalyzer {
                     throw new SemanticException("Column " + tableName + "." + columnName + " not found");
                 }
 
-                ((Column) node).setResultType(basicType);
+                node.setResultType(basicType);
             }
         };
 
@@ -195,7 +284,14 @@ public class SemanticAnalyzer {
 
     public void analyze() throws SemanticException {
         analyzeVariable();
-        analyzeTableColumn();
+
+        if (parseType == ParseType.DERIVED_INDEX_DIMENSION) {
+            analyzeIndexDimension();
+        } else if (parseType == ParseType.DERIVED_INDEX_METRIC) {
+            analyzeIndexMetric();
+        } else {
+            analyzeTableColumn();
+        }
         analyzeFunction();
         analyzeType();
     }

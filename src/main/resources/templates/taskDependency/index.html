@@ -11,23 +11,9 @@
 </head>
 <body>
 
-
-<table class="table table-striped">
-    <thead>
-        <th>任务ID</th>
-        <th>依赖任务ID</th>
-    </thead>
-    <tbody>
-    <#list dependencies as dependency>
-        <tr>
-            <td>${dependency.taskId}</td>
-            <td>${dependency.dependentTaskId}</td>
-        </tr>
-    </#list>
-    </tbody>
-</table>
-
-<div id="main" style="height: 500px; width: 100%; margin: 0; padding: 0"></div>
+<div class="container">
+    <div id="main" class="row" style="height: 500px; width: 100%; margin: 0; padding: 0"></div>
+</div>
 
 <script>
     var myChart = echarts.init(document.getElementById('main'));
