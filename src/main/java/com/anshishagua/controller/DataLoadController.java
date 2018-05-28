@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -67,6 +68,7 @@ public class DataLoadController {
 
     @RequestMapping("/upload")
     @ResponseBody
+    @Transactional
     public Result upload(@RequestParam(value = "tableName", defaultValue = "") String tableName,
                          @RequestParam(value = "date", defaultValue = "1111") String date,
                          @RequestParam(value = "fileEncoding", defaultValue = "UTF-8") String fileEncoding,
@@ -126,9 +128,11 @@ public class DataLoadController {
             taskExecutionService.update(taskExecution);
         }
 
+        /*
         List<Long> taskIds = taskDependencyService.getDownStreamTaskIds(task.getId());
 
         taskExecutionService.executeTasks(taskIds, date, true);
+        */
 
         target.delete();
 

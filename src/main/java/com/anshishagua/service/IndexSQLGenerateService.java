@@ -4,6 +4,7 @@ import com.anshishagua.exceptions.UnableToJoinException;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.IndexDimension;
 import com.anshishagua.object.IndexMetric;
+import com.anshishagua.object.IndexType;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.parser.nodes.sql.Insert;
@@ -81,6 +82,7 @@ public class IndexSQLGenerateService {
         List<ParseResult> metricParseResults = new ArrayList<>(metrics.size());
 
         Set<String> tableNames = new HashSet<>();
+        Set<String> indexTableNames = new HashSet<>();
 
         for (IndexDimension dimension : dimensions) {
             ParseResult parseResult = indexService.parseDimension(dimension.getExpression(), index.getIndexType());
@@ -92,7 +94,12 @@ public class IndexSQLGenerateService {
             dimensionParseResults.add(parseResult);
 
             dimension.setDataType(parseResult.getResultType());
-            tableNames.addAll(parseResult.getTables().stream().map(table -> table.getName()).collect(Collectors.toList()));
+
+            if (index.getIndexType() == IndexType.DERIVED) {
+                indexTableNames.addAll(parseResult.getIndices().stream().map(it -> generateIndexTableName(it)).collect(Collectors.toList()));
+            } else {
+                tableNames.addAll(parseResult.getTables().stream().map(table -> table.getName()).collect(Collectors.toList()));
+            }
         }
 
         for (IndexMetric metric : metrics) {
@@ -105,7 +112,12 @@ public class IndexSQLGenerateService {
             metricParseResults.add(parseResult);
 
             metric.setDataType(parseResult.getResultType());
-            tableNames.addAll(parseResult.getTables().stream().map(table -> table.getName()).collect(Collectors.toList()));
+
+            if (index.getIndexType() == IndexType.DERIVED) {
+                indexTableNames.addAll(parseResult.getIndices().stream().map(it -> generateIndexTableName(it)).collect(Collectors.toList()));
+            } else {
+                tableNames.addAll(parseResult.getTables().stream().map(table -> table.getName()).collect(Collectors.toList()));
+            }
         }
 
         String indexTableName = generateIndexTableName(index);
@@ -125,24 +137,33 @@ public class IndexSQLGenerateService {
             query.select(metricParseResult.getAstTree());
         }
 
-        //只有一个表,只用from
-        if (CollectionUtils.hasSingleElement(tableNames)) {
-            String tableName = tableNames.iterator().next();
+        if (index.getIndexType() == IndexType.BASIC) {
+            //只有一个表,只用from
+            if (CollectionUtils.hasSingleElement(tableNames)) {
+                String tableName = tableNames.iterator().next();
 
-            query.from(new Table(tableName));
-        } else {
-            Join join = null;
+                query.from(new Table(tableName));
+            } else {
+                Join join = null;
 
-            try {
-                join = basicSQLService.buildJoinClauses(tableNames);
-            } catch (UnableToJoinException ex) {
-                return SQLGenerateResult.error(ex.getMessage());
+                try {
+                    join = basicSQLService.buildJoinClauses(tableNames);
+                } catch (UnableToJoinException ex) {
+                    return SQLGenerateResult.error(ex.getMessage());
+                }
+
+                query.join(join);
             }
 
-            query.join(join);
+            result.setDataSourceTables(tableNames);
+        } else {
+            String tableName = indexTableNames.iterator().next();
+
+            query.from(new Table(tableName));
+
+            result.setDataSourceTables(indexTableNames);
         }
 
-        result.setDataSourceTables(tableNames);
         Insert insert = new Insert(indexTableName, query, true);
 
         result.addExecuteSQL(insert.toString());

@@ -36,6 +36,9 @@ public class ParseResult {
     private BasicType resultType;
     private Set<TableColumn> columns = new HashSet<>();
     private Set<Table> tables = new HashSet<>();
+    private Set<Index> indices = new HashSet<>();
+    private Set<IndexDimension> indexDimensions = new HashSet<>();
+    private Set<IndexMetric> indexMetrics = new HashSet<>();
     private Set<SystemParameter> systemParameters = new HashSet<>();
     private ParseType parseType = ParseType.UNKNOWN;
     @JsonIgnore
@@ -134,6 +137,30 @@ public class ParseResult {
 
     public void setTables(Set<Table> tables) {
         this.tables = tables;
+    }
+
+    public Set<Index> getIndices() {
+        return indices;
+    }
+
+    public void setIndices(Set<Index> indices) {
+        this.indices = indices;
+    }
+
+    public Set<IndexDimension> getIndexDimensions() {
+        return indexDimensions;
+    }
+
+    public void setIndexDimensions(Set<IndexDimension> indexDimensions) {
+        this.indexDimensions = indexDimensions;
+    }
+
+    public Set<IndexMetric> getIndexMetrics() {
+        return indexMetrics;
+    }
+
+    public void setIndexMetrics(Set<IndexMetric> indexMetrics) {
+        this.indexMetrics = indexMetrics;
     }
 
     public Set<SystemParameter> getSystemParameters() {

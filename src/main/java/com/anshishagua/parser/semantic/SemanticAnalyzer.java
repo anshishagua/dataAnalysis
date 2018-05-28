@@ -82,6 +82,18 @@ public class SemanticAnalyzer {
         return Collections.unmodifiableSet(tables);
     }
 
+    public Set<Index> getIndices() {
+        return Collections.unmodifiableSet(indices);
+    }
+
+    public Set<IndexDimension> getIndexDimensions() {
+        return Collections.unmodifiableSet(indexDimensions);
+    }
+
+    public Set<IndexMetric> getIndexMetrics() {
+        return Collections.unmodifiableSet(indexMetrics);
+    }
+
     public Set<TableColumn> getColumns() {
         return Collections.unmodifiableSet(columns);
     }
@@ -142,6 +154,9 @@ public class SemanticAnalyzer {
                     throw new SemanticException(String.format("Dimension %s.%s not found", indexName, dimensionName));
                 }
 
+                ((Column) node).setTableName("index_" + index.getId());
+                ((Column) node).setColumnName("dimension_" + dimension.getId());
+
                 indices.add(index);
                 indexDimensions.add(dimension);
 
@@ -173,6 +188,9 @@ public class SemanticAnalyzer {
                 if (metric == null) {
                     throw new SemanticException(String.format("Metric %s.%s not found", indexName, metricName));
                 }
+
+                ((Column) node).setTableName("index_" + index.getId());
+                ((Column) node).setColumnName("metric_" + metric.getId());
 
                 indices.add(index);
                 indexMetrics.add(metric);

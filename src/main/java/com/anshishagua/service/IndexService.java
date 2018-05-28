@@ -6,6 +6,7 @@ import com.anshishagua.mybatis.mapper.IndexDimensionMapper;
 import com.anshishagua.mybatis.mapper.IndexMapper;
 import com.anshishagua.mybatis.mapper.IndexMetricMapper;
 import com.anshishagua.object.CronExpressionConstants;
+import com.anshishagua.object.DataType;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.IndexDimension;
 import com.anshishagua.object.IndexMetric;
@@ -48,6 +49,8 @@ public class IndexService {
     private TaskService taskService;
     @Autowired
     private TaskDependencyService taskDependencyService;
+    @Autowired
+    private DataTypeService dataTypeService;
 
     @Autowired
     private IndexMapper indexMapper;
@@ -79,11 +82,38 @@ public class IndexService {
     }
 
     public Index getByName(String name) {
-        Index index = indexMapper.getByName(name);
+        Index index = null;
+
+        if (name.startsWith("index_")) {
+            index = indexMapper.getById(Long.parseLong(name.substring(name.indexOf("_") + 1)));
+        } else {
+            index = indexMapper.getByName(name);
+        }
 
         if (index != null) {
-            index.setDimensions(indexDimensionMapper.getByIndexId(index.getId()));
-            index.setMetrics(indexMetricMapper.getByIndexId(index.getId()));
+            List<IndexDimension> dimensions = indexDimensionMapper.getByIndexId(index.getId());
+
+            for (IndexDimension dimension : dimensions) {
+                DataType dataType = dataTypeService.getTypeById(dimension.getTypeId());
+
+                if (dataType != null) {
+                    dimension.setDataType(dataType.toBasicType());
+                }
+            }
+
+            index.setDimensions(dimensions);
+
+            List<IndexMetric> metrics = indexMetricMapper.getByIndexId(index.getId());
+
+            for (IndexMetric metric : metrics) {
+                DataType dataType = dataTypeService.getTypeById(metric.getTypeId());
+
+                if (dataType != null) {
+                    metric.setDataType(dataType.toBasicType());
+                }
+            }
+
+            index.setMetrics(metrics);
         }
 
         return index;
@@ -113,6 +143,9 @@ public class IndexService {
         parseResult.setAstTree(analyzer.getAstTree());
         parseResult.setColumns(analyzer.getColumns());
         parseResult.setTables(analyzer.getTables());
+        parseResult.setIndices(analyzer.getIndices());
+        parseResult.setIndexDimensions(analyzer.getIndexDimensions());
+        parseResult.setIndexMetrics(analyzer.getIndexMetrics());
         parseResult.setSystemParameters(analyzer.getSystemParameters());
         parseResult.setParseType(parseType);
         parseResult.setAggregationNodes(analyzer.getAggregationNodes());
@@ -135,12 +168,24 @@ public class IndexService {
             return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "指标维度类型不能为浮点型数值");
         }
 
-        if (parseResult.getTables().isEmpty()) {
+        if (indexType == IndexType.BASIC && parseResult.getTables().isEmpty()) {
             return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "指标维度没有引用任何表");
         }
 
         if (!parseResult.getAggregationNodes().isEmpty()) {
             return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "指标维度不能包含聚合");
+        }
+
+        if (indexType == IndexType.DERIVED) {
+            if (parseResult.getIndices().isEmpty()) {
+                return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "派生指标没有引用基础指标");
+            } else if (parseResult.getIndices().size() > 1) {
+                return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "派生指标引用了多个基础指标");
+            }
+
+            if (!parseResult.getTables().isEmpty()) {
+                return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "派生指标引用了基础表");
+            }
         }
 
         return parseResult;
@@ -154,7 +199,7 @@ public class IndexService {
             return parseResult;
         }
 
-        if (parseResult.getTables().isEmpty()) {
+        if (indexType == IndexType.BASIC && parseResult.getTables().isEmpty()) {
             return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "指标度量没有引用任何表");
         }
 
@@ -166,6 +211,18 @@ public class IndexService {
 
         if (CollectionUtils.hasMultiplyElement(parseResult.getAggregationNodes())) {
             return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "指标度量不能包含多个聚合");
+        }
+
+        if (indexType == IndexType.DERIVED) {
+            if (parseResult.getIndices().isEmpty()) {
+                return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "派生指标没有引用基础指标");
+            } else if (parseResult.getIndices().size() > 1) {
+                return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "派生指标引用了多个基础指标");
+            }
+
+            if (!parseResult.getTables().isEmpty()) {
+                return ParseResult.error(ParseType.BASE_INDEX_DIMENSION, expression, "派生指标引用了基础表");
+            }
         }
 
         return parseResult;
@@ -208,11 +265,22 @@ public class IndexService {
 
         Set<String> tableNames = sqlGenerateResult.getDataSourceTables();
         List<Task> dependentTasks = new ArrayList<>();
+        TaskType taskType = index.getIndexType() == IndexType.BASIC ? TaskType.DATA_LOAD : TaskType.INDEX;
 
         for (String tableName : tableNames) {
-            Table table = tableService.getByName(tableName);
+            long objectId = -1;
 
-            Task dependentTask = taskService.getByTaskTypeAndObjectId(TaskType.DATA_LOAD, table.getId());
+            if (index.getIndexType() == IndexType.BASIC) {
+                Table table = tableService.getByName(tableName);
+
+                objectId = table.getId();
+            } else {
+                Index basicIndex = getByName(tableName);
+
+                objectId = basicIndex.getId();
+            }
+
+            Task dependentTask = taskService.getByTaskTypeAndObjectId(taskType, objectId);
 
             dependentTasks.add(dependentTask);
         }
