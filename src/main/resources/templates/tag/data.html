@@ -16,13 +16,17 @@
     <div class="row">
         <table class="table table-striped">
             <thead>
-                <th>对象ID</th>
+                <#list columns as column>
+                    <th>${column}</th>
+                </#list>
             </thead>
             <tbody>
-            <#list ids as id>
-            <tr>
-                <td>${id}</td>
-            </tr>
+            <#list data as rowData>
+                <tr>
+                    <#list rowData as value>
+                        <td>${value}</td>
+                    </#list>
+                </tr>
             </#list>
             </tbody>
         </table>

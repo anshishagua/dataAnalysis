@@ -5,6 +5,11 @@ import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.Tag;
+import com.anshishagua.parser.nodes.comparision.Equal;
+import com.anshishagua.parser.nodes.sql.Column;
+import com.anshishagua.parser.nodes.sql.Join;
+import com.anshishagua.parser.nodes.sql.JoinType;
+import com.anshishagua.parser.nodes.sql.Query;
 import com.anshishagua.service.BasicSQLService;
 import com.anshishagua.service.HiveService;
 import com.anshishagua.service.MetaDataService;
@@ -28,6 +33,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * User: lixiao
@@ -218,20 +224,42 @@ public class TagController {
         modelAndView.addObject("tagName", tag == null ? "" : tag.getName());
 
         ResultSet resultSet = null;
-        String sql = "SELECT id FROM tag_" + tagId;
-        List<Long> ids = new ArrayList<>();
+        Table table = tableService.getById(tag.getTableId());
+        String tableName = table.getName();
+        List<String> columnNames = table.getColumns().stream().map(it -> it.getName()).collect(Collectors.toList());
+
+        Query query = new Query();
+
+        for (String columnName : columnNames) {
+            query.select(new Column(tableName, columnName));
+        }
+
+        com.anshishagua.parser.nodes.sql.Table left = new com.anshishagua.parser.nodes.sql.Table("tag_" + tagId);
+        com.anshishagua.parser.nodes.sql.Table right = new com.anshishagua.parser.nodes.sql.Table(tableName);
+
+        query.join(new Join(left, right, JoinType.INNER_JOIN, new Equal(new Column("tag_" + tagId, "id"), new Column(tableName, table.getPrimaryKeys().get(0).getName()))));
+
+        String sql = query.toSQL();
+        List<List<String>> data = new ArrayList<>();
 
         try {
             resultSet = hiveService.executeQuery(sql);
 
             while (resultSet.next()) {
-                ids.add(resultSet.getLong(1));
+                List<String> list = new ArrayList<>();
+
+                for (String columnName : columnNames) {
+                    list.add(resultSet.getString(columnName));
+                }
+
+                data.add(list);
             }
         } catch (SQLException ex) {
             LOG.error("Failed to execute sql {}", sql, ex);
         }
 
-        modelAndView.addObject("ids", ids);
+        modelAndView.addObject("columns", columnNames);
+        modelAndView.addObject("data", data);
 
         return modelAndView;
     }
