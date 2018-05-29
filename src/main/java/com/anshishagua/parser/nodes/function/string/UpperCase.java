@@ -15,4 +15,9 @@ public class UpperCase extends UnaryFunctionNode {
     public UpperCase(List<Node> children) {
         super("upper_case", children);
     }
+
+    @Override
+    public String toSQL() {
+        return String.format("upper(%s)", getChild(0).toSQL());
+    }
 }

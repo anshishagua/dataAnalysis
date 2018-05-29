@@ -15,4 +15,9 @@ public class ToString extends UnaryFunctionNode {
     public ToString(List<Node> children) {
         super("to_string", children);
     }
+
+    @Override
+    public String toSQL() {
+        return String.format("cast(%s as string)", getChild(0).toSQL());
+    }
 }

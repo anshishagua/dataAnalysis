@@ -167,4 +167,9 @@ public abstract class AbstractNode<T> implements Node {
     public Node negate() {
         return this;
     }
+
+    @Override
+    public String toSQL() {
+        return toString();
+    }
 }

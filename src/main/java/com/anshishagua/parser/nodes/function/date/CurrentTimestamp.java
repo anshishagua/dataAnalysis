@@ -13,6 +13,6 @@ import java.util.List;
 
 public class CurrentTimestamp extends NoArgumentFunctionNode {
     public CurrentTimestamp(List<Node> children) {
-        super("current_date", children);
+        super("current_timestamp", children);
     }
 }

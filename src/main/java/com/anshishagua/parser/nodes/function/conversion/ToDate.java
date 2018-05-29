@@ -15,4 +15,9 @@ public class ToDate extends UnaryFunctionNode {
     public ToDate(List<Node> children) {
         super("to_date", children);
     }
+
+    @Override
+    public String toSQL() {
+        return String.format("cast(%s as date)", getChild(0).toSQL());
+    }
 }

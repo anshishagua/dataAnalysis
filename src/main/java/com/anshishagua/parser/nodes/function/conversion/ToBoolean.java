@@ -15,4 +15,9 @@ public class ToBoolean extends UnaryFunctionNode {
     public ToBoolean(List<Node> children) {
         super("to_boolean", children);
     }
+
+    @Override
+    public String toSQL() {
+        return String.format("cast(%s as boolean)", getChild(0).toSQL());
+    }
 }

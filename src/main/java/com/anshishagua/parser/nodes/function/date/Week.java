@@ -15,4 +15,9 @@ public class Week extends UnaryFunctionNode {
     public Week(List<Node> children) {
         super("week", children);
     }
+
+    @Override
+    public String toSQL() {
+        return String.format("weekofyear(%s)", getChild(0).toSQL());
+    }
 }

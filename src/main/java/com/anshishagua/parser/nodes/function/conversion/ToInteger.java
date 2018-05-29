@@ -15,4 +15,9 @@ public class ToInteger extends UnaryFunctionNode {
     public ToInteger(List<Node> children) {
         super("to_integer", children);
     }
+
+    @Override
+    public String toSQL() {
+        return String.format("cast(%s as int)", getChild(0).toSQL());
+    }
 }

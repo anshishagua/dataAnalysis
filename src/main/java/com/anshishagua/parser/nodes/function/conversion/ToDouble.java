@@ -15,4 +15,9 @@ public class ToDouble extends UnaryFunctionNode {
     public ToDouble(List<Node> children) {
         super("to_double", children);
     }
+
+    @Override
+    public String toSQL() {
+        return String.format("cast(%s as double)", getChild(0).toSQL());
+    }
 }

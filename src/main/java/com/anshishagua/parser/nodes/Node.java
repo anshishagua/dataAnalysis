@@ -24,4 +24,5 @@ public interface Node extends Expression {
     int getIndex();
     void setIndex(int i);
     Node negate();
+    String toSQL();
 }

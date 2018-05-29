@@ -15,4 +15,9 @@ public class LowerCase extends UnaryFunctionNode {
     public LowerCase(List<Node> children) {
         super("lower_case", children);
     }
+
+    @Override
+    public String toSQL() {
+        return String.format("lower(%s)", getChild(0).toSQL());
+    }
 }

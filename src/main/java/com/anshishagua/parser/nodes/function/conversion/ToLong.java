@@ -15,4 +15,9 @@ public class ToLong extends UnaryFunctionNode {
     public ToLong(List<Node> children) {
         super("to_long", children);
     }
+
+    @Override
+    public String toSQL() {
+        return String.format("cast(%s as long)", getChild(0).toSQL());
+    }
 }

@@ -112,7 +112,7 @@ public class Query extends AbstractNode<Void> {
         }
 
         if (whereCondition != null) {
-            builder.append(" WHERE ").append(whereCondition);
+            builder.append(" WHERE ").append(whereCondition.toSQL());
             builder.append(" ");
         }
 
