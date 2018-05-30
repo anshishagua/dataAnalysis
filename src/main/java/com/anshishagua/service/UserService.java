@@ -36,4 +36,10 @@ public class UserService {
 
         userMapper.insert(user);
     }
+
+    public void updatePassword(User user) {
+        Objects.requireNonNull(user);
+
+        userMapper.updatePassword(user);
+    }
 }

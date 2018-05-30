@@ -9,6 +9,11 @@
     <script src="/static/js/bootstrap.js"></script>
 </head>
 <body>
+<script>
+    $("#export").click(function() {
+
+    });
+</script>
 <div class="container">
     <div class="row">
         <h2>标签名:${tagName!}</h2>
@@ -30,6 +35,9 @@
             </#list>
             </tbody>
         </table>
+    </div>
+    <div class="row">
+        <button class="btn btn-default" id="export">导出</button>
     </div>
 </div>
 </body>

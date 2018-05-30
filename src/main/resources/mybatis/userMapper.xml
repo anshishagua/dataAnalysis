@@ -13,6 +13,12 @@
         INSERT INTO `t_user`(`username`, `password`, `create_time`, `last_updated`)
                 VALUES(#{username}, #{password}, NOW(), NOW())
     </insert>
+    <update id="updatePassword" flushCache="true">
+        UPDATE `t_user`
+        SET `password` = #{password},
+            `last_updated` = NOW()
+        WHERE `id` = #{id}
+    </update>
     <select id="getById" resultMap="userMapper">
         SELECT *
         FROM t_user

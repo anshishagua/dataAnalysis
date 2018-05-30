@@ -14,4 +14,5 @@ public interface UserMapper {
     User getById(long id);
     User getByUserName(String username);
     void insert(User user);
+    void updatePassword(User user);
 }

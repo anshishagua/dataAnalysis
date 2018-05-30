@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>用户中心</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <h2>用户信息</h2>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">用户名</div>
+            <div class="col-sm-8">${user.username}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">创建时间</div>
+            <div class="col-sm-8">${user.createTime}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <a class="btn-info btn" href="/account/modifyPassword">修改密码</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
