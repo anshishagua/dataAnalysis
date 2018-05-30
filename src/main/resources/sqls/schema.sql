@@ -219,6 +219,25 @@ CREATE TABLE `t_task_execution`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+CREATE TABLE `t_user`
+(
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(255) NOT NULL COMMENT '',
+  `password` VARCHAR(255) NOT NULL COMMENT '',
+  `create_time` DATETIME NOT NULL COMMENT '',
+  `last_updated` DATETIME NOT NULL COMMENT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `t_user_role`
+(
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL COMMENT '',
+  `role` VARCHAR(255) NOT NULL COMMENT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'INT', '整形', null, '', b'0');
 insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'BIGINT', '长整形', null, '', b'0');
 insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'STRING', '字符串', null, '', b'0');

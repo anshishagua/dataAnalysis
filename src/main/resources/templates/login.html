@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+<script>
+    $(document).ready(function() {
+        $("#submit").click(function() {
+            var username = $("#username").val();
+            var password = $("#password").val();
+
+            if (username == "" || password == "") {
+                alert("用户名或密码为空");
+
+                return;
+            }
+
+            $.ajax({
+                url: "/login",
+                dataType: "json",
+                method: "post",
+                data: {
+                    username: username,
+                    password: password
+                },
+                success: function(result) {
+                    if (result.success) {
+                        //alert("登录成功");
+                        location.href = "/";
+                    } else {
+                        alert("登录失败:" + result.errorMessage);
+                    }
+                }
+            });
+        });
+
+        $("#register").click(function() {
+            location.href = "/register";
+        });
+    });
+</script>
+    <div class="container">
+        <div class="row">
+            <form role="form" class="form-horizontal">
+                <div class="form-group username has-feedback">
+                    <label for="username" class="col-sm-2 control-label">用户名</label>
+                    <div class="col-sm-6">
+                        <input type="text" id="username" name="username" class="form-control">
+                        <span class="glyphicon form-control-feedback" style="display: none"></span>
+                    </div>
+                    <label class="control-label" for="username" style="display: none"></label>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="control-label col-sm-2">密码</label>
+                    <div class="col-sm-6">
+                        <input type="password" id="password" name="password" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" class="btn btn-info" id="submit">登录</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" class="btn btn-info" id="register">注册</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
