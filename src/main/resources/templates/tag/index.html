@@ -82,16 +82,40 @@
             });
         });
 
-        $("#column-body").on("click", ".delete-column", function() {
-            $(".delete-column").parents()[1].remove();
+        $("#column-body").on("click", ".delete-tag-value", function() {
+            $(".delete-tag-value").parents()[1].remove();
+        });
+
+        $("#add-tag-value").click(function() {
+           $.ajax({
+               url: "/tag/value",
+               success: function(data) {
+                   $("#tag-values-body").append(data);
+               }
+           })
         });
 
         $("#submit").click(function() {
             var tagName = $("#tagName").val();
             var targetTableId = $("#targetTable option:selected").val();
-            var filterCondition = $("#filterCondition").val();
-            var computeCondition = $("#computeCondition").val();
-            var description = $("#description").val();
+
+            var tagValues = [];
+
+            $(".tag-value-info").each(function () {
+                var value = $(this).find("input[name=tagValue]").val();
+                var filterCondition = $(this).find(".filterCondition").val();
+                var computeCondition = $(this).find(".computeCondition").val();
+                var description = $(this).find("input[name=description]").val();
+
+                var tagValue = {
+                    value: value,
+                    filterCondition: filterCondition,
+                    computeCondition: computeCondition,
+                    description: description
+                };
+
+                tagValues.push(tagValue);
+            });
 
             $.ajax({
                 url: "/tag/add",
@@ -99,73 +123,51 @@
                 data: {
                     tagName: tagName,
                     targetTableId: targetTableId,
-                    description: description,
-                    filterCondition: filterCondition,
-                    computeCondition: computeCondition
+                    tagValues: JSON.stringify(tagValues)
                 },
-                success: function(result) {
-                    if (!result.success) {
-                        alert(result.errorMessage);
+                success: function (result) {
+                    if (result.success) {
+                        alert("创建标签成功");
+                        location.href = "/tag/list";
                     } else {
-                        alert("添加标签成功");
+                        alert("创建标签失败:" + result.errorMessage);
                     }
                 }
             });
         });
 
-        $(".operator,.function,.compare,.bool").click(function(){
-           var value = $(this).html();
+        $(".operator,.function,.compare,.bool").click(function () {
+            var value = $(this).html();
 
-           if (value == "&gt;") {
-               value = ">";
-           } else if (value == "&gt;=") {
-               value = ">=";
-           } else if (value == "&lt;") {
-               value = "<";
-           } else if (value == "&lt;=") {
-               value = "<=";
-           }
+            if (value == "&gt;") {
+                value = ">";
+            } else if (value == "&gt;=") {
+                value = ">=";
+            } else if (value == "&lt;") {
+                value = "<";
+            } else if (value == "&lt;=") {
+                value = "<=";
+            }
 
-           console.log($("#filterCondition").is(":focus"));
-           console.log($("#computeCondition").is(":focus"));
-
-           if (focus == "filterCondition") {
-               var html = $("#filterCondition").val();
-
-               html += " " + value;
-
-               $("#filterCondition").val(html);
-           } else if (focus == "computeCondition") {
-               var html = $("#computeCondition").val();
-
-               html += " " + value;
-
-               $("#computeCondition").val(html);
-           }
-        });
-
-        $(".column").click(function(){
-            var columnName = $(this).html();
-            var tableName = $(this).parent().parent().prev().html();
-
-            var column = tableName + "." + columnName;
+            console.log($("#filterCondition").is(":focus"));
+            console.log($("#computeCondition").is(":focus"));
 
             if (focus == "filterCondition") {
                 var html = $("#filterCondition").val();
 
-                html += " " + column;
+                html += " " + value;
 
                 $("#filterCondition").val(html);
             } else if (focus == "computeCondition") {
                 var html = $("#computeCondition").val();
 
-                html += " " + column;
+                html += " " + value;
 
                 $("#computeCondition").val(html);
             }
         });
 
-        $(".menu").click(function() {
+        $(".menu").click(function () {
             $(this).next().toggle();
         });
 
@@ -255,6 +257,26 @@
                 </div>
 
                 <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" id="add-tag-value" class="btn btn-info">增加标签值</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <table id="tag-values" class="table table-striped">
+                        <thead>
+                            <th>标签值</th>
+                            <th>过滤条件</th>
+                            <th>规则表达式</th>
+                            <th>描述</th>
+                            <th>操作</th>
+                        </thead>
+                        <tbody id="tag-values-body"></tbody>
+                    </table>
+                </div>
+
+                <!--
+                <div class="form-group">
                     <label for="filterCondition" class="control-label col-sm-2">过滤条件</label>
                     <div class="col-sm-10">
                         <textarea id="filterCondition" class="form-control" rows="5"></textarea>
@@ -274,6 +296,7 @@
                         <input type="text" id="description" class="form-control">
                     </div>
                 </div>
+                -->
 
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
@@ -284,8 +307,5 @@
         </div>
     </div>
 </div>
-
-
-
 </body>
 </html>

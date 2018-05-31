@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>标签规则</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <table class="table table-striped">
+            <thead>
+                <th>ID</th>
+                <th>标签值</th>
+                <th>描述</th>
+                <th>创建时间</th>
+                <th>过滤规则</th>
+                <th>计算规则</th>
+            </thead>
+            <tbody>
+            <#list tagValues as tagValue>
+            <tr>
+                <td>${tagValue.id}</td>
+                <td>${tagValue.value}</td>
+                <td>${tagValue.description!}</td>
+                <td>${tagValue.createTime}</td>
+                <td>${tagValue.filterCondition}</td>
+                <td>${tagValue.computeCondition}</td>
+            </tr>
+            </#list>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>

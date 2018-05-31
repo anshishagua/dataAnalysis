@@ -1,6 +1,6 @@
 package com.anshishagua.compute;
 
-import com.anshishagua.object.TaskStatus;
+import com.anshishagua.constants.TaskStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

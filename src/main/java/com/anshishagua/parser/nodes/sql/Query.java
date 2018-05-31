@@ -1,5 +1,6 @@
 package com.anshishagua.parser.nodes.sql;
 
+import com.anshishagua.object.TableColumn;
 import com.anshishagua.parser.nodes.AbstractNode;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.bool.And;
@@ -26,6 +27,13 @@ public class Query extends AbstractNode<Void> {
 
     public Query() {
 
+    }
+
+    public void select(String table, String column) {
+        Objects.requireNonNull(table);
+        Objects.requireNonNull(column);
+
+        selectFields.add(new Column(table, column));
     }
 
     public void select(Node node) {

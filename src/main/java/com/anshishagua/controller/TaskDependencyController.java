@@ -6,7 +6,7 @@ import com.anshishagua.compute.TaskDependency;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.Tag;
-import com.anshishagua.object.TaskType;
+import com.anshishagua.constants.TaskType;
 import com.anshishagua.service.IndexService;
 import com.anshishagua.service.TableService;
 import com.anshishagua.service.TagService;

@@ -78,15 +78,26 @@ CREATE TABLE `t_tag`
 (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(128) NOT NULL COMMENT '',
-  `group_id` BIGINT DEFAULT NULL COMMENT '',
   `table_id` BIGINT NOT NULL COMMENT '',
+  `create_time` DATETIME NOT NULL COMMENT '',
+  `last_updated` DATETIME NOT NULL COMMENT '',
+  `description` VARCHAR(64) DEFAULT '' COMMENT '描述',
+  `deleted` BIT(1) DEFAULT FALSE,
+  `sql_generate_result` TEXT COMMENT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `t_tag_value`
+(
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `tag_id` BIGINT NOT NULL,
+  `value` VARCHAR(128) NOT NULL COMMENT '',
+  `order` INTEGER NOT NULL COMMENT '',
   `filter_condition` TEXT DEFAULT NULL COMMENT '',
   `compute_condition` TEXT NOT NULL COMMENT '',
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
-  `deleted` BIT(1) DEFAULT FALSE,
-  `sql_generate_result` TEXT COMMENT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

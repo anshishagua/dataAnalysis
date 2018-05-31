@@ -5,10 +5,16 @@ import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableColumn;
 import com.anshishagua.object.Tag;
+import com.anshishagua.object.TagValue;
+import com.anshishagua.parser.BasicType;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.bool.In;
+import com.anshishagua.parser.nodes.bool.NotIn;
 import com.anshishagua.parser.nodes.comparision.Equal;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
+import com.anshishagua.parser.nodes.primitive.IntegerValue;
+import com.anshishagua.parser.nodes.primitive.LongValue;
+import com.anshishagua.parser.nodes.primitive.StringValue;
 import com.anshishagua.parser.nodes.sql.Column;
 import com.anshishagua.parser.nodes.sql.Condition;
 import com.anshishagua.parser.nodes.sql.Insert;
@@ -22,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -56,7 +63,11 @@ public class TagSQLGenerateService {
 
         String tagTableName = generateTagTableName(tag.getId());
 
-        return String.format("CREATE TABLE IF NOT EXISTS %s (`id` %s)", tagTableName, primaryKey.getDataType().getValue());
+        return String.format("CREATE TABLE IF NOT EXISTS %s (`id` %s, `tag_value_id` %s, `tag_value_value` %s)",
+                tagTableName,
+                primaryKey.getDataType().getValue(),
+                "BIGINT",
+                "STRING");
     }
 
     //将聚合操作转化为子查询
@@ -133,7 +144,6 @@ public class TagSQLGenerateService {
 
         query.select(new Column(targetTable.getName(), primaryKey.getName()));
 
-
         if (tempTables.isEmpty()) {
             query.from(new com.anshishagua.parser.nodes.sql.Table(targetTable.getName()));
         } else {
@@ -164,58 +174,85 @@ public class TagSQLGenerateService {
 
         SQLGenerateResult result = new SQLGenerateResult();
 
-        String filterCondition = tag.getFilterCondition();
-        String computeCondition = tag.getComputeCondition();
+        String createTableSQL = generateTagTableCreateSQL(tag);
 
-        ParseResult filterConditionResult = tagService.parseFilterCondition(filterCondition, tag.getTableId());
+        String tagTableName = generateTagTableName(tag.getId());
+        result.addExecuteSQL(createTableSQL);
 
-        if (!filterConditionResult.isSuccess()) {
-            result.setSuccess(false);
-            result.setErrorMessage(filterConditionResult.getErrorMessage());
+        List<TagValue> tagValues = tag.getTagValues();
 
-            return result;
-        }
+        ParseResult filterConditionResult = null;
+        ParseResult computeConditionResult = null;
 
-        ParseResult computeConditionResult = tagService.parseComputeCondition(computeCondition, tag.getTableId());
+        boolean insertOverwrite = true;
 
-        if (!computeConditionResult.isSuccess()) {
-            result.setSuccess(false);
-            result.setErrorMessage(computeConditionResult.getErrorMessage());
-
-            return result;
-        }
+        Set<String> dataSourceTables = new HashSet<>();
 
         Table targetTable = tableService.getById(tag.getTableId());
         TableColumn primaryKey = targetTable.getPrimaryKeys().get(0);
+        dataSourceTables.add(targetTable.getName());
 
-        Query filterQuery = null;
+        for (TagValue tagValue : tagValues) {
+            filterConditionResult = tagService.parseFilterCondition(tagValue.getFilterCondition(), tag.getTableId());
 
-        //has filter condition
-        if (filterConditionResult.getAstTree() != null) {
-            filterQuery = buildQuery(result, filterConditionResult.getAstTree(), targetTable, filterConditionResult.getAggregationNodes());
+            if (!filterConditionResult.isSuccess()) {
+                result.setSuccess(false);
+                result.setErrorMessage(filterConditionResult.getErrorMessage());
+
+                return result;
+            }
+
+            computeConditionResult = tagService.parseComputeCondition(tagValue.getComputeCondition(), tag.getTableId());
+
+            if (!computeConditionResult.isSuccess()) {
+                result.setSuccess(false);
+                result.setErrorMessage(computeConditionResult.getErrorMessage());
+
+                return result;
+            }
+
+            Query filterQuery = null;
+
+            //has filter condition
+            if (filterConditionResult.getAstTree() != null) {
+                filterQuery = buildQuery(result, filterConditionResult.getAstTree(), targetTable, filterConditionResult.getAggregationNodes());
+            }
+
+            Query computeQuery = buildQuery(result, computeConditionResult.getAstTree(), targetTable, computeConditionResult.getAggregationNodes());
+
+            computeQuery.select(new LongValue(tagValue.getId()));
+            computeQuery.select(new StringValue(tagValue.getValue()));
+
+            if (filterQuery != null) {
+                computeQuery.and(new In(new Column(targetTable.getName(), primaryKey.getName()), filterQuery));
+            }
+
+            Query filterTagIdQuery = new Query();
+            Column targetTableColumn = new Column(targetTable.getName(), primaryKey.getName());
+            Column tagColumn = new Column(tagTableName, "id");
+            filterTagIdQuery.select(tagColumn);
+            filterTagIdQuery.from(tagTableName);
+
+            computeQuery.and(new NotIn(targetTableColumn, filterTagIdQuery));
+
+            Insert insert = new Insert();
+            insert.setOverwrite(insertOverwrite);
+            insert.setTableName(tagTableName);
+            insert.setQuery(computeQuery);
+
+            result.addExecuteSQL(insert.toString());
+
+            insertOverwrite = false;
+
+            dataSourceTables.addAll(filterConditionResult.getTables().stream().map(it -> it.getName()).collect(Collectors.toList()));
+            dataSourceTables.addAll(computeConditionResult.getTables().stream().map(it -> it.getName()).collect(Collectors.toList()));
         }
-
-        Query computeQuery = buildQuery(result, computeConditionResult.getAstTree(), targetTable, computeConditionResult.getAggregationNodes());
-
-        if (filterQuery != null) {
-            computeQuery.and(new In(new Column(targetTable.getName(), primaryKey.getName()), filterQuery));
-        }
-
-        Insert insert = new Insert();
-        insert.setOverwrite(true);
-        insert.setTableName(generateTagTableName(tag.getId()));
-        insert.setQuery(computeQuery);
 
         result.setSuccess(true);
-        Set<String> dataSourceTables = new HashSet<>();
-        dataSourceTables.add(targetTable.getName());
-        dataSourceTables.addAll(filterConditionResult.getTables().stream().map(it -> it.getName()).collect(Collectors.toList()));
-        dataSourceTables.addAll(computeConditionResult.getTables().stream().map(it -> it.getName()).collect(Collectors.toList()));
-
         result.setDataSourceTables(dataSourceTables);
 
-        result.addExecuteSQL(generateTagTableCreateSQL(tag));
-        result.addExecuteSQL(insert.toString());
+        Set<String> targetTables = new HashSet<>(Arrays.asList(tagTableName));
+        result.setTargetTables(targetTables);
 
         List<String> tempTableNames = result.getTempTables();
 

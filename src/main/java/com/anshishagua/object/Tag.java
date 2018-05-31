@@ -3,6 +3,7 @@ package com.anshishagua.object;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * User: lixiao
@@ -18,8 +19,7 @@ public class Tag {
     private long groupId;
     private long tableId;
     private Table table;
-    private String filterCondition;
-    private String computeCondition;
+    private List<TagValue> tagValues;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -72,20 +72,12 @@ public class Tag {
         this.tableId = tableId;
     }
 
-    public String getFilterCondition() {
-        return filterCondition;
+    public List<TagValue> getTagValues() {
+        return tagValues;
     }
 
-    public void setFilterCondition(String filterCondition) {
-        this.filterCondition = filterCondition;
-    }
-
-    public String getComputeCondition() {
-        return computeCondition;
-    }
-
-    public void setComputeCondition(String computeCondition) {
-        this.computeCondition = computeCondition;
+    public void setTagValues(List<TagValue> tagValues) {
+        this.tagValues = tagValues;
     }
 
     public LocalDateTime getCreateTime() {
@@ -133,13 +125,15 @@ public class Tag {
         return "Tag{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", groupId=" + groupId +
                 ", tableId=" + tableId +
-                ", filterCondition='" + filterCondition + '\'' +
-                ", computeCondition='" + computeCondition + '\'' +
+                ", table=" + table +
+                ", tagValues=" + tagValues +
                 ", createTime=" + createTime +
                 ", lastUpdated=" + lastUpdated +
                 ", deleted=" + deleted +
                 ", description='" + description + '\'' +
+                ", sqlGenerateResult=" + sqlGenerateResult +
                 '}';
     }
 }

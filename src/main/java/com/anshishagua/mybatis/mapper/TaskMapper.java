@@ -1,7 +1,6 @@
 package com.anshishagua.mybatis.mapper;
 
 import com.anshishagua.compute.Task;
-import com.anshishagua.object.TaskType;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

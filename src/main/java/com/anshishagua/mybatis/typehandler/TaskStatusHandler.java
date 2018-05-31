@@ -6,7 +6,7 @@ package com.anshishagua.mybatis.typehandler;
  * Time: 上午9:38
  */
 
-import com.anshishagua.object.TaskStatus;
+import com.anshishagua.constants.TaskStatus;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;

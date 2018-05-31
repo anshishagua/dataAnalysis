@@ -1,4 +1,4 @@
-package com.anshishagua.object;
+package com.anshishagua.constants;
 
 /**
  * User: lixiao

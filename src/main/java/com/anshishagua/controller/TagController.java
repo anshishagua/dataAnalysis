@@ -1,10 +1,14 @@
 package com.anshishagua.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.Tag;
+import com.anshishagua.object.TagValue;
 import com.anshishagua.parser.nodes.comparision.Equal;
 import com.anshishagua.parser.nodes.sql.Column;
 import com.anshishagua.parser.nodes.sql.Join;
@@ -22,10 +26,10 @@ import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
@@ -37,8 +41,11 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -47,7 +54,7 @@ import java.util.stream.Collectors;
  * Time: 下午4:38
  */
 
-@RestController
+@Controller
 @RequestMapping("/tag")
 public class TagController {
     private static final Logger LOG = LoggerFactory.getLogger(TagController.class);
@@ -103,25 +110,6 @@ public class TagController {
         return Result.ok();
     }
 
-    @RequestMapping("/insert")
-    public void insert() {
-        Tag tag = new Tag();
-
-        tag.setCreateTime(LocalDateTime.now());
-        tag.setLastUpdated(LocalDateTime.now());
-        tag.setDescription("sssss");
-        tag.setTableId(2);
-        tag.setName("测试标签");
-        tag.setFilterCondition("student.name > 'A' AND student.name < 'B'");
-        tag.setComputeCondition("student.age > 10 AND student.age < 30 AND count(course.name) > 30");
-
-        SQLGenerateResult result = sqlGenerateService.generate(tag);
-
-        tag.setSqlGenerateResult(result);
-
-        tagService.addTag(tag);
-    }
-
     @RequestMapping("")
     public ModelAndView index() {
         ModelAndView modelAndView = new ModelAndView();
@@ -135,6 +123,23 @@ public class TagController {
         modelAndView.addObject("tableColumns", metaDataService.getTableColumns());
         modelAndView.addObject("tables", tables);
         modelAndView.setViewName("tag/index");
+
+        return modelAndView;
+    }
+
+    @RequestMapping("/tagValues")
+    public ModelAndView tagValues(@RequestParam("tagId") long tagId) {
+        ModelAndView modelAndView = new ModelAndView("tag/tagValues");
+
+        Tag tag = tagService.getById(tagId);
+
+        List<TagValue> tagValues = new ArrayList<>();
+
+        if (tag != null) {
+            tagValues = tag.getTagValues();
+        }
+
+        modelAndView.addObject("tagValues", tagValues);
 
         return modelAndView;
     }
@@ -153,10 +158,9 @@ public class TagController {
     @RequestMapping("/add")
     @ResponseBody
     public Result add(@RequestParam("tagName") String tagName,
-               @RequestParam("description") String description,
-               @RequestParam("targetTableId") long targetTableId,
-               @RequestParam("filterCondition") String filterCondition,
-               @RequestParam("computeCondition") String computeCondition) {
+                      @RequestParam("targetTableId") long targetTableId,
+                      @RequestParam(value = "description", required = false) String description,
+                      @RequestParam("tagValues") String tagValuesString) {
         if (Strings.isNullOrEmpty(tagName)) {
             return Result.error("标签名为空");
         }
@@ -167,6 +171,52 @@ public class TagController {
 
         if (tagService.getByName(tagName) != null) {
             return Result.error(String.format("标签%s已存在", tagName));
+        }
+
+        List<TagValue> tagValues = new ArrayList<>();
+
+        JSONArray jsonArray = JSON.parseArray(tagValuesString);
+
+        for (int i = 0; i < jsonArray.size(); ++i) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+            TagValue tagValue = new TagValue();
+            tagValue.setOrder(i);
+            tagValue.setValue(jsonObject.getString("value"));
+            tagValue.setFilterCondition(jsonObject.getString("filterCondition"));
+            tagValue.setComputeCondition(jsonObject.getString("computeCondition"));
+            tagValue.setDescription(jsonObject.getString("description"));
+
+            tagValues.add(tagValue);
+        }
+
+        if (tagValues.isEmpty()) {
+            return Result.error("标签值列表为空");
+        }
+
+        Set<String> set = new HashSet<>();
+
+        for (TagValue tagValue : tagValues) {
+            if (Strings.isNullOrEmpty(tagValue.getValue())) {
+                return Result.error("标签值为空");
+            } else if (set.contains(tagValue.getValue())) {
+                return Result.error("已包含标签值" + tagValue.getValue());
+            } else {
+                set.add(tagValue.getValue());
+            }
+
+            ParseResult parseResult = tagService.parseFilterCondition(tagValue.getFilterCondition(), targetTableId);
+
+            if (!parseResult.isSuccess()) {
+                return Result.error(String.format("过滤条件%s错误:%s", tagValue.getFilterCondition(), parseResult.getErrorMessage()));
+            }
+
+            parseResult = tagService.parseComputeCondition(tagValue.getComputeCondition(), targetTableId);
+
+            if (!parseResult.isSuccess()) {
+                return Result.error(String.format("规则条件%s错误:%s", tagValue.getComputeCondition(), parseResult.getErrorMessage()));
+            }
+
         }
 
         Tag tag = new Tag();
@@ -180,21 +230,7 @@ public class TagController {
         }
 
         tag.setTableId(targetTableId);
-
-        ParseResult parseResult = tagService.parseFilterCondition(filterCondition, targetTableId);
-
-        if (!parseResult.isSuccess()) {
-            return Result.error(String.format("过滤条件%s错误:%s", filterCondition, parseResult.getErrorMessage()));
-        }
-
-        parseResult = tagService.parseComputeCondition(computeCondition, targetTableId);
-
-        if (!parseResult.isSuccess()) {
-            return Result.error(String.format("规则条件%s错误:%s", computeCondition, parseResult.getErrorMessage()));
-        }
-
-        tag.setFilterCondition(filterCondition);
-        tag.setComputeCondition(computeCondition);
+        tag.setTagValues(tagValues);
         tag.setCreateTime(LocalDateTime.now());
         tag.setLastUpdated(LocalDateTime.now());
 
@@ -226,18 +262,26 @@ public class TagController {
 
         Table table = tableService.getById(tag.getTableId());
         String tableName = table.getName();
-        List<String> columnNames = table.getColumns().stream().map(it -> it.getName()).collect(Collectors.toList());
+        String tagTableName = String.format("tag_%d", tag.getId());
+        List<String> columnNames = new ArrayList<>();
+
+        List<String> tagColumns = Arrays.asList("tag_value_id", "tag_value_value");
+        columnNames.addAll(table.getColumns().stream().map(it -> it.getName()).collect(Collectors.toList()));
 
         Query query = new Query();
+
+        for (String tagColumn: tagColumns) {
+            query.select(new Column(tagTableName, tagColumn));
+        }
 
         for (String columnName : columnNames) {
             query.select(new Column(tableName, columnName));
         }
 
-        com.anshishagua.parser.nodes.sql.Table left = new com.anshishagua.parser.nodes.sql.Table("tag_" + tag.getId());
+        com.anshishagua.parser.nodes.sql.Table left = new com.anshishagua.parser.nodes.sql.Table(tagTableName);
         com.anshishagua.parser.nodes.sql.Table right = new com.anshishagua.parser.nodes.sql.Table(tableName);
 
-        query.join(new Join(left, right, JoinType.INNER_JOIN, new Equal(new Column("tag_" + tag.getId(), "id"), new Column(tableName, table.getPrimaryKeys().get(0).getName()))));
+        query.join(new Join(left, right, JoinType.INNER_JOIN, new Equal(new Column(tagTableName, "id"), new Column(tableName, table.getPrimaryKeys().get(0).getName()))));
 
         String sql = query.toSQL();
 
@@ -297,6 +341,11 @@ public class TagController {
         modelAndView.addObject("data", data);
 
         return modelAndView;
+    }
+
+    @RequestMapping("/value")
+    public String tagValue() {
+        return "tag/tagValue";
     }
 
     @RequestMapping("/export")

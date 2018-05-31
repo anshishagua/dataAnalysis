@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anshishagua.mybatis.mapper.TagValueMapper">
+    <resultMap id="tagValueMapper" type="com.anshishagua.object.TagValue">
+        <id column="id" property="id" jdbcType="BIGINT"></id>
+        <result column="tag_id" property="tagId" jdbcType="BIGINT"></result>
+        <result column="value" property="value" jdbcType="VARCHAR"></result>
+        <result column="order" property="order" jdbcType="INTEGER"></result>
+        <result column="filter_condition" property="filterCondition" jdbcType="VARCHAR"></result>
+        <result column="compute_condition" property="computeCondition" jdbcType="VARCHAR"></result>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
+        <result column="description" property="description" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <insert id="insert" keyColumn="id" keyProperty="id" useGeneratedKeys="true" flushCache="true">
+        INSERT INTO `t_tag_value`(`tag_id`, `value`, `order`, `filter_condition`, `compute_condition`, `create_time`, `last_updated`, `description`)
+        VALUES (#{tagId},
+                #{value},
+                #{order},
+                #{filterCondition},
+                #{computeCondition},
+                NOW(),
+                NOW(),
+                #{description}
+        )
+    </insert>
+    <select id="getById" resultMap="tagValueMapper">
+        SELECT *
+        FROM `t_tag_value`
+        WHERE id = #{id};
+    </select>
+    <select id="getByTagId" resultMap="tagValueMapper">
+        SELECT *
+        FROM `t_tag_value`
+        WHERE `tag_id` = #{tagId}
+        ORDER BY `order`;
+    </select>
+</mapper>

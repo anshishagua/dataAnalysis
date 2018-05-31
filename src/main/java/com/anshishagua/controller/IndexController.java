@@ -7,7 +7,7 @@ import com.anshishagua.object.DataType;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.IndexDimension;
 import com.anshishagua.object.IndexMetric;
-import com.anshishagua.object.IndexType;
+import com.anshishagua.constants.IndexType;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;

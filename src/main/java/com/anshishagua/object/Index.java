@@ -1,5 +1,7 @@
 package com.anshishagua.object;
 
+import com.anshishagua.constants.IndexType;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;

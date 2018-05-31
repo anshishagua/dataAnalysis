@@ -2,7 +2,7 @@ package com.anshishagua.controller;
 
 import com.anshishagua.compute.Task;
 import com.anshishagua.compute.TaskExecution;
-import com.anshishagua.object.TaskType;
+import com.anshishagua.constants.TaskType;
 import com.anshishagua.service.TaskExecutionService;
 import com.anshishagua.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;

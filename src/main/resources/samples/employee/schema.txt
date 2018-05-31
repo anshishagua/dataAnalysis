@@ -1,0 +1,7 @@
+
+id,bigint
+name,string
+age,int
+weight,double
+is_marry,boolean
+birth_date,date

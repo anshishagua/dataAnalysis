@@ -5,10 +5,7 @@
     <resultMap id="tagMapper" type="com.anshishagua.object.Tag">
         <id column="id" property="id" jdbcType="BIGINT"></id>
         <result column="name" property="name" jdbcType="VARCHAR"></result>
-        <result column="group_id" property="groupId" jdbcType="BIGINT"></result>
         <result column="table_id" property="tableId" jdbcType="BIGINT"></result>
-        <result column="filter_condition" property="filterCondition" jdbcType="VARCHAR"></result>
-        <result column="compute_condition" property="computeCondition" jdbcType="VARCHAR"></result>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="description" property="description" jdbcType="VARCHAR"></result>
@@ -16,14 +13,11 @@
         <result column="sql_generate_result" property="sqlGenerateResult" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.SQLGenerateResultHandler"></result>
     </resultMap>
     <insert id="insert" keyColumn="id" keyProperty="id" useGeneratedKeys="true" flushCache="true">
-        INSERT INTO `t_tag`(`name`, `group_id`, `table_id`, `filter_condition`, `compute_condition`, `create_time`, `last_updated`, `description`, `sql_generate_result`)
+        INSERT INTO `t_tag`(`name`, `table_id`, `create_time`, `last_updated`, `description`, `sql_generate_result`)
                 VALUES (#{name},
-                        #{groupId},
                         #{tableId},
-                        #{filterCondition},
-                        #{computeCondition},
-                        #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
-                        #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
+                        NOW(),
+                        NOW(),
                         #{description},
                         #{sqlGenerateResult, typeHandler=com.anshishagua.mybatis.typehandler.SQLGenerateResultHandler}
                 )

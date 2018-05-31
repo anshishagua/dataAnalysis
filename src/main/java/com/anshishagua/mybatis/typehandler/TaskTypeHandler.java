@@ -1,6 +1,6 @@
 package com.anshishagua.mybatis.typehandler;
 
-import com.anshishagua.object.TaskType;
+import com.anshishagua.constants.TaskType;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;

@@ -1,4 +1,4 @@
-package com.anshishagua.object;
+package com.anshishagua.constants;
 
 /**
  * User: lixiao
@@ -21,6 +21,10 @@ public enum IndexType {
 
     public String getValue() {
         return value;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public static IndexType parseByValue(String value) {

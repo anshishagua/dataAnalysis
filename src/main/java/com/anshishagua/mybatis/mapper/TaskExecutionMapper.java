@@ -1,7 +1,7 @@
 package com.anshishagua.mybatis.mapper;
 
 import com.anshishagua.compute.TaskExecution;
-import com.anshishagua.object.TaskStatus;
+import com.anshishagua.constants.TaskStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

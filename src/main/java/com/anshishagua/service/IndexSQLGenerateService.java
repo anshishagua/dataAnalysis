@@ -4,7 +4,7 @@ import com.anshishagua.exceptions.UnableToJoinException;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.IndexDimension;
 import com.anshishagua.object.IndexMetric;
-import com.anshishagua.object.IndexType;
+import com.anshishagua.constants.IndexType;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.parser.nodes.sql.Insert;

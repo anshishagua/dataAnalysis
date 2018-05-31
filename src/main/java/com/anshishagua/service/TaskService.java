@@ -2,7 +2,7 @@ package com.anshishagua.service;
 
 import com.anshishagua.compute.Task;
 import com.anshishagua.mybatis.mapper.TaskMapper;
-import com.anshishagua.object.TaskType;
+import com.anshishagua.constants.TaskType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

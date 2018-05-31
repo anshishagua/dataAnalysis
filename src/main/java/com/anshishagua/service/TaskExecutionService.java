@@ -6,8 +6,8 @@ import com.anshishagua.mybatis.mapper.TaskExecutionMapper;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Tag;
-import com.anshishagua.object.TaskStatus;
-import com.anshishagua.object.TaskType;
+import com.anshishagua.constants.TaskStatus;
+import com.anshishagua.constants.TaskType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,7 +160,6 @@ public class TaskExecutionService {
 
             threadPoolService.submit(taskExecution);
         } else {
-
             if (forceToReExecute) {
                 threadPoolService.submit(taskExecution);
 
@@ -174,6 +173,7 @@ public class TaskExecutionService {
                 taskExecution.setStatus(TaskStatus.READY_TO_RUN);
                 taskExecution.setLastUpdated(LocalDateTime.now());
                 taskExecution.setEndTime(null);
+                taskExecution.setErrorMessage(null);
                 taskExecution.setExecutionSeconds(-1);
 
                 update(taskExecution);

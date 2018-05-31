@@ -2,6 +2,8 @@ package com.anshishagua.object;
 
 import com.anshishagua.compute.Task;
 import com.anshishagua.compute.TaskExecution;
+import com.anshishagua.constants.TaskStatus;
+import com.anshishagua.constants.TaskType;
 import com.anshishagua.service.IndexService;
 import com.anshishagua.service.SQLExecuteService;
 import com.anshishagua.service.TagService;

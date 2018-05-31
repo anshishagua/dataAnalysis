@@ -4,7 +4,7 @@ import com.anshishagua.compute.Task;
 import com.anshishagua.compute.TaskExecution;
 import com.anshishagua.object.Result;
 import com.anshishagua.object.Table;
-import com.anshishagua.object.TaskStatus;
+import com.anshishagua.constants.TaskStatus;
 import com.anshishagua.service.HiveService;
 import com.anshishagua.service.TableService;
 import com.anshishagua.service.TaskDependencyService;

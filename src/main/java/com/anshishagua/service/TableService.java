@@ -5,15 +5,13 @@ import com.anshishagua.mybatis.mapper.TableMapper;
 import com.anshishagua.object.CronExpressionConstants;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableColumn;
-import com.anshishagua.object.TaskType;
+import com.anshishagua.constants.TaskType;
 import com.anshishagua.utils.AssertUtils;
-import org.apache.logging.log4j.core.util.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;

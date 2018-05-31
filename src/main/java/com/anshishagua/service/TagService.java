@@ -3,13 +3,15 @@ package com.anshishagua.service;
 import com.anshishagua.compute.Task;
 import com.anshishagua.exceptions.SemanticException;
 import com.anshishagua.mybatis.mapper.TagMapper;
+import com.anshishagua.mybatis.mapper.TagValueMapper;
 import com.anshishagua.object.CronExpressionConstants;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableRelation;
 import com.anshishagua.object.Tag;
-import com.anshishagua.object.TaskType;
+import com.anshishagua.constants.TaskType;
+import com.anshishagua.object.TagValue;
 import com.anshishagua.parser.grammar.ExpressionParser;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
@@ -53,12 +55,15 @@ public class TagService {
     private TaskDependencyService taskDependencyService;
     @Autowired
     private TagMapper tagMapper;
+    @Autowired
+    private TagValueMapper tagValueMapper;
 
     public Tag getById(long tagId) {
         Tag tag = tagMapper.getById(tagId);
 
         if (tag != null) {
             tag.setTable(tableService.getById(tag.getTableId()));
+            tag.setTagValues(tagValueMapper.getByTagId(tag.getId()));
         }
 
         return tag;
@@ -69,6 +74,7 @@ public class TagService {
 
         if (tag != null) {
             tag.setTable(tableService.getById(tag.getTableId()));
+            tag.setTagValues(tagValueMapper.getByTagId(tag.getId()));
         }
 
         return tag;
@@ -174,6 +180,11 @@ public class TagService {
     public void addTag(Tag tag) {
         tagMapper.insert(tag);
 
+        for (TagValue tagValue : tag.getTagValues()) {
+            tagValue.setTagId(tag.getId());
+            tagValueMapper.insert(tagValue);
+        }
+
         SQLGenerateResult sqlGenerateResult = sqlGenerateService.generate(tag);
         tag.setSqlGenerateResult(sqlGenerateResult);
 
@@ -213,6 +224,7 @@ public class TagService {
 
         for (Tag tag : tags) {
             tag.setTable(tableService.getById(tag.getTableId()));
+            tag.setTagValues(tagValueMapper.getByTagId(tag.getId()));
         }
 
         return tags;

@@ -27,6 +27,9 @@ public class Column extends AbstractNode<Void> {
     }
 
     public Column(String tableName, String columnName) {
+        Objects.requireNonNull(tableName);
+        Objects.requireNonNull(columnName);
+
         this.tableName = tableName;
         this.columnName = columnName;
     }

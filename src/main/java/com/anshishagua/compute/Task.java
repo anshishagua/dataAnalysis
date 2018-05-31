@@ -1,6 +1,6 @@
 package com.anshishagua.compute;
 
-import com.anshishagua.object.TaskType;
+import com.anshishagua.constants.TaskType;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
