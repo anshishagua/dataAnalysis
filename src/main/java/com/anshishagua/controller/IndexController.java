@@ -28,6 +28,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -313,6 +317,7 @@ public class IndexController {
 
         Index index = indexService.getById(indexId);
 
+        modelAndView.addObject("indexId", indexId);
         modelAndView.addObject("indexName", index.getName());
 
         List<String> tableHeaders = new ArrayList<>();
@@ -346,5 +351,63 @@ public class IndexController {
         modelAndView.addObject("result", result);
 
         return  modelAndView;
+    }
+
+    @RequestMapping("/export")
+    public void export(HttpServletResponse response, @RequestParam("indexId") long indexId) {
+        Index index = indexService.getById(indexId);
+
+        String fileName = String.format("index_%d.csv", indexId);
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+        Charset charset = StandardCharsets.UTF_8;
+
+        if (index == null) {
+            try {
+                response.getOutputStream().write(String.format("指标%d不存在\n", indexId).getBytes(charset));
+                response.getOutputStream().close();
+            } catch (IOException ex) {
+                LOG.error("", ex);
+            }
+
+            return;
+        }
+
+        List<String> headers = new ArrayList<>();
+        headers.addAll(index.getDimensions().stream().map(dimension -> dimension.getName()).collect(Collectors.toList()));
+        headers.addAll(index.getMetrics().stream().map(metric -> metric.getName()).collect(Collectors.toList()));
+
+        String sql = "SELECT * FROM index_" + indexId;
+
+        List<List<String>> result = new ArrayList<>();
+
+        ResultSet resultSet = null;
+        try {
+            String header = headers.stream().collect(Collectors.joining(",")) + "\n";
+            response.getOutputStream().write(header.getBytes(charset));
+
+            resultSet = hiveService.executeQuery(sql);
+
+            int columns = headers.size();
+
+            while (resultSet.next()) {
+                List<String> list = new ArrayList<>();
+
+                for (int i = 1; i <= columns; ++i) {
+                    list.add(resultSet.getString(i));
+                }
+
+                String line = list.stream().collect(Collectors.joining(",")) + "\n";
+
+                response.getOutputStream().write(line.getBytes(charset));
+            }
+
+            response.getOutputStream().close();
+        } catch (SQLException ex) {
+            LOG.error("Failed to execute sql {}", sql, ex);
+        } catch (IOException ex) {
+            LOG.error("Failed to write to output stream", ex);
+        }
     }
 }

@@ -28,11 +28,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -215,15 +221,9 @@ public class TagController {
         return Result.ok();
     }
 
-    @RequestMapping("/data")
-    public ModelAndView data(@RequestParam("id") long tagId) {
-        ModelAndView modelAndView = new ModelAndView("tag/data");
+    private String tagQuerySQL(Tag tag) {
+        Objects.requireNonNull(tag);
 
-        Tag tag = tagService.getById(tagId);
-
-        modelAndView.addObject("tagName", tag == null ? "" : tag.getName());
-
-        ResultSet resultSet = null;
         Table table = tableService.getById(tag.getTableId());
         String tableName = table.getName();
         List<String> columnNames = table.getColumns().stream().map(it -> it.getName()).collect(Collectors.toList());
@@ -234,16 +234,51 @@ public class TagController {
             query.select(new Column(tableName, columnName));
         }
 
-        com.anshishagua.parser.nodes.sql.Table left = new com.anshishagua.parser.nodes.sql.Table("tag_" + tagId);
+        com.anshishagua.parser.nodes.sql.Table left = new com.anshishagua.parser.nodes.sql.Table("tag_" + tag.getId());
         com.anshishagua.parser.nodes.sql.Table right = new com.anshishagua.parser.nodes.sql.Table(tableName);
 
-        query.join(new Join(left, right, JoinType.INNER_JOIN, new Equal(new Column("tag_" + tagId, "id"), new Column(tableName, table.getPrimaryKeys().get(0).getName()))));
+        query.join(new Join(left, right, JoinType.INNER_JOIN, new Equal(new Column("tag_" + tag.getId(), "id"), new Column(tableName, table.getPrimaryKeys().get(0).getName()))));
 
         String sql = query.toSQL();
+
+        return sql;
+    }
+
+    private List<String> columnNames(ResultSet resultSet) throws SQLException {
+        Objects.requireNonNull(resultSet);
+
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+
+        List<String> columnNames = new ArrayList<>(columnCount);
+
+        for (int i = 1; i <= columnCount; ++i) {
+            columnNames.add(metaData.getColumnName(i));
+        }
+
+        return columnNames;
+    }
+
+    @RequestMapping("/data")
+    public ModelAndView data(@RequestParam("id") long tagId) {
+        ModelAndView modelAndView = new ModelAndView("tag/data");
+
+        Tag tag = tagService.getById(tagId);
+
+        modelAndView.addObject("tagId", tagId);
+        modelAndView.addObject("tagName", tag == null ? "" : tag.getName());
+
+        ResultSet resultSet = null;
+
         List<List<String>> data = new ArrayList<>();
+
+        String sql = tagQuerySQL(tag);
+        List<String> columnNames = null;
 
         try {
             resultSet = hiveService.executeQuery(sql);
+
+            columnNames = columnNames(resultSet);
 
             while (resultSet.next()) {
                 List<String> list = new ArrayList<>();
@@ -262,5 +297,60 @@ public class TagController {
         modelAndView.addObject("data", data);
 
         return modelAndView;
+    }
+
+    @RequestMapping("/export")
+    public void export(HttpServletResponse response, @RequestParam("tagId") long tagId) {
+        Tag tag = tagService.getById(tagId);
+
+        String fileName = String.format("tag_%d.csv", tagId);
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+        Charset charset = StandardCharsets.UTF_8;
+
+        if (tag == null) {
+            try {
+                response.getOutputStream().write(String.format("标签%d不存在\n", tagId).getBytes(charset));
+                response.getOutputStream().close();
+            } catch (IOException ex) {
+                LOG.error("", ex);
+            }
+
+            return;
+        }
+
+        String sql = tagQuerySQL(tag);
+        List<String> columnNames = null;
+
+        ResultSet resultSet = null;
+
+        try {
+            resultSet = hiveService.executeQuery(sql);
+
+            columnNames = columnNames(resultSet);
+
+            String header = columnNames.stream().collect(Collectors.joining(",")) + "\n";
+
+            response.getOutputStream().write(header.getBytes(charset));
+
+            while (resultSet.next()) {
+                List<String> list = new ArrayList<>();
+
+                for (String columnName : columnNames) {
+                    list.add(resultSet.getString(columnName));
+                }
+
+                String line = list.stream().collect(Collectors.joining(",")) + "\n";
+
+                response.getOutputStream().write(line.getBytes(charset));
+            }
+
+            response.getOutputStream().close();
+        } catch (SQLException ex) {
+            LOG.error("Failed to execute sql {}", sql, ex);
+        } catch (IOException ex) {
+            LOG.error("Failed to write data", ex);
+        }
     }
 }
