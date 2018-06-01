@@ -5,8 +5,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/simple-side-bar.css">
     <script src="/static/js/jquery-3.3.1.min.js"></script>
     <script src="/static/js/bootstrap.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -70,76 +79,89 @@
     });
 </script>
 
-<form role="form" action="/tag/add" class="form-horizontal">
-    <div class="form-group left-table has-feedback">
-        <label for="leftTable" class="col-sm-2 control-label">左侧表名</label>
-        <div class="col-sm-6">
-            <select class="form-control" name="leftTable" id="leftTable">
-                <#list tables as table>
-                    <option name="${table.name}" value="${table.id}">${table.alias}</option>
-                </#list>
-            </select>
-            <span class="glyphicon form-control-feedback" style="display: none"></span>
+<div id="wrapper">
+    <#include "/common/header.html"/>
+
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <h2>关联关系定义</h2>
+                <div class="col-sm-offset-11 col-sm-1">
+                    <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
+                </div>
+            </div>
+            <form role="form" action="/tag/add" class="form-horizontal">
+                <div class="form-group left-table has-feedback">
+                    <label for="leftTable" class="col-sm-2 control-label">左侧表名</label>
+                    <div class="col-sm-6">
+                        <select class="form-control" name="leftTable" id="leftTable">
+                            <#list tables as table>
+                            <option name="${table.name}" value="${table.id}">${table.alias}</option>
+                        </#list>
+                        </select>
+                        <span class="glyphicon form-control-feedback" style="display: none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group left-column has-feedback">
+                    <label for="leftColumn" class="col-sm-2 control-label">左侧字段名</label>
+                    <div class="col-sm-6">
+                        <select class="form-control" name="leftColumn" id="leftColumn">
+
+                        </select>
+                        <span class="glyphicon form-control-feedback" style="display: none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group join-type has-feedback">
+                    <label for="joinType" class="col-sm-2 control-label">关联类型</label>
+                    <div class="col-sm-6">
+                        <select class="form-control" name="joinType" id="joinType">
+                            <#list joinTypes as joinType>
+                            <option name="${joinType.description}" value="${joinType.value}">${joinType.description}</option>
+                        </#list>
+                        </select>
+                        <span class="glyphicon form-control-feedback" style="display: none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group right-table has-feedback">
+                    <label for="rightTable" class="col-sm-2 control-label">右侧表名</label>
+                    <div class="col-sm-6">
+                        <select class="form-control" name="rightTable" id="rightTable">
+                            <#list tables as table>
+                            <option name="${table.name}" value="${table.id}">${table.alias}</option>
+                        </#list>
+                        </select>
+                        <span class="glyphicon form-control-feedback" style="display: none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group right-column has-feedback">
+                    <label for="rightColumn" class="col-sm-2 control-label">右侧字段名</label>
+                    <div class="col-sm-6">
+                        <select class="form-control" name="rightColumn" id="rightColumn">
+
+                        </select>
+                        <span class="glyphicon form-control-feedback" style="display: none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="control-label col-sm-2">描述信息</label>
+                    <div class="col-sm-6">
+                        <input type="text" id="description" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" class="btn btn-info" id="submit">提交</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
-
-    <div class="form-group left-column has-feedback">
-        <label for="leftColumn" class="col-sm-2 control-label">左侧字段名</label>
-        <div class="col-sm-6">
-            <select class="form-control" name="leftColumn" id="leftColumn">
-
-            </select>
-            <span class="glyphicon form-control-feedback" style="display: none"></span>
-        </div>
-    </div>
-
-    <div class="form-group join-type has-feedback">
-        <label for="joinType" class="col-sm-2 control-label">关联类型</label>
-        <div class="col-sm-6">
-            <select class="form-control" name="joinType" id="joinType">
-                <#list joinTypes as joinType>
-                    <option name="${joinType.description}" value="${joinType.value}">${joinType.description}</option>
-                </#list>
-            </select>
-            <span class="glyphicon form-control-feedback" style="display: none"></span>
-        </div>
-    </div>
-
-    <div class="form-group right-table has-feedback">
-        <label for="rightTable" class="col-sm-2 control-label">右侧表名</label>
-        <div class="col-sm-6">
-            <select class="form-control" name="rightTable" id="rightTable">
-                <#list tables as table>
-                    <option name="${table.name}" value="${table.id}">${table.alias}</option>
-                </#list>
-            </select>
-            <span class="glyphicon form-control-feedback" style="display: none"></span>
-        </div>
-    </div>
-
-    <div class="form-group right-column has-feedback">
-        <label for="rightColumn" class="col-sm-2 control-label">右侧字段名</label>
-        <div class="col-sm-6">
-            <select class="form-control" name="rightColumn" id="rightColumn">
-
-            </select>
-            <span class="glyphicon form-control-feedback" style="display: none"></span>
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label for="description" class="control-label col-sm-2">描述信息</label>
-        <div class="col-sm-6">
-            <input type="text" id="description" class="form-control">
-        </div>
-    </div>
-
-    <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-            <button type="button" class="btn btn-info" id="submit">提交</button>
-        </div>
-    </div>
-</form>
-
+</div>
 </body>
 </html>

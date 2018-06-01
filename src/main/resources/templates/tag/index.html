@@ -5,10 +5,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/simple-side-bar.css">
     <link rel="stylesheet" href="/static/css/jquery-ui.css">
     <script src="/static/js/jquery-3.3.1.min.js"></script>
     <script src="/static/js/bootstrap.js"></script>
     <script src="/static/js/jquery-ui.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -175,135 +184,121 @@
     });
 </script>
 
-<div class="container">
-    <div class="row">
-        <h2>标签定义</h2>
-    </div>
-    <div class="row">
-        <div class="col-sm-3">
-            <div id="tree">
-                <ul>
-                    <li>
-                        <button class="btn menu">四则运算符</button>
+<div id="wrapper">
+    <#include "/common/header.html"/>
+
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <h2>标签定义</h2>
+                <div class="col-sm-offset-11 col-sm-1">
+                    <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div id="tree">
                         <ul>
-                            <#list operators as operator>
-                                <li><button class="btn operator">${operator}</button></li>
+                            <li>
+                                <button class="btn menu">四则运算符</button>
+                                <ul>
+                                    <#list operators as operator>
+                                    <li><button class="btn operator">${operator}</button></li>
+                                </#list>
+                        </ul>
+                        </li>
+                        <li>
+                            <button class="btn menu">布尔运算符</button>
+                            <ul>
+                                <#list bools as operator>
+                                <li><button class="btn bool">${operator}</button></li>
                             </#list>
-                        </ul>
-                    </li>
-                    <li>
-                        <button class="btn menu">布尔运算符</button>
-                        <ul>
-                            <#list bools as operator>
-                            <li><button class="btn bool">${operator}</button></li>
-                        </#list>
-                        </ul>
-                    </li>
-                    <li>
-                        <button class="btn menu">比较运算符</button>
-                        <ul>
-                            <#list compares as compare>
-                            <li><button class="btn compare">${compare}</button></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <button class="btn menu">比较运算符</button>
+                            <ul>
+                                <#list compares as compare>
+                                <li><button class="btn compare">${compare}</button></li>
                             </#list>
-                        </ul>
-                    </li>
-                    <li>
-                        <button class="btn menu">函数</button>
-                        <ul>
-                            <#list functions as function>
+                            </ul>
+                        </li>
+                        <li>
+                            <button class="btn menu">函数</button>
+                            <ul>
+                                <#list functions as function>
                                 <li><button class="btn function">${function}</button></li>
                             </#list>
-                        </ul>
-                    </li>
-                    <li>
-                        <button class="btn menu">表</button>
-                        <ul>
-                            <#list tableColumns?keys as tableName>
+                            </ul>
+                        </li>
+                        <li>
+                            <button class="btn menu">表</button>
+                            <ul>
+                                <#list tableColumns?keys as tableName>
                                 <button class="btn table-name menu">${tableName}</button>
 
                                 <ul>
                                     <#assign columns = tableColumns[tableName]>
                                     <#list columns as column>
-                                        <li><button class="btn column">${column}</button></li>
-                                    </#list>
-                                </ul>
-                            </#list>
+                                    <li><button class="btn column">${column}</button></li>
+                                </#list>
+                            </ul>
+                        </#list>
                         </ul>
-                    </li>
+                        </li>
 
-                </ul>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-9">
+                    <form role="form" action="/tag/add" class="form-horizontal">
+                        <div class="form-group tag-name-group has-feedback">
+                            <label for="tagName" class="col-sm-2 control-label">标签名</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="tagName" name="tagName" class="form-control">
+                                <span class="glyphicon form-control-feedback" style="display: none"></span>
+                            </div>
+                            <label class="control-label" for="tagName" style="display: none">标签名不为空</label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="targetTable" class="control-label col-sm-2">贴标表</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" name="targetTable" id="targetTable">
+                                    <#list tables as table>
+                                    <option name="${table.name}" value="${table.id}">${table.alias}</option>
+                                </#list>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="button" id="add-tag-value" class="btn btn-info">增加标签值</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <table id="tag-values" class="table table-striped">
+                                <thead>
+                                <th>标签值</th>
+                                <th>过滤条件</th>
+                                <th>规则表达式</th>
+                                <th>描述</th>
+                                <th>操作</th>
+                                </thead>
+                                <tbody id="tag-values-body"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="button" class="btn btn-info" id="submit">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
-        <div class="col-sm-9">
-            <form role="form" action="/tag/add" class="form-horizontal">
-                <div class="form-group tag-name-group has-feedback">
-                    <label for="tagName" class="col-sm-2 control-label">标签名</label>
-                    <div class="col-sm-10">
-                        <input type="text" id="tagName" name="tagName" class="form-control">
-                        <span class="glyphicon form-control-feedback" style="display: none"></span>
-                    </div>
-                    <label class="control-label" for="tagName" style="display: none">标签名不为空</label>
-                </div>
-
-                <div class="form-group">
-                    <label for="targetTable" class="control-label col-sm-2">贴标表</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" name="targetTable" id="targetTable">
-                            <#list tables as table>
-                            <option name="${table.name}" value="${table.id}">${table.alias}</option>
-                            </#list>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" id="add-tag-value" class="btn btn-info">增加标签值</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <table id="tag-values" class="table table-striped">
-                        <thead>
-                            <th>标签值</th>
-                            <th>过滤条件</th>
-                            <th>规则表达式</th>
-                            <th>描述</th>
-                            <th>操作</th>
-                        </thead>
-                        <tbody id="tag-values-body"></tbody>
-                    </table>
-                </div>
-
-                <!--
-                <div class="form-group">
-                    <label for="filterCondition" class="control-label col-sm-2">过滤条件</label>
-                    <div class="col-sm-10">
-                        <textarea id="filterCondition" class="form-control" rows="5"></textarea>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="computeCondition" class="control-label col-sm-2">规则条件</label>
-                    <div class="col-sm-10">
-                        <textarea id="computeCondition" class="form-control" rows="5"></textarea>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="description" class="control-label col-sm-2">描述信息</label>
-                    <div class="col-sm-10">
-                        <input type="text" id="description" class="form-control">
-                    </div>
-                </div>
-                -->
-
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" class="btn btn-info" id="submit">提交</button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 </div>

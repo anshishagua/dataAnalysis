@@ -127,6 +127,20 @@ public class TaskExecutionService {
         taskIds.forEach(taskId -> executeTask(taskId, executeDate, false));
     }
 
+    public void executeTask(TaskExecution taskExecution) {
+        Objects.requireNonNull(taskExecution);
+
+        taskExecution.setStatus(TaskStatus.READY_TO_RUN);
+        taskExecution.setLastUpdated(LocalDateTime.now());
+        taskExecution.setEndTime(null);
+        taskExecution.setErrorMessage(null);
+        taskExecution.setExecutionSeconds(-1);
+
+        update(taskExecution);
+
+        threadPoolService.submit(taskExecution);
+    }
+
     public void executeTask(Task task, String executeDate, boolean forceToReExecute) {
         Objects.requireNonNull(task);
 

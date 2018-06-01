@@ -50,6 +50,19 @@ public class TaskExecutionController {
         return modelAndView;
     }
 
+    @RequestMapping("/rerun")
+    public ModelAndView rerun(@RequestParam("taskExecutionId") long taskExecutionId) {
+        TaskExecution taskExecution = taskExecutionService.getById(taskExecutionId);
+
+        taskExecutionService.executeTask(taskExecution);
+
+        ModelAndView modelAndView = new ModelAndView("taskExecution/list");
+
+        modelAndView.addObject("taskExecutions", taskExecutionService.getAll());
+
+        return modelAndView;
+    }
+
     @RequestMapping("/execute")
     public ModelAndView execute(@RequestParam("type") String type,
                                 @RequestParam("objectId") long objectId, @RequestParam(value = "force", defaultValue = "false") boolean force) {

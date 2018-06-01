@@ -5,41 +5,71 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/simple-side-bar.css">
     <script src="/static/js/jquery-3.3.1.min.js"></script>
     <script src="/static/js/bootstrap.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        });
+    </script>
 </head>
 <body>
-<table class="table table-striped">
-    <thead>
-    <th>ID</th>
-    <th>调度任务ID</th>
-    <th>任务类型</th>
-    <th>任务状态</th>
-    <th>执行日期</th>
-    <th>创建时间</th>
-    <th>开始时间</th>
-    <th>结束时间</th>
-    <th>运行时长(s)</th>
-    <th>执行SQL列表</th>
-    <th>失败信息</th>
-    </thead>
-    <tbody>
-    <#list taskExecutions as taskExecution>
-    <tr>
-        <td>${taskExecution.id}</td>
-        <td>${taskExecution.taskId}</td>
-        <td>${taskExecution.task.taskType.description}</td>
-        <td>${taskExecution.status.description}</td>
-        <td>${taskExecution.executeDate}</td>
-        <td>${taskExecution.createTime}</td>
-        <td>${taskExecution.startTime!}</td>
-        <td>${taskExecution.endTime!}</td>
-        <td>${taskExecution.executionSeconds}</td>
-        <td>${taskExecution.sqlString}</td>
-        <td>${taskExecution.errorMessage!}</td>
-    </tr>
-    </#list>
-    </tbody>
-</table>
+<div id="wrapper">
+    <#include "/common/header.html"/>
 
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <h2>任务监控</h2>
+                <div class="col-sm-offset-11 col-sm-1">
+                    <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
+                </div>
+            </div>
+            <div class="row">
+                <table class="table table-striped">
+                    <thead>
+                    <th>ID</th>
+                    <th>调度任务ID</th>
+                    <th>任务类型</th>
+                    <th>任务状态</th>
+                    <th>执行日期</th>
+                    <th>创建时间</th>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>运行时长(s)</th>
+                    <th>执行SQL列表</th>
+                    <th>失败信息</th>
+                    <th>重新执行</th>
+                    </thead>
+                    <tbody>
+                    <#list taskExecutions as taskExecution>
+                    <tr>
+                        <td>${taskExecution.id}</td>
+                        <td>${taskExecution.taskId}</td>
+                        <td>${taskExecution.task.taskType.description}</td>
+                        <td>${taskExecution.status.description}</td>
+                        <td>${taskExecution.executeDate}</td>
+                        <td>${taskExecution.createTime}</td>
+                        <td>${taskExecution.startTime!}</td>
+                        <td>${taskExecution.endTime!}</td>
+                        <td>${taskExecution.executionSeconds}</td>
+                        <td>${taskExecution.sqlString}</td>
+                        <td>${taskExecution.errorMessage!}</td>
+                        <td>
+                            <#if taskExecution.status.value == 'FINISHED_FAILED'>
+                                <a class="btn-info btn" href="/taskExecution/rerun?taskExecutionId=${taskExecution.id}">重新执行</a>
+                            </#if>
+                        </td>
+                    </tr>
+                    </#list>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 </body>

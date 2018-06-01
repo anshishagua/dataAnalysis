@@ -5,32 +5,57 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/simple-side-bar.css">
     <script src="/static/js/jquery-3.3.1.min.js"></script>
     <script src="/static/js/bootstrap.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        });
+    </script>
 </head>
 <body>
-<table class="table table-striped">
-    <thead>
-        <th>ID</th>
-        <th>名称</th>
-        <th>类型</th>
-        <th>描述</th>
-        <th>创建时间</th>
-        <th>执行</th>
-        <th>数据展示</th>
-    </thead>
-    <tbody>
-    <#list indices as index>
-    <tr>
-        <td>${index.id}</td>
-        <td>${index.name}</td>
-        <td>${index.indexType}</td>
-        <td>${index.description!}</td>
-        <td>${index.createTime}</td>
-        <td><a href="/taskExecution/execute?type=INDEX&objectId=${index.id}">执行</a></td>
-        <td><a href="/index/data?id=${index.id}">数据展示</a> </td>
-    </tr>
-    </#list>
-    </tbody>
-</table>
+<div id="wrapper">
+    <#include "/common/header.html"/>
+
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <h2>指标列表</h2>
+                <div class="col-sm-offset-11 col-sm-1">
+                    <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
+                </div>
+            </div>
+            <div class="row">
+                <table class="table table-striped">
+                    <thead>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>类型</th>
+                    <th>描述</th>
+                    <th>创建时间</th>
+                    <th>执行</th>
+                    <th>数据展示</th>
+                    </thead>
+                    <tbody>
+                    <#list indices as index>
+                    <tr>
+                        <td>${index.id}</td>
+                        <td>${index.name}</td>
+                        <td>${index.indexType}</td>
+                        <td>${index.description!}</td>
+                        <td>${index.createTime}</td>
+                        <td><a href="/taskExecution/execute?type=INDEX&objectId=${index.id}">执行</a></td>
+                        <td><a href="/index/data?id=${index.id}">数据展示</a> </td>
+                    </tr>
+                    </#list>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 </body>

@@ -5,8 +5,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/simple-side-bar.css">
     <script src="/static/js/jquery-3.3.1.min.js"></script>
     <script src="/static/js/bootstrap.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -213,160 +222,167 @@
     });
 </script>
 
-<div class="container">
-    <div class="row">
-        <h2>指标定义</h2>
-    </div>
-    <div class="row">
-        <div class="col-sm-3">
-            <div class="col-sm-3">
-                <div id="tree">
-                    <ul>
-                        <li>
-                            <button class="btn menu">四则运算符</button>
-                            <ul>
-                                <#list operators as operator>
-                                <li><button class="btn operator">${operator}</button></li>
-                            </#list>
-                    </ul>
-                    </li>
-                    <li>
-                        <button class="btn menu">布尔运算符</button>
-                        <ul>
-                            <#list bools as operator>
-                            <li><button class="btn bool">${operator}</button></li>
-                        </#list>
-                        </ul>
-                    </li>
-                    <li>
-                        <button class="btn menu">比较运算符</button>
-                        <ul>
-                            <#list compares as compare>
-                            <li><button class="btn compare">${compare}</button></li>
-                        </#list>
-                        </ul>
-                    </li>
-                    <li>
-                        <button class="btn menu">函数</button>
-                        <ul>
-                            <#list functions as function>
-                            <li><button class="btn function">${function}</button></li>
-                        </#list>
-                        </ul>
-                    </li>
-                    <li>
-                        <button class="btn menu table-list">表</button>
-                        <ul>
-                            <#list tableColumns?keys as tableName>
-                                <button class="btn table-name menu">${tableName}</button>
+<div id="wrapper">
+    <#include "/common/header.html"/>
 
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <h2>指标定义</h2>
+                <div class="col-sm-offset-11 col-sm-1">
+                    <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="col-sm-3">
+                        <div id="tree">
+                            <ul>
+                                <li>
+                                    <button class="btn menu">四则运算符</button>
+                                    <ul>
+                                        <#list operators as operator>
+                                        <li><button class="btn operator">${operator}</button></li>
+                                    </#list>
+                            </ul>
+                            </li>
+                            <li>
+                                <button class="btn menu">布尔运算符</button>
                                 <ul>
-                                    <#assign columns = tableColumns[tableName]>
-                                    <#list columns as column>
+                                    <#list bools as operator>
+                                    <li><button class="btn bool">${operator}</button></li>
+                                </#list>
+                                </ul>
+                            </li>
+                            <li>
+                                <button class="btn menu">比较运算符</button>
+                                <ul>
+                                    <#list compares as compare>
+                                    <li><button class="btn compare">${compare}</button></li>
+                                </#list>
+                                </ul>
+                            </li>
+                            <li>
+                                <button class="btn menu">函数</button>
+                                <ul>
+                                    <#list functions as function>
+                                    <li><button class="btn function">${function}</button></li>
+                                </#list>
+                                </ul>
+                            </li>
+                            <li>
+                                <button class="btn menu table-list">表</button>
+                                <ul>
+                                    <#list tableColumns?keys as tableName>
+                                    <button class="btn table-name menu">${tableName}</button>
+
+                                    <ul>
+                                        <#assign columns = tableColumns[tableName]>
+                                        <#list columns as column>
                                         <li><button class="btn column">${column}</button></li>
                                     </#list>
                                 </ul>
                             </#list>
-                        </ul>
-                    </li>
-                    <li>
-                        <button class="btn menu basic-index-list">基础指标</button>
-                        <ul>
-                            <#list indices as index>
-                                <button class="btn index-name menu">${index.name}</button>
-
+                            </ul>
+                            </li>
+                            <li>
+                                <button class="btn menu basic-index-list">基础指标</button>
                                 <ul>
-                                    维度
-                                    <#list index.dimensions as dimension>
+                                    <#list indices as index>
+                                    <button class="btn index-name menu">${index.name}</button>
+
+                                    <ul>
+                                        维度
+                                        <#list index.dimensions as dimension>
                                         <li><button class="btn dimension">${dimension.name}</button></li>
                                     </#list>
 
                                     度量
                                     <#list index.metrics as metric>
-                                        <li><button class="btn metric">${metric.name}</button></li>
-                                    </#list>
+                                    <li><button class="btn metric">${metric.name}</button></li>
+                                </#list>
                                 </ul>
                             </#list>
-                        </ul>
-                    </li>
-                    </ul>
+                            </ul>
+                            </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-9">
+                    <form role="form" action="/tag/add" class="form-horizontal">
+                        <div class="form-group index-name-group has-feedback">
+                            <label for="indexName" class="col-sm-2 control-label">指标名称</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="indexName" name="indexName" class="form-control">
+                                <span class="glyphicon form-control-feedback" style="display: none"></span>
+                            </div>
+                            <label class="control-label" for="indexName" style="display: none">指标名称不为空</label>
+                        </div>
+
+                        <div class="form-group index-type-group">
+                            <label for="indexType" class="col-sm-2 control-label">指标类型</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" name="indexType" id="indexType">
+                                    <option name="基础指标" value="BASIC" selected>基础指标</option>
+                                    <option name="派生指标" value="DERIVED">派生指标</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description" class="control-label col-sm-2">描述信息</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="description" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="button" id="addDimension" class="btn btn-info">增加指标维度</button>
+                            </div>
+                        </div>
+
+                        <div class="index-dimensions">
+                            <table id="dimensions" class="table table-striped table-bordered">
+                                <thead>
+                                <th>名称</th>
+                                <th>表达式</th>
+                                <th>描述</th>
+                                <th>动作</th>
+                                </thead>
+                                <tbody id="dimensions-body"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="button" id="addMetric" class="btn btn-info">增加指标聚合</button>
+                            </div>
+                        </div>
+
+                        <div class="index-metrics">
+                            <table id="metrics" class="table table-striped table-bordered">
+                                <thead>
+                                <th>名称</th>
+                                <th>表达式</th>
+                                <th>描述</th>
+                                <th>动作</th>
+                                </thead>
+                                <tbody id="metrics-body"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="button" class="btn btn-info" id="submit">提交</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        <div class="col-sm-9">
-            <form role="form" action="/tag/add" class="form-horizontal">
-                <div class="form-group index-name-group has-feedback">
-                    <label for="indexName" class="col-sm-2 control-label">指标名称</label>
-                    <div class="col-sm-10">
-                        <input type="text" id="indexName" name="indexName" class="form-control">
-                        <span class="glyphicon form-control-feedback" style="display: none"></span>
-                    </div>
-                    <label class="control-label" for="indexName" style="display: none">指标名称不为空</label>
-                </div>
-
-                <div class="form-group index-type-group">
-                    <label for="indexType" class="col-sm-2 control-label">指标类型</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" name="indexType" id="indexType">
-                            <option name="基础指标" value="BASIC" selected>基础指标</option>
-                            <option name="派生指标" value="DERIVED">派生指标</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="description" class="control-label col-sm-2">描述信息</label>
-                    <div class="col-sm-10">
-                        <input type="text" id="description" class="form-control">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" id="addDimension" class="btn btn-info">增加指标维度</button>
-                    </div>
-                </div>
-
-                <div class="index-dimensions">
-                    <table id="dimensions" class="table table-striped table-bordered">
-                        <thead>
-                        <th>名称</th>
-                        <th>表达式</th>
-                        <th>描述</th>
-                        <th>动作</th>
-                        </thead>
-                        <tbody id="dimensions-body"></tbody>
-                    </table>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" id="addMetric" class="btn btn-info">增加指标聚合</button>
-                    </div>
-                </div>
-
-                <div class="index-metrics">
-                    <table id="metrics" class="table table-striped table-bordered">
-                        <thead>
-                        <th>名称</th>
-                        <th>表达式</th>
-                        <th>描述</th>
-                        <th>动作</th>
-                        </thead>
-                        <tbody id="metrics-body"></tbody>
-                    </table>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" class="btn btn-info" id="submit">提交</button>
-                    </div>
-                </div>
-            </form>
-        </div>
     </div>
 </div>
-
-
 </body>
 </html>

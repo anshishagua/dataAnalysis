@@ -1,0 +1,64 @@
+<script>
+    $(document).ready(function() {
+        $("li a[href='#']").click(function() {
+            $(this).next().toggle();
+        });
+    });
+</script>
+
+<style type="text/css">
+    ul {
+        list-style: none;
+    }
+</style>
+
+<div id="sidebar-wrapper">
+    <ul class="sidebar-nav">
+        <li class="sidebar-brand">
+            <a href="#">
+                TIS(Tag Index System)
+            </a>
+        </li>
+        <li><a href="/systemParam">系统参数</a></li>
+        <li>
+            <a href="#">表</a>
+            <ul>
+                <li><a href="/table/list">展示表</a></li>
+                <li><a href="/table/">定义表</a></li>
+                <li><a href="/dataLoad/">上传数据</a></li>
+                <li><a href="/tableRelation/list">关联关系列表</a></li>
+                <li><a href="/tableRelation/">关联关系定义</a></li>
+            </ul>
+        <li>
+            <a href="#">标签</a>
+            <ul>
+                <li><a href="/tag/list">标签列表</a></li>
+                <li><a href="/tag">标签定义</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#">指标</a>
+            <ul>
+                <li><a href="/index/list">指标列表</a></li>
+                <li><a href="/index/">指标定义</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#">计算任务</a>
+            <ul>
+                <li><a href="/task/">任务列表</a></li>
+                <li><a href="/taskDependency/">任务依赖</a></li>
+                <li><a href="/taskExecution/list">任务监控</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#">用户中心</a>
+            <ul>
+                <li><a href="/account/">用户信息</a></li>
+                <li><a href="/account/modifyPassword">密码修改</a></li>
+                <li><a href="/register">注册账号</a></li>
+            </ul>
+        </li>
+        <li><a href="/logout">退出系统</a></li>
+    </ul>
+</div>

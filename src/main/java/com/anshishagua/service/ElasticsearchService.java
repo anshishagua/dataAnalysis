@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -55,8 +56,8 @@ public class ElasticsearchService {
     private int port;
 
     private TransportClient transportClient;
-    private boolean isInitialized;
 
+    @PostConstruct
     private void init() {
         Settings settings = Settings.builder().put("cluster.name", clusterName)
                 .put("transport.type","netty3")
@@ -76,20 +77,8 @@ public class ElasticsearchService {
         }
     }
 
-    public TransportClient getTransportClient() {
-        if (!isInitialized) {
-            init();
-
-            isInitialized = true;
-        }
-
-        return transportClient;
-    }
-
     public void createIndex(String indexName) {
-        TransportClient client = getTransportClient();
-
-        CreateIndexResponse response = client.admin().indices().prepareCreate(indexName).get();
+        CreateIndexResponse response = transportClient.admin().indices().prepareCreate(indexName).get();
 
         if (!response.isAcknowledged()) {
             LOG.error("Failed to create index {}", indexName);
@@ -116,7 +105,7 @@ public class ElasticsearchService {
         PutMappingRequest request = Requests.putMappingRequest(indexTypeMappings.getIndexName()).type(indexTypeMappings.getIndexType()).source(builder);
         PutMappingResponse response = null;
         try {
-            response = getTransportClient().admin().indices().putMapping(request).get();
+            response = transportClient.admin().indices().putMapping(request).get();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -127,15 +116,13 @@ public class ElasticsearchService {
     public boolean index(String indexName, String indexType, Map<String, ?> map) {
         Objects.requireNonNull(map);
 
-        IndexResponse indexResponse = getTransportClient().prepareIndex(indexName, indexType).setSource(map).get();
+        IndexResponse indexResponse = transportClient.prepareIndex(indexName, indexType).setSource(map).get();
 
         return indexResponse.status() == RestStatus.OK;
     }
 
     public boolean index(String indexName, String indexType, List<?> list) {
         Objects.requireNonNull(list);
-
-        TransportClient transportClient = getTransportClient();
 
         BulkRequestBuilder bulkRequest = transportClient.prepareBulk();
 
@@ -157,7 +144,7 @@ public class ElasticsearchService {
     }
 
     public List<SearchHit> search(String indexName, String indexType, int from, int size, QueryBuilder queryBuilder, SortBuilder sortBuilder) throws Exception {
-        SearchRequestBuilder requestBuilder = getTransportClient().prepareSearch(indexName).setTypes(indexType).setFrom(from).setSize(size);
+        SearchRequestBuilder requestBuilder = transportClient.prepareSearch(indexName).setTypes(indexType).setFrom(from).setSize(size);
 
         if (queryBuilder != null) {
             requestBuilder.setQuery(queryBuilder);
