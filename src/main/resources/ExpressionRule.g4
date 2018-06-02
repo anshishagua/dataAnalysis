@@ -106,10 +106,14 @@ conditionRightHandSide
 value
     : string
     | numeric
-    | id
+    | param
     | columnRef
     | Boolean
     | Null
+    ;
+
+param :
+    '${' ID '}'
     ;
 
 id : ID;

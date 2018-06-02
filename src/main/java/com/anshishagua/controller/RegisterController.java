@@ -32,7 +32,7 @@ public class RegisterController {
 
     @GetMapping("/register")
     public String register() {
-        return "register";
+        return "account/register";
     }
 
     @PostMapping("/register")

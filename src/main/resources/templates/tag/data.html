@@ -5,37 +5,55 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/simple-side-bar.css">
     <script src="/static/js/jquery-3.3.1.min.js"></script>
     <script src="/static/js/bootstrap.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        });
+    </script>
 </head>
 <body>
-<script>
+<div id="wrapper">
+    <#include "/common/header.html"/>
 
-</script>
-<div class="container">
-    <div class="row">
-        <h2>标签名:${tagName!}</h2>
-    </div>
-    <div class="row">
-        <table class="table table-striped">
-            <thead>
-                <#list columns as column>
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <h2>标签数据</h2>
+                <div class="col-sm-offset-11 col-sm-1">
+                    <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
+                </div>
+            </div>
+            <div class="row">
+                <h2>标签名:${tagName!}</h2>
+            </div>
+            <div class="row">
+                <table class="table table-striped">
+                    <thead>
+                    <#list columns as column>
                     <th>${column}</th>
-                </#list>
-            </thead>
-            <tbody>
-            <#list data as rowData>
-                <tr>
-                    <#list rowData as value>
+                    </#list>
+                    </thead>
+                    <tbody>
+                    <#list data as rowData>
+                    <tr>
+                        <#list rowData as value>
                         <td>${value}</td>
                     </#list>
-                </tr>
-            </#list>
-            </tbody>
-        </table>
-    </div>
-    <div class="row">
-        <a class="btn btn-info" href="/tag/export?tagId=${tagId}">导出数据</a>
+                    </tr>
+                    </#list>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <a class="btn btn-info" href="/tag/export?tagId=${tagId}">导出</a>
+            </div>
+        </div>
     </div>
 </div>
 </body>

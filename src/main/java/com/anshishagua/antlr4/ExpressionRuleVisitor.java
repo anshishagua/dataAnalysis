@@ -95,6 +95,12 @@ public interface ExpressionRuleVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitValue(ExpressionRuleParser.ValueContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ExpressionRuleParser#param}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParam(ExpressionRuleParser.ParamContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ExpressionRuleParser#id}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -98,8 +98,14 @@
             $(".delete-metric").parents()[1].remove();
         });
 
-        $(".operator,.function,.compare,.bool").click(function(){
+        $(".operator,.function,.compare,.bool,.tag-name").click(function() {
             var value = $(this).html();
+
+            console.log($(this).attr("class"));
+
+            if ($(this).attr("class").indexOf("tag-name") >= 0) {
+                value = "TAG." + value;
+            }
 
             if (value == "&gt;") {
                 value = ">";
@@ -281,9 +287,17 @@
                                         <#list columns as column>
                                         <li><button class="btn column">${column}</button></li>
                                     </#list>
+                                    </ul>
+                                    </#list>
                                 </ul>
-                            </#list>
-                            </ul>
+                            </li>
+                            <li>
+                                <button class="btn menu tag-list">标签</button>
+                                <ul>
+                                    <#list tags as tag>
+                                        <li><button class="btn tag-name">${tag.name}</button></li>
+                                    </#list>
+                                </ul>
                             </li>
                             <li>
                                 <button class="btn menu basic-index-list">基础指标</button>

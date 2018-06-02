@@ -57,7 +57,7 @@ public class ElasticsearchService {
 
     private TransportClient transportClient;
 
-    @PostConstruct
+    //@PostConstruct
     private void init() {
         Settings settings = Settings.builder().put("cluster.name", clusterName)
                 .put("transport.type","netty3")

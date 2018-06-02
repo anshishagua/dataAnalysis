@@ -219,8 +219,8 @@ public class ExpressionVisitor extends ExpressionRuleBaseVisitor<Node> {
             return null;
         }
 
-        if (context.id() != null) {
-            return new Variable(context.id().getText());
+        if (context.param() != null) {
+            return new Variable(context.param().ID().getText());
         }
 
         return visitChildren(context);

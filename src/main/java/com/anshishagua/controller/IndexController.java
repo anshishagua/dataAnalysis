@@ -18,6 +18,7 @@ import com.anshishagua.service.IndexSQLGenerateService;
 import com.anshishagua.service.IndexService;
 import com.anshishagua.service.MetaDataService;
 import com.anshishagua.service.NameValidateService;
+import com.anshishagua.service.TagService;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,8 @@ public class IndexController {
     private HiveService hiveService;
     @Autowired
     private DataTypeService dataTypeService;
+    @Autowired
+    private TagService tagService;
 
     @RequestMapping("")
     public ModelAndView index() {
@@ -71,6 +74,7 @@ public class IndexController {
 
         modelAndView.setViewName("index/index");
 
+        //modelAndView.addObject("tags", tagService.getAll());
         modelAndView.addObject("indices", indexService.getAll());
         modelAndView.addObject("bools", metaDataService.getBoolOperators());
         modelAndView.addObject("compares", metaDataService.getCompareOperators());

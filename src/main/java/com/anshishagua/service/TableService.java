@@ -3,6 +3,7 @@ package com.anshishagua.service;
 import com.anshishagua.compute.Task;
 import com.anshishagua.mybatis.mapper.TableMapper;
 import com.anshishagua.object.CronExpressionConstants;
+import com.anshishagua.object.IndexTypeMappings;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableColumn;
 import com.anshishagua.constants.TaskType;
@@ -37,6 +38,8 @@ public class TableService {
     private BasicSQLService basicSQLService;
     @Autowired
     private HiveService hiveService;
+    @Autowired
+    private ElasticsearchService elasticsearchService;
 
     public List<String> tableNameLike(String tableName) {
         return tableMapper.tableNameLike(tableName);
@@ -76,6 +79,11 @@ public class TableService {
         }
 
         return table;
+    }
+
+    public void createElascitcsearchIndex(Table table) {
+        //IndexTypeMappings.IndexTypeMapping
+        //elasticsearchService.createMapping(null);
     }
 
     public void addNewTable(Table table) {

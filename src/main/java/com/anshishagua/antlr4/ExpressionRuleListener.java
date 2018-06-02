@@ -148,6 +148,16 @@ public interface ExpressionRuleListener extends ParseTreeListener {
 	 */
 	void exitValue(ExpressionRuleParser.ValueContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ExpressionRuleParser#param}.
+	 * @param ctx the parse tree
+	 */
+	void enterParam(ExpressionRuleParser.ParamContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExpressionRuleParser#param}.
+	 * @param ctx the parse tree
+	 */
+	void exitParam(ExpressionRuleParser.ParamContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ExpressionRuleParser#id}.
 	 * @param ctx the parse tree
 	 */

@@ -28,7 +28,7 @@ public class LoginController {
 
     @GetMapping("")
     public ModelAndView login() {
-        return new ModelAndView("login");
+        return new ModelAndView("account/login");
     }
 
     @PostMapping("")
