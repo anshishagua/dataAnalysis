@@ -242,8 +242,7 @@ public class BasicSQLService {
         Objects.requireNonNull(root);
 
         Join join = null;
-
-        Node left = new com.anshishagua.parser.nodes.sql.Table(root.getValue());
+        Node left = null;
         Node right = null;
 
         Queue<TreeNode> queue = new LinkedList<>();
@@ -259,7 +258,11 @@ public class BasicSQLService {
             List<TableRelation> tableRelations = tableRelationService.getByTable(parent.getValue(), node.getValue());
             TableRelation relation = tableRelations.get(0);
 
-            left = join;
+            if (join == null) {
+                left = new com.anshishagua.parser.nodes.sql.Table(root.getValue());
+            } else {
+                left = join;
+            }
 
             right = new com.anshishagua.parser.nodes.sql.Table(node.value);
             Condition joinCondition = new Equal(new Column(relation.getLeftTable().getName(), relation.getLeftColumn().getName()),

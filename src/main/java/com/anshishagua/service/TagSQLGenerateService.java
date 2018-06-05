@@ -159,7 +159,7 @@ public class TagSQLGenerateService {
         List<TableRelation> relations = tableRelationService.getByLeftTable(source);
 
         for (TableRelation relation : relations) {
-            Table table = relation.getLeftTable();
+            Table table = relation.getRightTable();
 
             if (!visited.contains(table.getName())) {
                 dfs(table.getName(), target, visited, stack, paths);
