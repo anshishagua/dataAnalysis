@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * User: lixiao
@@ -117,13 +118,10 @@ public class TagService {
 
         tables.remove(mainTable);
 
-        //检查是否可以关联到标签对象
-        for (Table table : tables) {
-            List<TableRelation> relations = tableRelationService.getByTable(mainTable.getName(), table.getName());
-
-            if (relations.isEmpty()) {
-                return ParseResult.error(parseType, expression, String.format("Table %s has no relation to table %s", table.getName(), mainTable.getName()));
-            }
+        try {
+            sqlGenerateService.buildJoinTree(mainTable.getName(), tables.stream().map(it -> it.getName()).collect(Collectors.toSet()));
+        } catch (Exception ex) {
+            return ParseResult.error(parseType, expression, ex.getMessage());
         }
 
         //检查聚合条件是否涉及到列字段

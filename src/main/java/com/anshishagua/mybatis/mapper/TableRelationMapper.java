@@ -15,6 +15,7 @@ import java.util.List;
 @Mapper
 public interface TableRelationMapper {
     TableRelation getById(long id);
+    List<TableRelation> getByLeftTable(@Param("leftTableName") String leftTableName);
     List<TableRelation> getByTable(@Param("leftTableName") String leftTableName,
                                    @Param("rightTableName") String rightTableName);
     TableRelation getByTableColumn(@Param("leftTableName") String leftTableName,

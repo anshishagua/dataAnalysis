@@ -66,6 +66,16 @@ public class TableRelationService {
         return relations;
     }
 
+    public List<TableRelation> getByLeftTable(String leftTableName) {
+        List<TableRelation> relations = tableRelationMapper.getByLeftTable(leftTableName);
+
+        for (TableRelation relation : relations) {
+            updateTableColumn(relation);
+        }
+
+        return relations;
+    }
+
     public List<TableRelation> getByTable(String leftTableName, String rightTableName) {
         List<TableRelation> relations = tableRelationMapper.getByTable(leftTableName, rightTableName);
 

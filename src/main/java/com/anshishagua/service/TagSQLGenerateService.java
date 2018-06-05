@@ -4,15 +4,14 @@ import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableColumn;
+import com.anshishagua.object.TableRelation;
 import com.anshishagua.object.Tag;
 import com.anshishagua.object.TagValue;
-import com.anshishagua.parser.BasicType;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.bool.In;
 import com.anshishagua.parser.nodes.bool.NotIn;
 import com.anshishagua.parser.nodes.comparision.Equal;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
-import com.anshishagua.parser.nodes.primitive.IntegerValue;
 import com.anshishagua.parser.nodes.primitive.LongValue;
 import com.anshishagua.parser.nodes.primitive.StringValue;
 import com.anshishagua.parser.nodes.sql.Column;
@@ -24,15 +23,22 @@ import com.anshishagua.parser.nodes.sql.Query;
 import com.anshishagua.utils.CollectionUtils;
 import com.anshishagua.utils.NodeUtils;
 import com.anshishagua.utils.TreeTransform;
+import com.anshishagua.service.BasicSQLService.TreeNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +49,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TagSQLGenerateService {
+    private static final Logger LOG = LoggerFactory.getLogger(TagSQLGenerateService.class);
+
     public static final String TAG_TABLE_NAME_PREFIX = "tag_";
 
     @Autowired
@@ -51,6 +59,8 @@ public class TagSQLGenerateService {
     private BasicSQLService basicSQLService;
     @Autowired
     private TableService tableService;
+    @Autowired
+    private TableRelationService tableRelationService;
 
     public String generateTagTableName(long tagId) {
         return String.format("%s%d", TAG_TABLE_NAME_PREFIX, tagId);
@@ -97,12 +107,109 @@ public class TagSQLGenerateService {
         }
 
         //涉及多个表join
-        Join join = basicSQLService.buildJoinClauses(tableNames, targetTable.getName());
+        TreeNode root = null;
+        try {
+            root = buildJoinTree(targetTable.getName(), tableNames);
+        } catch (Exception ex) {
+            LOG.error("Failed to join trees", ex);
+        }
+        //Join join = basicSQLService.buildJoinClauses(tableNames, targetTable.getName());
+        Join join = basicSQLService.buildJoinClauses(root);
+
         query.join(join);
 
         query.groupBy(new Column(targetTable.getName(), primaryKey.getName()));
 
         return query;
+    }
+
+    private List<List<String>> findPaths(String source, String target) {
+        Objects.requireNonNull(source);
+        Objects.requireNonNull(target);
+
+        Set<String> visited = new HashSet<>();
+        Stack<String> stack = new Stack<>();
+        List<List<String>> paths = new ArrayList<>();
+        dfs(source, target, visited, stack, paths);
+
+        return paths;
+    }
+
+    private void dfs(String source, String target, Set<String> visited, Stack<String> stack, List<List<String>> paths) {
+        stack.push(source);
+        visited.add(source);
+
+        if (target.equals(source)) {
+            Iterator<String> iterator = stack.iterator();
+
+            List<String> path = new ArrayList<>();
+
+            while (iterator.hasNext()) {
+                path.add(iterator.next());
+            }
+
+            paths.add(path);
+
+            visited.remove(source);
+            stack.pop();
+
+            return;
+        }
+
+        List<TableRelation> relations = tableRelationService.getByLeftTable(source);
+
+        for (TableRelation relation : relations) {
+            Table table = relation.getLeftTable();
+
+            if (!visited.contains(table.getName())) {
+                dfs(table.getName(), target, visited, stack, paths);
+            }
+        }
+
+        visited.remove(source);
+        stack.pop();
+    }
+
+    public TreeNode buildJoinTree(String targetTable, Set<String> joinTables) throws Exception {
+        Objects.requireNonNull(targetTable);
+        Objects.requireNonNull(joinTables);
+
+        Map<String, TreeNode> map = new HashMap<>();
+        TreeNode root = new TreeNode(targetTable);
+        map.put(targetTable, root);
+
+        for (String tableName : joinTables) {
+            if (tableName.equals(targetTable)) {
+                continue;
+            }
+
+            List<List<String>> paths = findPaths(targetTable, tableName);
+
+            if (paths.isEmpty()) {
+                throw new Exception(String.format("模型%s无法关联到贴标对象%s", tableName, targetTable));
+            }
+
+            if (paths.size() > 1) {
+                throw new Exception(String.format("存在多条路径从模型%s关联到贴标对象%s", tableName, targetTable));
+            }
+
+            List<String> path = paths.get(0);
+
+            for (int i = 1; i < path.size(); ++i) {
+                TreeNode parent = map.get(path.get(i - 1));
+                TreeNode child = map.get(path.get(i));
+
+                if (child == null) {
+                    child = new TreeNode(path.get(i));
+                    map.put(path.get(i), child);
+                }
+
+                child.setParent(parent);
+                parent.addChild(child);
+            }
+        }
+
+        return root;
     }
 
     private Query buildQuery(SQLGenerateResult sqlGenerateResult, Node root, Table targetTable, List<Node> aggregationNodes) {

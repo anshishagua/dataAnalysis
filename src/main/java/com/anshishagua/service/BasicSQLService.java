@@ -40,11 +40,16 @@ public class BasicSQLService {
     @Autowired
     private IndexSQLGenerateService indexSQLGenerateService;
 
-    private static class TreeNode {
+    public static class TreeNode {
         private int group;
         private String value;
         private TreeNode parent;
         private List<TreeNode> children;
+
+        public TreeNode(String value) {
+            this.value = value;
+            this.children = new ArrayList<>();
+        }
 
         public TreeNode(int group, String value, TreeNode parent) {
             this.group = group;
@@ -75,6 +80,16 @@ public class BasicSQLService {
 
         public void setParent(TreeNode parent) {
             this.parent = parent;
+        }
+
+        public void addChild(TreeNode child) {
+            Objects.requireNonNull(child);
+
+            this.children.add(child);
+        }
+
+        public List<TreeNode> getChildren() {
+            return children;
         }
 
         public static TreeNode find(TreeNode node) {
@@ -223,38 +238,37 @@ public class BasicSQLService {
         return join;
     }
 
-    private Join buildJoinClauses(TreeNode root) {
+    public Join buildJoinClauses(TreeNode root) {
+        Objects.requireNonNull(root);
+
         Join join = null;
+
+        Node left = new com.anshishagua.parser.nodes.sql.Table(root.getValue());
+        Node right = null;
 
         Queue<TreeNode> queue = new LinkedList<>();
 
-        queue.add(root);
+        for (TreeNode child : root.getChildren()) {
+            queue.add(child);
+        }
 
         while (!queue.isEmpty()) {
             TreeNode node = queue.poll();
+            TreeNode parent = node.getParent();
 
-            for (TreeNode child : node.children) {
-                queue.offer(child);
-            }
+            List<TableRelation> tableRelations = tableRelationService.getByTable(parent.getValue(), node.getValue());
+            TableRelation relation = tableRelations.get(0);
 
-            if (node.parent == null) {
-                continue;
-            }
+            left = join;
 
-            TreeNode left = node.parent;
-            TreeNode right = node;
+            right = new com.anshishagua.parser.nodes.sql.Table(node.value);
+            Condition joinCondition = new Equal(new Column(relation.getLeftTable().getName(), relation.getLeftColumn().getName()),
+                    new Column(relation.getRightTable().getName(), relation.getRightColumn().getName()));
 
-            TableRelation relation = tableRelationService.getByTable(left.value, right.value).get(0);
+            join = new Join(left, right, relation.getJoinType(), joinCondition);
 
-            com.anshishagua.parser.nodes.sql.Table leftTable = new com.anshishagua.parser.nodes.sql.Table(left.value);
-            com.anshishagua.parser.nodes.sql.Table rightTable = new com.anshishagua.parser.nodes.sql.Table(right.value);
-            Column leftColumn = new Column(left.value, relation.getLeftColumn().getName());
-            Column rightColumn = new Column(right.value, relation.getRightColumn().getName());
-
-            if (join == null) {
-                join = new Join(leftTable, rightTable, relation.getJoinType(), new Equal(leftColumn, rightColumn));
-            } else {
-                join = new Join(join, rightTable, relation.getJoinType(), new Equal(leftColumn, rightColumn));
+            for (TreeNode child : node.getChildren()) {
+                queue.add(child);
             }
         }
 
