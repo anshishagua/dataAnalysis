@@ -19,6 +19,7 @@ import com.anshishagua.service.HiveService;
 import com.anshishagua.service.MetaDataService;
 import com.anshishagua.service.NameValidateService;
 import com.anshishagua.service.SQLExecuteService;
+import com.anshishagua.service.SystemParameterService;
 import com.anshishagua.service.TableService;
 import com.anshishagua.service.TagSQLGenerateService;
 import com.anshishagua.service.TagService;
@@ -75,6 +76,8 @@ public class TagController {
     private BasicSQLService basicSQLService;
     @Autowired
     private HiveService hiveService;
+    @Autowired
+    private SystemParameterService systemParameterService;
 
     @RequestMapping("/generate")
     @ResponseBody
@@ -116,6 +119,7 @@ public class TagController {
 
         List<Table> tables = tableService.getAllTables();
 
+        modelAndView.addObject("systemParams", systemParameterService.getAll());
         modelAndView.addObject("bools", metaDataService.getBoolOperators());
         modelAndView.addObject("compares", metaDataService.getCompareOperators());
         modelAndView.addObject("operators", metaDataService.getOperators());
@@ -123,6 +127,29 @@ public class TagController {
         modelAndView.addObject("tableColumns", metaDataService.getTableColumns());
         modelAndView.addObject("tables", tables);
         modelAndView.setViewName("tag/index");
+
+        return modelAndView;
+    }
+
+    @RequestMapping("/delete")
+    @ResponseBody
+    public Result delete(@RequestParam("id") long id) {
+        Tag tag = tagService.getById(id);
+
+        if (tag == null) {
+            return Result.error(String.format("Tag %d not found", id));
+        }
+
+        return Result.ok();
+    }
+
+    @RequestMapping("/edit")
+    public ModelAndView edit(@RequestParam("id") long id) {
+        ModelAndView modelAndView = new ModelAndView("tag/edit");
+
+        Tag tag = tagService.getById(id);
+
+        modelAndView.addObject("tag", tag);
 
         return modelAndView;
     }

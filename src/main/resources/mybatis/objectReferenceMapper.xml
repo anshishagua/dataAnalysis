@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anshishagua.mybatis.mapper.ObjectReferenceMapper">
+    <resultMap id="objectReferenceMapper" type="com.anshishagua.object.ObjectReference">
+        <id column="id" property="id" jdbcType="BIGINT"></id>
+        <result column="object_id" property="objectId" jdbcType="BIGINT"></result>
+        <result column="object_type" property="objectType" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.ObjectTypeHandler"></result>
+        <result column="object_name" property="objectName" jdbcType="VARCHAR"></result>
+        <result column="ref_object_id" property="refObjectId" jdbcType="BIGINT"></result>
+        <result column="ref_object_type" property="refObjectType" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.ObjectTypeHandler"></result>
+        <result column="ref_object_name" property="refObjectName" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <insert id="insert" keyProperty="id" keyColumn="id" useGeneratedKeys="true" flushCache="true">
+        INSERT INTO `t_object_reference`(`object_id`, `object_type`, `object_name`, `ref_object_id`, `ref_object_type`, `ref_object_name`)
+        VALUES (#{objectId},
+                #{objectType, typeHandler=com.anshishagua.mybatis.typehandler.ObjectTypeHandler},
+                #{objectName},
+                #{refObjectId},
+                #{refObjectType, typeHandler=com.anshishagua.mybatis.typehandler.ObjectTypeHandler},
+                #{refObjectName}
+        )
+    </insert>
+    <insert id="insertBatch" keyProperty="id" keyColumn="id" useGeneratedKeys="true" flushCache="true" parameterType="List">
+        INSERT INTO `t_object_reference`(`object_id`, `object_type`, `object_name`, `ref_object_id`, `ref_object_type`, `ref_object_name`)
+        VALUES
+        <foreach collection="list" item="item" separator =",">
+            (#{item.objectId},
+            #{item.objectType, typeHandler=com.anshishagua.mybatis.typehandler.ObjectTypeHandler},
+            #{item.objectName},
+            #{item.refObjectId},
+            #{item.refObjectType, typeHandler=com.anshishagua.mybatis.typehandler.ObjectTypeHandler},
+            #{item.refObjectName}
+            )
+        </foreach>
+    </insert>
+    <select id="getByObjectId" resultMap="objectReferenceMapper">
+        SELECT *
+        FROM t_object_reference
+        WHERE object_id = #{objectId}
+    </select>
+</mapper>

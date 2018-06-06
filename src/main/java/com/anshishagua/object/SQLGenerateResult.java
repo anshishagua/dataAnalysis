@@ -22,6 +22,7 @@ public class SQLGenerateResult {
     private Set<String> tagTables = new HashSet<>();
     private Set<String> targetTables = new HashSet<>();
     private List<String> tempTables = new ArrayList<>();
+    private Set<String> systemParameters = new HashSet<>();
 
     public static SQLGenerateResult ok() {
         SQLGenerateResult result = new SQLGenerateResult();
@@ -105,6 +106,18 @@ public class SQLGenerateResult {
 
     public List<String> getTempTables() {
         return tempTables;
+    }
+
+    public Set<String> getSystemParameters() {
+        return systemParameters;
+    }
+
+    public void setSystemParameters(Set<String> systemParameters) {
+        this.systemParameters = systemParameters;
+    }
+
+    public void addSystemParameters(Set<String> systemParameters) {
+        this.systemParameters.addAll(systemParameters);
     }
 
     @Override

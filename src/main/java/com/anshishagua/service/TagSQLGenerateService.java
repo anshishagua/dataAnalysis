@@ -247,6 +247,7 @@ public class TagSQLGenerateService {
         boolean insertOverwrite = true;
 
         Set<String> dataSourceTables = new HashSet<>();
+        Set<String> systemParameters = new HashSet<>();
 
         Table targetTable = tableService.getById(tag.getTableId());
         TableColumn primaryKey = targetTable.getPrimaryKeys().get(0);
@@ -306,10 +307,13 @@ public class TagSQLGenerateService {
 
             dataSourceTables.addAll(filterConditionResult.getTables().stream().map(it -> it.getName()).collect(Collectors.toList()));
             dataSourceTables.addAll(computeConditionResult.getTables().stream().map(it -> it.getName()).collect(Collectors.toList()));
+            systemParameters.addAll(filterConditionResult.getSystemParameters().stream().map(it -> it.getName()).collect(Collectors.toSet()));
+            systemParameters.addAll(computeConditionResult.getSystemParameters().stream().map(it -> it.getName()).collect(Collectors.toSet()));
         }
 
         result.setSuccess(true);
         result.addDataSourceTables(dataSourceTables);
+        result.addSystemParameters(systemParameters);
 
         Set<String> targetTables = new HashSet<>(Arrays.asList(tagTableName));
         result.setTargetTables(targetTables);

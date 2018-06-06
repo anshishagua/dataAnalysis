@@ -1,3 +1,22 @@
+DROP TABLE IF EXISTS `t_data_type`;
+DROP TABLE IF EXISTS `t_data_load_history`;
+DROP TABLE IF EXISTS `t_index`;
+DROP TABLE IF EXISTS `t_index_dimension`;
+DROP TABLE IF EXISTS `t_index_metric`;
+DROP TABLE IF EXISTS `t_index_type`;
+DROP TABLE IF EXISTS `t_join_type`;
+DROP TABLE IF EXISTS `t_system_parameter`;
+DROP TABLE IF EXISTS `t_table`;
+DROP TABLE IF EXISTS `t_table_column`;
+DROP TABLE IF EXISTS `t_table_relation`;
+DROP TABLE IF EXISTS `t_tag`;
+DROP TABLE IF EXISTS `t_tag_value`;
+DROP TABLE IF EXISTS `t_task`;
+DROP TABLE IF EXISTS `t_task_dependency`;
+DROP TABLE IF EXISTS `t_task_execution`;
+DROP TABLE IF EXISTS `t_user`;
+DROP TABLE IF EXISTS `t_user_role`;
+
 CREATE TABLE `t_system_parameter`
 (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
@@ -230,6 +249,18 @@ CREATE TABLE `t_task_execution`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+CREATE TABLE `t_object_reference`
+(
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `object_id` BIGINT NOT NULL,
+  `object_type` VARCHAR(16) NOT NULL,
+  `object_name` VARCHAR(255) NOT NULL,
+  `ref_object_id` BIGINT NOT NULL,
+  `ref_object_type` VARCHAR(16) NOT NULL,
+  `ref_object_name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `t_user`
 (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
@@ -249,16 +280,16 @@ CREATE TABLE `t_user_role`
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'INT', '整形', null, '', b'0');
-insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'BIGINT', '长整形', null, '', b'0');
-insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'STRING', '字符串', null, '', b'0');
-insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'FLOAT', '浮点型', null, '', b'0');
-insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'DOUBLE', '双精度浮点型', null, '', b'0');
-insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'BOOLEAN', '布尔型', null, '', b'0');
-insert into `test`.`t_data_type` ( `value`, `name`, `parent_id`, `description`, `deleted`) values ( 'DATE', '日期型', null, '', b'0');
+insert into `test`.`t_data_type` (`value`, `name`, `parent_id`, `description`, `deleted`) values ( 'INT', '整形', null, '', b'0');
+insert into `test`.`t_data_type` (`value`, `name`, `parent_id`, `description`, `deleted`) values ( 'BIGINT', '长整形', null, '', b'0');
+insert into `test`.`t_data_type` (`value`, `name`, `parent_id`, `description`, `deleted`) values ( 'STRING', '字符串', null, '', b'0');
+insert into `test`.`t_data_type` (`value`, `name`, `parent_id`, `description`, `deleted`) values ( 'FLOAT', '浮点型', null, '', b'0');
+insert into `test`.`t_data_type` (`value`, `name`, `parent_id`, `description`, `deleted`) values ( 'DOUBLE', '双精度浮点型', null, '', b'0');
+insert into `test`.`t_data_type` (`value`, `name`, `parent_id`, `description`, `deleted`) values ( 'BOOLEAN', '布尔型', null, '', b'0');
+insert into `test`.`t_data_type` (`value`, `name`, `parent_id`, `description`, `deleted`) values ( 'DATE', '日期型', null, '', b'0');
 
 
 
-insert into `test`.`t_join_type` ( `value`) values ( 'INNER JOIN');
-insert into `test`.`t_join_type` ( `value`) values ( 'LEFT JOIN');
-insert into `test`.`t_join_type` ( `value`) values ( 'RIGHT JOIN');
+insert into `test`.`t_join_type` ( `value`) values ('INNER JOIN');
+insert into `test`.`t_join_type` ( `value`) values ('LEFT JOIN');
+insert into `test`.`t_join_type` ( `value`) values ('RIGHT JOIN');

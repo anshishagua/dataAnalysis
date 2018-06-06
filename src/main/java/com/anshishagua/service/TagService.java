@@ -1,12 +1,16 @@
 package com.anshishagua.service;
 
 import com.anshishagua.compute.Task;
+import com.anshishagua.constants.IndexType;
+import com.anshishagua.constants.ObjectType;
 import com.anshishagua.exceptions.SemanticException;
 import com.anshishagua.mybatis.mapper.TagMapper;
 import com.anshishagua.mybatis.mapper.TagValueMapper;
 import com.anshishagua.object.CronExpressionConstants;
+import com.anshishagua.object.ObjectReference;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.SQLGenerateResult;
+import com.anshishagua.object.SystemParameter;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableRelation;
 import com.anshishagua.object.Tag;
@@ -54,6 +58,8 @@ public class TagService {
     private TaskService taskService;
     @Autowired
     private TaskDependencyService taskDependencyService;
+    @Autowired
+    private ObjectReferenceService objectReferenceService;
     @Autowired
     private TagMapper tagMapper;
     @Autowired
@@ -200,10 +206,37 @@ public class TagService {
         taskService.addNewTask(task);
 
         Set<String> tableNames = sqlGenerateResult.getDataSourceTables();
+
+        List<ObjectReference> objectReferences = new ArrayList<>();
+
+        for (String systemParam : sqlGenerateResult.getSystemParameters()) {
+            SystemParameter systemParameter = systemParameterService.getByName(systemParam);
+
+            ObjectReference reference = new ObjectReference();
+            reference.setObjectId(tag.getId());
+            reference.setObjectName(tag.getName());
+            reference.setObjectType(ObjectType.TAG);
+            reference.setRefObjectId(systemParameter.getId());
+            reference.setRefObjectType(ObjectType.SYSTEM_PARAM);
+            reference.setRefObjectName(systemParam);
+
+            objectReferences.add(reference);
+        }
+
         List<Task> dependentTasks = new ArrayList<>();
 
         for (String tableName : tableNames) {
             Table table = tableService.getByName(tableName);
+
+            ObjectReference reference = new ObjectReference();
+            reference.setObjectId(tag.getId());
+            reference.setObjectName(tag.getName());
+            reference.setObjectType(ObjectType.TAG);
+            reference.setRefObjectId(table.getId());
+            reference.setRefObjectType(ObjectType.TABLE);
+            reference.setRefObjectName(table.getName());
+
+            objectReferences.add(reference);
 
             Task dependentTask = taskService.getByTaskTypeAndObjectId(TaskType.DATA_LOAD, table.getId());
 
@@ -211,6 +244,7 @@ public class TagService {
         }
 
         taskDependencyService.add(task, dependentTasks);
+        objectReferenceService.addObjectReferences(objectReferences);
     }
 
     public void updateSQLGenerateResult(Tag tag) {

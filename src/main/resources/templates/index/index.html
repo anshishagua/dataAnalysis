@@ -98,13 +98,17 @@
             $(".delete-metric").parents()[1].remove();
         });
 
-        $(".operator,.function,.compare,.bool,.tag-name").click(function() {
+        $(".operator,.function,.compare,.bool,.tag-name,.system-param").click(function() {
             var value = $(this).html();
 
             console.log($(this).attr("class"));
 
             if ($(this).attr("class").indexOf("tag-name") >= 0) {
                 value = "TAG." + value;
+            } else if ($(this).attr("class").indexOf("system-param") >= 0) {
+                value = "${r'${'}" + value + "${r'}'}";
+            } else if ($(this).attr("class").indexOf("function") >= 0) {
+                value = value + "( )";
             }
 
             if (value == "&gt;") {
@@ -265,6 +269,14 @@
                                 <ul>
                                     <#list compares as compare>
                                     <li><button class="btn compare">${compare}</button></li>
+                                </#list>
+                                </ul>
+                            </li>
+                            <li>
+                                <button class="btn menu">系统参数</button>
+                                <ul>
+                                    <#list systemParams as param>
+                                    <li><button class="btn system-param">${param.name}</button></li>
                                 </#list>
                                 </ul>
                             </li>

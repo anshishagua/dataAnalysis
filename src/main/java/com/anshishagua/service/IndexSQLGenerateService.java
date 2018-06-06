@@ -93,6 +93,7 @@ public class IndexSQLGenerateService {
 
         Set<String> tableNames = new HashSet<>();
         Set<String> indexTableNames = new HashSet<>();
+        Set<String> systemParameters = new HashSet<>();
 
         for (IndexDimension dimension : dimensions) {
             ParseResult parseResult = indexService.parseDimension(dimension.getExpression(), index.getIndexType());
@@ -110,6 +111,8 @@ public class IndexSQLGenerateService {
             } else {
                 tableNames.addAll(parseResult.getTables().stream().map(table -> table.getName()).collect(Collectors.toList()));
             }
+
+            systemParameters.addAll(parseResult.getSystemParameters().stream().map(it -> it.getName()).collect(Collectors.toSet()));
         }
 
         for (IndexMetric metric : metrics) {
@@ -128,6 +131,8 @@ public class IndexSQLGenerateService {
             } else {
                 tableNames.addAll(parseResult.getTables().stream().map(table -> table.getName()).collect(Collectors.toList()));
             }
+
+            systemParameters.addAll(parseResult.getSystemParameters().stream().map(it -> it.getName()).collect(Collectors.toSet()));
         }
 
         String indexTableName = generateIndexTableName(index);
@@ -202,6 +207,8 @@ public class IndexSQLGenerateService {
 
             result.addDataSourceTables(indexTableNames);
         }
+
+        result.addSystemParameters(systemParameters);
 
         result.setTagTables(tags.stream().map(it -> tagSQLGenerateService.generateTagTableName(it.getId())).collect(Collectors.toSet()));
 

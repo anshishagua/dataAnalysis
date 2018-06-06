@@ -18,6 +18,7 @@ import com.anshishagua.service.IndexSQLGenerateService;
 import com.anshishagua.service.IndexService;
 import com.anshishagua.service.MetaDataService;
 import com.anshishagua.service.NameValidateService;
+import com.anshishagua.service.SystemParameterService;
 import com.anshishagua.service.TagService;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -67,6 +68,8 @@ public class IndexController {
     private DataTypeService dataTypeService;
     @Autowired
     private TagService tagService;
+    @Autowired
+    private SystemParameterService systemParameterService;
 
     @RequestMapping("")
     public ModelAndView index() {
@@ -74,6 +77,7 @@ public class IndexController {
 
         modelAndView.setViewName("index/index");
 
+        modelAndView.addObject("systemParams", systemParameterService.getAll());
         modelAndView.addObject("tags", tagService.getAll());
         modelAndView.addObject("indices", indexService.getAll());
         modelAndView.addObject("bools", metaDataService.getBoolOperators());
@@ -86,10 +90,13 @@ public class IndexController {
     }
 
     @RequestMapping("/detail")
-    public String detail(@RequestParam("id") long id) {
+    public ModelAndView detail(@RequestParam("id") long id) {
         Index index = indexService.getById(id);
 
-        return null;
+        ModelAndView modelAndView = new ModelAndView("index/detail");
+        modelAndView.addObject("index", index);
+
+        return modelAndView;
     }
 
     @RequestMapping("/get")
@@ -122,6 +129,29 @@ public class IndexController {
         }
 
         return indexSQLGenerateService.generate(index);
+    }
+
+    @RequestMapping("/delete")
+    @ResponseBody
+    public Result delete(@RequestParam("id") long id) {
+        Index index = indexService.getById(id);
+
+        if (index == null) {
+            return Result.error(String.format("Index %d not found", id));
+        }
+
+        return Result.ok();
+    }
+
+    @RequestMapping("/edit")
+    public ModelAndView edit(@RequestParam("id") long id) {
+        ModelAndView modelAndView = new ModelAndView("index/edit");
+
+        Index index = indexService.getById(id);
+
+        modelAndView.addObject("index", index);
+
+        return modelAndView;
     }
 
     @RequestMapping("/add")

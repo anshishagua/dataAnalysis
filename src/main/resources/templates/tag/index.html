@@ -145,8 +145,14 @@
             });
         });
 
-        $(".operator,.function,.compare,.bool").click(function () {
+        $(".operator,.function,.compare,.bool,.system-param").click(function () {
             var value = $(this).html();
+
+            if ($(this).attr("class").indexOf("system-param") >= 0) {
+                value = "${r'${'}" + value + "${r'}'}";
+            } else if ($(this).attr("class").indexOf("function") >= 0) {
+                value = value + "( )";
+            }
 
             if (value == "&gt;") {
                 value = ">";
@@ -220,6 +226,14 @@
                             <ul>
                                 <#list compares as compare>
                                 <li><button class="btn compare">${compare}</button></li>
+                            </#list>
+                            </ul>
+                        </li>
+                        <li>
+                            <button class="btn menu">系统参数</button>
+                            <ul>
+                                <#list systemParams as param>
+                                <li><button class="btn system-param">${param.name}</button></li>
                             </#list>
                             </ul>
                         </li>

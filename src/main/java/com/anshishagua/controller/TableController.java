@@ -109,6 +109,29 @@ public class TableController {
         return modelAndView;
     }
 
+    @RequestMapping("/delete")
+    @ResponseBody
+    public Result delete(@RequestParam("id") long id) {
+        Table table = tableService.getById(id);
+
+        if (table == null) {
+            return Result.error(String.format("Table %d not found", id));
+        }
+
+        return Result.ok();
+    }
+
+    @RequestMapping("/edit")
+    public ModelAndView edit(@RequestParam("id") long id) {
+        ModelAndView modelAndView = new ModelAndView("index/edit");
+
+        Table table = tableService.getById(id);
+
+        modelAndView.addObject("table", table);
+
+        return modelAndView;
+    }
+
     @RequestMapping("/check")
     @ResponseBody
     public Result check(@RequestParam("tableName") String tableName) {

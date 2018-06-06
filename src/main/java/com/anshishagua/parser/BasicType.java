@@ -13,18 +13,24 @@ import java.util.Set;
  */
 
 public enum BasicType {
-    Boolean(0),
-    Short(10),
-    Integer(20),
-    Long(30),
-    Float(40),
-    Double(50),
-    String(60),
-    Date(70),
-    Timestamp(80),
+    Boolean(0, "布尔型"),
+    Short(10, "短整型"),
+    Integer(20, "整形"),
+    Long(30, "长整形"),
+    Float(40, "浮点型"),
+    Double(50, "双精度浮点型"),
+    String(60, "字符串型"),
+    Date(70, "日期型"),
+    Timestamp(80, "时间戳型"),
     Null(90);
 
     private int priority;
+    private String description;
+
+    BasicType(int priority, String description) {
+        this.priority = priority;
+        this.description = description;
+    }
 
     BasicType(int priority) {
         this.priority = priority;
@@ -32,6 +38,10 @@ public enum BasicType {
 
     public int getPriority() {
         return priority;
+    }
+
+    public java.lang.String getDescription() {
+        return description;
     }
 
     public static final Set<BasicType> NUMERIC_TYPES = new HashSet<>(Arrays.asList(new BasicType[] {Short, Integer, Long, Float, Double}));

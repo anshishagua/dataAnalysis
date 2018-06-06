@@ -1,6 +1,7 @@
 package com.anshishagua.service;
 
 import com.anshishagua.compute.Task;
+import com.anshishagua.constants.ObjectType;
 import com.anshishagua.exceptions.SemanticException;
 import com.anshishagua.mybatis.mapper.IndexDimensionMapper;
 import com.anshishagua.mybatis.mapper.IndexMapper;
@@ -11,9 +12,11 @@ import com.anshishagua.object.Index;
 import com.anshishagua.object.IndexDimension;
 import com.anshishagua.object.IndexMetric;
 import com.anshishagua.constants.IndexType;
+import com.anshishagua.object.ObjectReference;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.ParseResult.ParseType;
 import com.anshishagua.object.SQLGenerateResult;
+import com.anshishagua.object.SystemParameter;
 import com.anshishagua.object.Table;
 import com.anshishagua.constants.TaskType;
 import com.anshishagua.object.Tag;
@@ -54,6 +57,8 @@ public class IndexService {
     private DataTypeService dataTypeService;
     @Autowired
     private TagService tagService;
+    @Autowired
+    private ObjectReferenceService objectReferenceService;
 
     @Autowired
     private IndexMapper indexMapper;
@@ -66,19 +71,45 @@ public class IndexService {
         List<Index> indices = indexMapper.list();
 
         for (Index index : indices) {
-            index.setDimensions(indexDimensionMapper.getByIndexId(index.getId()));
-            index.setMetrics(indexMetricMapper.getByIndexId(index.getId()));
+            setDimensionAndMetric(index);
         }
 
         return indices;
+    }
+
+    private void setDimensionAndMetric(Index index) {
+        Objects.requireNonNull(index);
+
+        List<IndexDimension> dimensions = indexDimensionMapper.getByIndexId(index.getId());
+
+        for (IndexDimension dimension : dimensions) {
+            DataType dataType = dataTypeService.getTypeById(dimension.getTypeId());
+
+            if (dataType != null) {
+                dimension.setDataType(dataType.toBasicType());
+            }
+        }
+
+        index.setDimensions(dimensions);
+
+        List<IndexMetric> metrics = indexMetricMapper.getByIndexId(index.getId());
+
+        for (IndexMetric metric : metrics) {
+            DataType dataType = dataTypeService.getTypeById(metric.getTypeId());
+
+            if (dataType != null) {
+                metric.setDataType(dataType.toBasicType());
+            }
+        }
+
+        index.setMetrics(metrics);
     }
 
     public Index getById(long id) {
         Index index = indexMapper.getById(id);
 
         if (index != null) {
-            index.setDimensions(indexDimensionMapper.getByIndexId(index.getId()));
-            index.setMetrics(indexMetricMapper.getByIndexId(index.getId()));
+            setDimensionAndMetric(index);
         }
 
         return index;
@@ -94,29 +125,7 @@ public class IndexService {
         }
 
         if (index != null) {
-            List<IndexDimension> dimensions = indexDimensionMapper.getByIndexId(index.getId());
-
-            for (IndexDimension dimension : dimensions) {
-                DataType dataType = dataTypeService.getTypeById(dimension.getTypeId());
-
-                if (dataType != null) {
-                    dimension.setDataType(dataType.toBasicType());
-                }
-            }
-
-            index.setDimensions(dimensions);
-
-            List<IndexMetric> metrics = indexMetricMapper.getByIndexId(index.getId());
-
-            for (IndexMetric metric : metrics) {
-                DataType dataType = dataTypeService.getTypeById(metric.getTypeId());
-
-                if (dataType != null) {
-                    metric.setDataType(dataType.toBasicType());
-                }
-            }
-
-            index.setMetrics(metrics);
+            setDimensionAndMetric(index);
         }
 
         return index;
@@ -253,6 +262,23 @@ public class IndexService {
             indexMetricMapper.insert(metric);
         }
 
+
+        List<ObjectReference> objectReferences = new ArrayList<>();
+
+        for (String systemParam : sqlGenerateResult.getSystemParameters()) {
+            SystemParameter systemParameter = systemParameterService.getByName(systemParam);
+
+            ObjectReference reference = new ObjectReference();
+            reference.setObjectId(index.getId());
+            reference.setObjectName(index.getName());
+            reference.setObjectType(index.getIndexType() == IndexType.BASIC ? ObjectType.BASIC_INDEX : ObjectType.DERIVED_INDEX);
+            reference.setRefObjectId(systemParameter.getId());
+            reference.setRefObjectType(ObjectType.SYSTEM_PARAM);
+            reference.setRefObjectName(systemParam);
+
+            objectReferences.add(reference);
+        }
+
         index.setSqlGenerateResult(indexSQLGenerateService.generate(index));
 
         indexMapper.updateSQLGenerateResult(index);
@@ -275,15 +301,30 @@ public class IndexService {
         for (String tableName : tableNames) {
             long objectId = -1;
 
+            ObjectReference reference = new ObjectReference();
+            reference.setObjectId(index.getId());
+            reference.setObjectName(index.getName());
+            reference.setObjectType(index.getIndexType() == IndexType.BASIC ? ObjectType.BASIC_INDEX : ObjectType.DERIVED_INDEX);
+
             if (index.getIndexType() == IndexType.BASIC) {
                 Table table = tableService.getByName(tableName);
 
                 objectId = table.getId();
+
+                reference.setRefObjectId(table.getId());
+                reference.setRefObjectType(ObjectType.TABLE);
+                reference.setRefObjectName(table.getName());
             } else {
                 Index basicIndex = getByName(tableName);
 
                 objectId = basicIndex.getId();
+
+                reference.setRefObjectId(basicIndex.getId());
+                reference.setRefObjectType(basicIndex.getIndexType() == IndexType.BASIC ? ObjectType.BASIC_INDEX : ObjectType.DERIVED_INDEX);
+                reference.setRefObjectName(basicIndex.getName());
             }
+
+            objectReferences.add(reference);
 
             Task dependentTask = taskService.getByTaskTypeAndObjectId(taskType, objectId);
 
@@ -295,11 +336,25 @@ public class IndexService {
         for (String tagTable : tagTables) {
             long tagId = Long.parseLong(tagTable.replace("tag_", ""));
 
+            Tag tag = tagService.getById(tagId);
+
+            ObjectReference reference = new ObjectReference();
+            reference.setObjectId(index.getId());
+            reference.setObjectName(index.getName());
+            reference.setObjectType(index.getIndexType() == IndexType.BASIC ? ObjectType.BASIC_INDEX : ObjectType.DERIVED_INDEX);
+            reference.setRefObjectId(tag.getId());
+            reference.setRefObjectType(ObjectType.SYSTEM_PARAM);
+            reference.setRefObjectName(tag.getName());
+
+            objectReferences.add(reference);
+
             Task dependentTask = taskService.getByTaskTypeAndObjectId(TaskType.TAG, tagId);
 
             dependentTasks.add(dependentTask);
         }
 
         taskDependencyService.add(task, dependentTasks);
+
+        objectReferenceService.addObjectReferences(objectReferences);
     }
 }
