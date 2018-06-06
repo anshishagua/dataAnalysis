@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>指标详情</title>
+    <title>标签详情</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/css/bootstrap.css">
@@ -24,7 +24,7 @@
     <div id="page-content-wrapper">
         <div class="container-fluid">
             <div class="row">
-                <h2>指标详情</h2>
+                <h2>标签详情</h2>
                 <div class="col-sm-offset-11 col-sm-1">
                     <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
                 </div>
@@ -35,58 +35,39 @@
                     <thead>
                     <th>ID</th>
                     <th>名称</th>
-                    <th>类型</th>
+                    <th>贴标表</th>
                     <th>描述</th>
                     <th>创建时间</th>
                     </thead>
                     <tbody>
                     <tr>
-                        <td>${index.id}</td>
-                        <td>${index.name}</td>
-                        <td>${index.indexType.description}</td>
-                        <td>${index.description!}</td>
-                        <td>${index.createTime}</td>
+                        <td>${tag.id}</td>
+                        <td>${tag.name}</td>
+                        <td><a href="/table/detail?id=${tag.table.id}">${tag.table.name}</a></td>
+                        <td>${tag.description!}</td>
+                        <td>${tag.createTime}</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
             <div class="row">
-                <h3>维度列表</h3>
+                <h3>标签值</h3>
                 <table class="table table-striped">
                     <thead>
                     <th>ID</th>
                     <th>名称</th>
-                    <th>表达式</th>
-                    <th>类型</th>
+                    <th>序号</th>
+                    <th>过滤条件</th>
+                    <th>计算规则</th>
                     </thead>
                     <tbody>
-                    <#list index.dimensions as dimension>
+                    <#list tag.tagValues as tagValue>
                     <tr>
-                        <td>${dimension.id}</td>
-                        <td>${dimension.name}</td>
-                        <td>${dimension.expression}</td>
-                        <td>${dimension.dataType.description}</td>
-                    </tr>
-                    </#list>
-                    </tbody>
-                </table>
-            </div>
-            <div class="row">
-                <h3>度量列表</h3>
-                <table class="table table-striped">
-                    <thead>
-                    <th>ID</th>
-                    <th>名称</th>
-                    <th>表达式</th>
-                    <th>类型</th>
-                    </thead>
-                    <tbody>
-                    <#list index.metrics as metric>
-                    <tr>
-                        <td>${metric.id}</td>
-                        <td>${metric.name}</td>
-                        <td>${metric.expression}</td>
-                        <td>${metric.dataType.description}</td>
+                        <td>${tagValue.id}</td>
+                        <td>${tagValue.value}</td>
+                        <td>${tagValue.order}</td>
+                        <td>${tagValue.filterCondition}</td>
+                        <td>${tagValue.computeCondition}</td>
                     </tr>
                     </#list>
                     </tbody>
@@ -105,14 +86,14 @@
                     <tr>
                         <td>
                             <#if objRef.refObjectType.value == 'SYSTEM_PARAM'>
-                            <a href="/systemParam/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
+                                <a href="/systemParam/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
                             <#elseif objRef.refObjectType.value == 'TABLE'>
-                            <a href="/table/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
+                                <a href="/table/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
                             <#elseif objRef.refObjectType.value == 'TAG'>
-                            <a href="/tag/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
+                                <a href="/tag/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
                             <#else>
-                            <a href="/index/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
-                        </#if>
+                                <a href="/index/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
+                            </#if>
                         </td>
                         <td>${objRef.refObjectType.description}</td>
                         <td>${objRef.refObjectName}</td>

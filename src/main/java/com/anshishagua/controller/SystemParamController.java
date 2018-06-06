@@ -57,6 +57,17 @@ public class SystemParamController {
         return modelAndView;
     }
 
+    @RequestMapping("/detail")
+    public ModelAndView detail(@RequestParam("id") long id) {
+        ModelAndView modelAndView = new ModelAndView("systemParam/detail");
+
+        SystemParameter systemParameter = systemParameterService.getById(id);
+
+        modelAndView.addObject("parameter", systemParameter);
+
+        return modelAndView;
+    }
+
     @RequestMapping("/add")
     @ResponseBody
     public Result add(@RequestParam("systemParams") String systemParams) {

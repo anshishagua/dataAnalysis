@@ -24,12 +24,34 @@
     <div id="page-content-wrapper">
         <div class="container-fluid">
             <div class="row">
-                <h2>字段定义</h2>
+                <h2>表格详情</h2>
                 <div class="col-sm-offset-11 col-sm-1">
                     <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
                 </div>
             </div>
             <div class="row">
+                <h3>基本信息</h3>
+                <table class="table table-striped">
+                    <thead>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>别名</th>
+                    <th>描述</th>
+                    <th>创建时间</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>${table.id}</td>
+                        <td>${table.name}</td>
+                        <td>${table.alias}</td>
+                        <td>${table.description!}</td>
+                        <td>${table.createTime}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <h3>字段列表</h3>
                 <table class="table table-striped">
                     <thead>
                     <th>ID</th>

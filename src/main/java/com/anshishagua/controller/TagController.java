@@ -18,6 +18,7 @@ import com.anshishagua.service.BasicSQLService;
 import com.anshishagua.service.HiveService;
 import com.anshishagua.service.MetaDataService;
 import com.anshishagua.service.NameValidateService;
+import com.anshishagua.service.ObjectReferenceService;
 import com.anshishagua.service.SQLExecuteService;
 import com.anshishagua.service.SystemParameterService;
 import com.anshishagua.service.TableService;
@@ -78,6 +79,8 @@ public class TagController {
     private HiveService hiveService;
     @Autowired
     private SystemParameterService systemParameterService;
+    @Autowired
+    private ObjectReferenceService objectReferenceService;
 
     @RequestMapping("/generate")
     @ResponseBody
@@ -150,6 +153,19 @@ public class TagController {
         Tag tag = tagService.getById(id);
 
         modelAndView.addObject("tag", tag);
+
+        return modelAndView;
+    }
+
+    @RequestMapping("/detail")
+    public ModelAndView detail(@RequestParam("id") long tagId) {
+        ModelAndView modelAndView = new ModelAndView("tag/detail");
+
+        Tag tag = tagService.getById(tagId);
+
+        modelAndView.addObject("tag", tag);
+
+        modelAndView.addObject("objectReferences", objectReferenceService.getByObjectId(tagId));
 
         return modelAndView;
     }

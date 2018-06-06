@@ -262,7 +262,6 @@ public class IndexService {
             indexMetricMapper.insert(metric);
         }
 
-
         List<ObjectReference> objectReferences = new ArrayList<>();
 
         for (String systemParam : sqlGenerateResult.getSystemParameters()) {
@@ -343,7 +342,7 @@ public class IndexService {
             reference.setObjectName(index.getName());
             reference.setObjectType(index.getIndexType() == IndexType.BASIC ? ObjectType.BASIC_INDEX : ObjectType.DERIVED_INDEX);
             reference.setRefObjectId(tag.getId());
-            reference.setRefObjectType(ObjectType.SYSTEM_PARAM);
+            reference.setRefObjectType(ObjectType.TAG);
             reference.setRefObjectName(tag.getName());
 
             objectReferences.add(reference);

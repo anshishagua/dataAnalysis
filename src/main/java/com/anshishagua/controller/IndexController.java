@@ -18,6 +18,7 @@ import com.anshishagua.service.IndexSQLGenerateService;
 import com.anshishagua.service.IndexService;
 import com.anshishagua.service.MetaDataService;
 import com.anshishagua.service.NameValidateService;
+import com.anshishagua.service.ObjectReferenceService;
 import com.anshishagua.service.SystemParameterService;
 import com.anshishagua.service.TagService;
 import com.google.common.base.Strings;
@@ -70,6 +71,8 @@ public class IndexController {
     private TagService tagService;
     @Autowired
     private SystemParameterService systemParameterService;
+    @Autowired
+    private ObjectReferenceService objectReferenceService;
 
     @RequestMapping("")
     public ModelAndView index() {
@@ -95,6 +98,7 @@ public class IndexController {
 
         ModelAndView modelAndView = new ModelAndView("index/detail");
         modelAndView.addObject("index", index);
+        modelAndView.addObject("objectReferences", objectReferenceService.getByObjectId(id));
 
         return modelAndView;
     }
