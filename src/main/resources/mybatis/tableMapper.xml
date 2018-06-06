@@ -33,9 +33,10 @@
         SELECT *
         FROM t_table
     </select>
-    <select id="tableNameLike" resultType="string">
-        SELECT `name`
+    <select id="getByNameLike" resultMap="tableMapper">
+        SELECT *
         FROM t_table
-        WHERE `name` LIKE CONCAT(CONCAT(#{tableName},'%'))
+        WHERE `name` LIKE CONCAT('%', CONCAT(#{tableName},'%'))
+        OR `alias` LIKE CONCAT('%', CONCAT(#{tableName},'%'))
     </select>
 </mapper>

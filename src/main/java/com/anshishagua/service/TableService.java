@@ -41,10 +41,6 @@ public class TableService {
     @Autowired
     private ElasticsearchService elasticsearchService;
 
-    public List<String> tableNameLike(String tableName) {
-        return tableMapper.tableNameLike(tableName);
-    }
-
     public Table getById(long id) {
         Table table = tableMapper.getById(id);
 
@@ -79,6 +75,18 @@ public class TableService {
         }
 
         return table;
+    }
+
+    public List<Table> getByNameLike(String query) {
+        List<Table> tables = tableMapper.getByNameLike(query);
+
+        for (Table table : tables) {
+            List<TableColumn> columns = tableColumnService.getTableColumns(table.getId());
+            table.setColumns(columns);
+            table.setPrimaryKeys(columns.stream().filter(it -> it.isPrimaryKey()).collect(Collectors.toList()));
+        }
+
+        return tables;
     }
 
     public void createElascitcsearchIndex(Table table) {

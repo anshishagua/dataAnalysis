@@ -2,6 +2,7 @@ package com.anshishagua.mybatis.mapper;
 
 import com.anshishagua.object.Tag;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 public interface TagMapper {
     Tag getById(long id);
     Tag getByName(String name);
+    List<Tag> getByNameLike(@Param("name") String name);
     void insert(Tag tag);
     void update(Tag tag);
     void updateSQLGenerateResult(Tag tag);

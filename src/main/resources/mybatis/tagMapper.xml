@@ -37,6 +37,11 @@
         FROM t_tag
         WHERE `name` = #{name};
     </select>
+    <select id="getByNameLike" resultMap="tagMapper">
+        SELECT *
+        FROM `t_tag`
+        WHERE `name` LIKE CONCAT('%', CONCAT(#{name},'%'))
+    </select>
     <select id="list" resultMap="tagMapper">
         SELECT *
         FROM t_tag

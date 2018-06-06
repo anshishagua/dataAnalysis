@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -85,6 +86,19 @@ public class TagService {
         }
 
         return tag;
+    }
+
+    public List<Tag> getByNameLike(String name) {
+        Objects.requireNonNull(name);
+
+        List<Tag> tags = tagMapper.getByNameLike(name);
+
+        for (Tag tag : tags) {
+            tag.setTable(tableService.getById(tag.getTableId()));
+            tag.setTagValues(tagValueMapper.getByTagId(tag.getId()));
+        }
+
+        return tags;
     }
 
     private ParseResult parse(String expression, ParseResult.ParseType parseType, long targetTableId) {

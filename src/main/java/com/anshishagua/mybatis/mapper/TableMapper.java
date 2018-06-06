@@ -18,5 +18,5 @@ public interface TableMapper {
     Table getByName(String name);
     void insert(Table table);
     List<Table> list();
-    List<String> tableNameLike(@Param("tableName") String tableName);
+    List<Table> getByNameLike(@Param("tableName") String tableName);
 }

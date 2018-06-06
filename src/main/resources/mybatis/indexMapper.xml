@@ -37,6 +37,11 @@
         FROM t_index
         WHERE `name` = #{name};
     </select>
+    <select id="getByNameLike" resultMap="indexMapper">
+        SELECT *
+        FROM `t_index`
+        WHERE `name` LIKE CONCAT('%', CONCAT(#{name},'%'))
+    </select>
     <select id="list" resultMap="indexMapper">
         SELECT *
         FROM t_index

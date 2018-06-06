@@ -131,6 +131,18 @@ public class IndexService {
         return index;
     }
 
+    public List<Index> getByNameLike(String query) {
+        Objects.requireNonNull(query);
+
+        List<Index> result = indexMapper.getByNameLike(query);
+
+        for (Index index : result) {
+            setDimensionAndMetric(index);
+        }
+
+        return result;
+    }
+
     public ParseResult parse(ParseType parseType, String expression) {
         ExpressionParser parser = new ExpressionParser(expression);
 

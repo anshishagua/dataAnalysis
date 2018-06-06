@@ -3,6 +3,7 @@ package com.anshishagua.mybatis.mapper;
 import com.anshishagua.object.Index;
 import com.anshishagua.object.SQLGenerateResult;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ public interface IndexMapper {
     List<Index> list();
     Index getById(long id);
     Index getByName(String name);
+    List<Index> getByNameLike(@Param("name") String name);
     void insert(Index index);
     void updateSQLGenerateResult(Index index);
 }

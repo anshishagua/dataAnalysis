@@ -30,22 +30,7 @@
                 return;
             }
 
-            $.ajax({
-                url: "/search/search",
-                dataType: "json",
-                method: "post",
-                data: {
-                    query: query,
-                    searchType: searchType
-                },
-                success: function(result) {
-                    if (result.success) {
-                        location.href = "/";
-                    } else {
-                        alert("搜索失败:" + result.errorMessage);
-                    }
-                }
-            });
+            location.href = "/search/search?query=" + query + "&searchType=" + searchType;
         });
     });
 </script>

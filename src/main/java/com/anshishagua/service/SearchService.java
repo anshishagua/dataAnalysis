@@ -1,10 +1,13 @@
 package com.anshishagua.service;
 
+import com.anshishagua.object.Index;
 import com.anshishagua.object.Table;
+import com.anshishagua.object.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * User: lixiao
@@ -14,9 +17,28 @@ import java.util.List;
 
 @Service
 public class SearchService {
-    public List<Table> searchByTable(String query) {
-        List<Table> result = new ArrayList<>();
+    @Autowired
+    private TableService tableService;
+    @Autowired
+    private IndexService indexService;
+    @Autowired
+    private TagService tagService;
 
-        return result;
+    public List<Table> searchByTable(String query) {
+        Objects.requireNonNull(query);
+
+        return tableService.getByNameLike(query);
+    }
+
+    public List<Index> searchByIndex(String query) {
+        Objects.requireNonNull(query);
+
+        return indexService.getByNameLike(query);
+    }
+
+    public List<Tag> searchByTag(String query) {
+        Objects.requireNonNull(query);
+
+        return tagService.getByNameLike(query);
     }
 }
