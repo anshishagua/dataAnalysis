@@ -123,53 +123,6 @@ public class TagSQLGenerateService {
         return query;
     }
 
-    private List<List<String>> findPaths(String source, String target) {
-        Objects.requireNonNull(source);
-        Objects.requireNonNull(target);
-
-        Set<String> visited = new HashSet<>();
-        Stack<String> stack = new Stack<>();
-        List<List<String>> paths = new ArrayList<>();
-        dfs(source, target, visited, stack, paths);
-
-        return paths;
-    }
-
-    private void dfs(String source, String target, Set<String> visited, Stack<String> stack, List<List<String>> paths) {
-        stack.push(source);
-        visited.add(source);
-
-        if (target.equals(source)) {
-            Iterator<String> iterator = stack.iterator();
-
-            List<String> path = new ArrayList<>();
-
-            while (iterator.hasNext()) {
-                path.add(iterator.next());
-            }
-
-            paths.add(path);
-
-            visited.remove(source);
-            stack.pop();
-
-            return;
-        }
-
-        List<TableRelation> relations = tableRelationService.getByLeftTable(source);
-
-        for (TableRelation relation : relations) {
-            Table table = relation.getRightTable();
-
-            if (!visited.contains(table.getName())) {
-                dfs(table.getName(), target, visited, stack, paths);
-            }
-        }
-
-        visited.remove(source);
-        stack.pop();
-    }
-
     public TreeNode buildJoinTree(String targetTable, Set<String> joinTables) throws Exception {
         Objects.requireNonNull(targetTable);
         Objects.requireNonNull(joinTables);
@@ -183,7 +136,7 @@ public class TagSQLGenerateService {
                 continue;
             }
 
-            List<List<String>> paths = findPaths(targetTable, tableName);
+            List<List<String>> paths = tableRelationService.findRelationPaths(targetTable, tableName);
 
             if (paths.isEmpty()) {
                 throw new Exception(String.format("模型%s无法关联到贴标对象%s", tableName, targetTable));
@@ -356,7 +309,7 @@ public class TagSQLGenerateService {
         }
 
         result.setSuccess(true);
-        result.setDataSourceTables(dataSourceTables);
+        result.addDataSourceTables(dataSourceTables);
 
         Set<String> targetTables = new HashSet<>(Arrays.asList(tagTableName));
         result.setTargetTables(targetTables);

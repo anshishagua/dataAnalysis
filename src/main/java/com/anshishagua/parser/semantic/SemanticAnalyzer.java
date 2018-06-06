@@ -5,6 +5,7 @@ import com.anshishagua.object.IndexDimension;
 import com.anshishagua.object.IndexMetric;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.ParseResult.ParseType;
+import com.anshishagua.object.Tag;
 import com.anshishagua.parser.nodes.function.FunctionRegistry;
 import com.anshishagua.exceptions.SemanticException;
 import com.anshishagua.object.SystemParameter;
@@ -40,6 +41,8 @@ import java.util.stream.Collectors;
  */
 
 public class SemanticAnalyzer {
+    public static final String TAG_PREFIX = "TAG";
+
     private Node astTree;
     private SystemParameterService systemParameterService;
     private TableService tableService;
@@ -51,6 +54,7 @@ public class SemanticAnalyzer {
     private Set<Index> indices = new HashSet<>();
     private Set<IndexDimension> indexDimensions = new HashSet<>();
     private Set<IndexMetric> indexMetrics = new HashSet<>();
+    private Set<Tag> tags = new HashSet<>();
     private Set<SystemParameter> systemParameters = new HashSet<>();
     private List<Node> aggregationNodes = new ArrayList<>();
 
@@ -96,6 +100,10 @@ public class SemanticAnalyzer {
 
     public Set<TableColumn> getColumns() {
         return Collections.unmodifiableSet(columns);
+    }
+
+    public Set<Tag> getTags() {
+        return Collections.unmodifiableSet(tags);
     }
 
     public Set<SystemParameter> getSystemParameters() {
@@ -208,28 +216,53 @@ public class SemanticAnalyzer {
                 String tableName = ((Column) node).getTableName();
                 String columnName = ((Column) node).getColumnName();
 
-                Table table = tableService.getByName(tableName);
+                if (tableName.equals(TAG_PREFIX)) {
+                    String tagName = columnName;
 
-                if (table == null) {
-                    throw new SemanticException("Table " + tableName + " not found");
+                    Tag tag = tagService.getByName(tagName);
+
+                    if (tag == null) {
+                        throw new SemanticException("Tag " + tagName + " not found");
+                    }
+
+                    tags.add(tag);
+
+                    Table table = tableService.getById(tag.getTableId());
+
+                    if (table == null) {
+                        throw new SemanticException("Table " + tableName + " not found");
+                    }
+
+                    TableColumn primaryKey = table.getPrimaryKeys().get(0);
+
+                    tables.add(table);
+                    columns.add(primaryKey);
+
+                    node.setResultType(BasicType.String);
+                } else {
+                    Table table = tableService.getByName(tableName);
+
+                    if (table == null) {
+                        throw new SemanticException("Table " + tableName + " not found");
+                    }
+
+                    TableColumn column = table.getColumn(columnName);
+
+                    if (column == null) {
+                        throw new SemanticException(String.format("Column %s.%s not found", tableName, columnName));
+                    }
+
+                    tables.add(table);
+                    columns.add(column);
+
+                    BasicType basicType = column.getDataType().toBasicType();
+
+                    if (basicType == null) {
+                        throw new SemanticException("Column " + tableName + "." + columnName + " not found");
+                    }
+
+                    node.setResultType(basicType);
                 }
-
-                TableColumn column = table.getColumn(columnName);
-
-                if (column == null) {
-                    throw new SemanticException(String.format("Column %s.%s not found", tableName, columnName));
-                }
-
-                tables.add(table);
-                columns.add(column);
-
-                BasicType basicType = column.getDataType().toBasicType();
-
-                if (basicType == null) {
-                    throw new SemanticException("Column " + tableName + "." + columnName + " not found");
-                }
-
-                node.setResultType(basicType);
             }
         };
 

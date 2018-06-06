@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * User: lixiao
@@ -118,6 +119,16 @@ public class Tag {
 
     public void setSqlGenerateResult(SQLGenerateResult sqlGenerateResult) {
         this.sqlGenerateResult = sqlGenerateResult;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Tag && ((Tag) obj).getId() == id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override

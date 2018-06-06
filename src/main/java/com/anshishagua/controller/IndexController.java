@@ -74,7 +74,7 @@ public class IndexController {
 
         modelAndView.setViewName("index/index");
 
-        //modelAndView.addObject("tags", tagService.getAll());
+        modelAndView.addObject("tags", tagService.getAll());
         modelAndView.addObject("indices", indexService.getAll());
         modelAndView.addObject("bools", metaDataService.getBoolOperators());
         modelAndView.addObject("compares", metaDataService.getCompareOperators());
@@ -83,6 +83,13 @@ public class IndexController {
         modelAndView.addObject("tableColumns", metaDataService.getTableColumns());
 
         return modelAndView;
+    }
+
+    @RequestMapping("/detail")
+    public String detail(@RequestParam("id") long id) {
+        Index index = indexService.getById(id);
+
+        return null;
     }
 
     @RequestMapping("/get")
@@ -157,6 +164,10 @@ public class IndexController {
             String expression = jsonObject.getString("expression");
             String dimensionDescription = jsonObject.getString("description");
 
+            if (Strings.isNullOrEmpty(dimensionName) || Strings.isNullOrEmpty(expression)) {
+                return Result.error("维度名或维度表达式为空");
+            }
+
             ParseResult parseResult = indexService.parseDimension(expression, indexType);
 
             if (!parseResult.isSuccess()) {
@@ -193,6 +204,10 @@ public class IndexController {
             String metricName = jsonObject.getString("name");
             String expression = jsonObject.getString("expression");
             String metricDescription = jsonObject.getString("description");
+
+            if (Strings.isNullOrEmpty(metricName) || Strings.isNullOrEmpty(expression)) {
+                return Result.error("度量名称或表达式为空");
+            }
 
             ParseResult parseResult = indexService.parseMetric(expression, indexType);
 

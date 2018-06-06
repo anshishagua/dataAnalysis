@@ -20,6 +20,10 @@ public class Table extends AbstractNode<Void> {
         this.tableName = tableName;
     }
 
+    public String getTableName() {
+        return tableName;
+    }
+
     public Table(String tableName, String alias) {
         Objects.requireNonNull(tableName);
         Objects.requireNonNull(alias);

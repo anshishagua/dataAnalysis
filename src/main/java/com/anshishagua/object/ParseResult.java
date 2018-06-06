@@ -39,6 +39,7 @@ public class ParseResult {
     private Set<Index> indices = new HashSet<>();
     private Set<IndexDimension> indexDimensions = new HashSet<>();
     private Set<IndexMetric> indexMetrics = new HashSet<>();
+    private Set<Tag> tags = new HashSet<>();
     private Set<SystemParameter> systemParameters = new HashSet<>();
     private ParseType parseType = ParseType.UNKNOWN;
     @JsonIgnore
@@ -169,6 +170,14 @@ public class ParseResult {
 
     public void setSystemParameters(Set<SystemParameter> systemParameters) {
         this.systemParameters = systemParameters;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
     }
 
     public ParseType getParseType() {

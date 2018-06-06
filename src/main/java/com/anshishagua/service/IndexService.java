@@ -16,6 +16,7 @@ import com.anshishagua.object.ParseResult.ParseType;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.constants.TaskType;
+import com.anshishagua.object.Tag;
 import com.anshishagua.parser.grammar.ExpressionParser;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
@@ -51,6 +52,8 @@ public class IndexService {
     private TaskDependencyService taskDependencyService;
     @Autowired
     private DataTypeService dataTypeService;
+    @Autowired
+    private TagService tagService;
 
     @Autowired
     private IndexMapper indexMapper;
@@ -132,6 +135,7 @@ public class IndexService {
         analyzer.setTableService(tableService);
         analyzer.setSystemParameterService(systemParameterService);
         analyzer.setIndexService(this);
+        analyzer.setTagService(tagService);
 
         try {
             analyzer.analyze();
@@ -146,6 +150,7 @@ public class IndexService {
         parseResult.setIndices(analyzer.getIndices());
         parseResult.setIndexDimensions(analyzer.getIndexDimensions());
         parseResult.setIndexMetrics(analyzer.getIndexMetrics());
+        parseResult.setTags(analyzer.getTags());
         parseResult.setSystemParameters(analyzer.getSystemParameters());
         parseResult.setParseType(parseType);
         parseResult.setAggregationNodes(analyzer.getAggregationNodes());
@@ -281,6 +286,16 @@ public class IndexService {
             }
 
             Task dependentTask = taskService.getByTaskTypeAndObjectId(taskType, objectId);
+
+            dependentTasks.add(dependentTask);
+        }
+
+        Set<String> tagTables = sqlGenerateResult.getTagTables();
+
+        for (String tagTable : tagTables) {
+            long tagId = Long.parseLong(tagTable.replace("tag_", ""));
+
+            Task dependentTask = taskService.getByTaskTypeAndObjectId(TaskType.TAG, tagId);
 
             dependentTasks.add(dependentTask);
         }

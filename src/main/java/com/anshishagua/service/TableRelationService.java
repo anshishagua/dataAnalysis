@@ -3,13 +3,19 @@ package com.anshishagua.service;
 import com.anshishagua.mybatis.mapper.TableColumnMapper;
 import com.anshishagua.mybatis.mapper.TableMapper;
 import com.anshishagua.mybatis.mapper.TableRelationMapper;
+import com.anshishagua.object.Table;
 import com.anshishagua.object.TableColumn;
 import com.anshishagua.object.TableRelation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * User: lixiao
@@ -101,5 +107,52 @@ public class TableRelationService {
 
     public void addRelation(TableRelation relation) {
         tableRelationMapper.insert(relation);
+    }
+
+    private void dfs(String source, String target, Set<String> visited, Stack<String> stack, List<List<String>> paths) {
+        stack.push(source);
+        visited.add(source);
+
+        if (target.equals(source)) {
+            Iterator<String> iterator = stack.iterator();
+
+            List<String> path = new ArrayList<>();
+
+            while (iterator.hasNext()) {
+                path.add(iterator.next());
+            }
+
+            paths.add(path);
+
+            visited.remove(source);
+            stack.pop();
+
+            return;
+        }
+
+        List<TableRelation> relations = getByLeftTable(source);
+
+        for (TableRelation relation : relations) {
+            Table table = relation.getRightTable();
+
+            if (!visited.contains(table.getName())) {
+                dfs(table.getName(), target, visited, stack, paths);
+            }
+        }
+
+        visited.remove(source);
+        stack.pop();
+    }
+
+    public List<List<String>> findRelationPaths(String leftTable, String rightTable) {
+        Objects.requireNonNull(leftTable);
+        Objects.requireNonNull(rightTable);
+
+        Set<String> visited = new HashSet<>();
+        Stack<String> stack = new Stack<>();
+        List<List<String>> paths = new ArrayList<>();
+        dfs(leftTable, rightTable, visited, stack, paths);
+
+        return paths;
     }
 }

@@ -4,6 +4,10 @@ import com.anshishagua.parser.nodes.AbstractNode;
 import com.anshishagua.parser.nodes.Node;
 import com.anshishagua.parser.nodes.comparision.Equal;
 
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
 /**
  * User: lixiao
  * Date: 2018/5/4
@@ -15,6 +19,7 @@ public class Join extends AbstractNode<Void> {
     private Node right;
     private JoinType joinType;
     private Condition joinCondition;
+    private Set<String> joinTables = new HashSet<>();
 
     public Join(Node left, Node right, JoinType joinType, Condition joinCondition) {
         super(left, right);
@@ -23,6 +28,22 @@ public class Join extends AbstractNode<Void> {
         this.right = right;
         this.joinType = joinType;
         this.joinCondition = joinCondition;
+
+        if (left instanceof Table) {
+            joinTables.add(((Table) left).getTableName());
+        } else if (left instanceof Join) {
+            joinTables.addAll(((Join) left).getJoinTables());
+        }
+
+        if (right instanceof Table) {
+            joinTables.add(((Table) right).getTableName());
+        } else if (right instanceof Join) {
+            joinTables.addAll(((Join) right).getJoinTables());
+        }
+    }
+
+    public Set<String> getJoinTables() {
+        return joinTables;
     }
 
     public Condition getJoinCondition() {

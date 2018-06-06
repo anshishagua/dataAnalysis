@@ -18,9 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
@@ -353,5 +356,74 @@ public class BasicSQLService {
         TreeNode root = trees.get(0);
 
         return buildJoinClauses(root);
+    }
+
+    private TreeNode buildTreeFromAllPath(List<List<String>> paths) {
+        Objects.requireNonNull(paths);
+
+        String rootTableName = paths.get(0).get(0);
+
+        TreeNode root = new TreeNode(rootTableName);
+        Map<String, TreeNode> treeNodeMap = new HashMap<>();
+        treeNodeMap.put(rootTableName, root);
+
+        for (List<String> path : paths) {
+            TreeNode parent = root;
+
+            for (int i = 1; i < path.size(); ++i) {
+                String tableName = path.get(i);
+
+                TreeNode current = null;
+
+                if (!treeNodeMap.containsKey(tableName)) {
+                    current = new TreeNode(tableName);
+                    treeNodeMap.put(tableName, current);
+
+                    parent.addChild(current);
+                    current.setParent(parent);
+                } else {
+                    current = treeNodeMap.get(tableName);
+                }
+
+                parent = current;
+            }
+        }
+
+        return root;
+    }
+
+    public Join buildJoinClauses2(Set<String> tableNames) throws UnableToJoinException {
+        Objects.requireNonNull(tableNames);
+
+        List<String> list = new ArrayList<>(tableNames);
+
+        for (int i = 0; i < list.size(); ++i) {
+            List<List<String>> allPath = new ArrayList<>();
+
+            for (int j = 0; j < list.size(); ++j) {
+                if (i == j) {
+                    continue;
+                }
+
+                String leftTable = list.get(i);
+                String rightTable = list.get(j);
+
+                List<List<String>> paths = tableRelationService.findRelationPaths(leftTable, rightTable);
+
+                if (paths.isEmpty() || paths.size() > 1) {
+                    continue;
+                } else {
+                    allPath.add(paths.get(0));
+                }
+            }
+
+            if (allPath.size() == tableNames.size() - 1) {
+                TreeNode root = buildTreeFromAllPath(allPath);
+
+                return buildJoinClauses(root);
+            }
+        }
+
+        throw new UnableToJoinException();
     }
 }

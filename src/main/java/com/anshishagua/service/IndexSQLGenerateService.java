@@ -7,8 +7,14 @@ import com.anshishagua.object.IndexMetric;
 import com.anshishagua.constants.IndexType;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.SQLGenerateResult;
+import com.anshishagua.object.TableColumn;
+import com.anshishagua.object.Tag;
+import com.anshishagua.parser.nodes.comparision.Equal;
+import com.anshishagua.parser.nodes.sql.Column;
+import com.anshishagua.parser.nodes.sql.Condition;
 import com.anshishagua.parser.nodes.sql.Insert;
 import com.anshishagua.parser.nodes.sql.Join;
+import com.anshishagua.parser.nodes.sql.JoinType;
 import com.anshishagua.parser.nodes.sql.Query;
 import com.anshishagua.parser.nodes.sql.Table;
 import com.anshishagua.utils.CollectionUtils;
@@ -35,6 +41,10 @@ public class IndexSQLGenerateService {
     private IndexService indexService;
     @Autowired
     private BasicSQLService basicSQLService;
+    @Autowired
+    private TagSQLGenerateService tagSQLGenerateService;
+    @Autowired
+    private TableService tableService;
 
     public String generateIndexTableName(Index index) {
         Objects.requireNonNull(index);
@@ -126,11 +136,25 @@ public class IndexSQLGenerateService {
         set.add(indexTableName);
         result.setTargetTables(set);
 
+        Set<Tag> tags = new HashSet<>();
+
         Query query = new Query();
 
         for (ParseResult dimensionParseResult : dimensionParseResults) {
-            query.select(dimensionParseResult.getAstTree());
-            query.groupBy(dimensionParseResult.getAstTree());
+            //isTag
+            if (!dimensionParseResult.getTags().isEmpty()) {
+                Tag tag = dimensionParseResult.getTags().iterator().next();
+                tags.add(tag);
+                query.select(new Column(tagSQLGenerateService.generateTagTableName(tag.getId()), "tag_value_value"));
+
+                com.anshishagua.object.Table table = tableService.getById(tag.getTableId());
+                TableColumn primaryKey = table.getPrimaryKeys().get(0);
+
+                query.groupBy(new Column(table.getName(), primaryKey.getName()));
+            } else {
+                query.select(dimensionParseResult.getAstTree());
+                query.groupBy(dimensionParseResult.getAstTree());
+            }
         }
 
         for (ParseResult metricParseResult : metricParseResults) {
@@ -147,22 +171,39 @@ public class IndexSQLGenerateService {
                 Join join = null;
 
                 try {
-                    join = basicSQLService.buildJoinClauses(tableNames);
+                    join = basicSQLService.buildJoinClauses2(tableNames);
+
+                    result.addDataSourceTables(join.getJoinTables());
                 } catch (UnableToJoinException ex) {
                     return SQLGenerateResult.error(ex.getMessage());
+                }
+
+                for (Tag tag : tags) {
+                    com.anshishagua.object.Table table = tableService.getById(tag.getTableId());
+                    TableColumn primaryKey = table.getPrimaryKeys().get(0);
+
+                    String tagTableName = tagSQLGenerateService.generateTagTableName(tag.getId());
+                    String tagTableColumnName = "id";
+
+                    Condition joinCondition = new Equal(new Column(tagTableName, tagTableColumnName),
+                            new Column(table.getName(), primaryKey.getName()));
+
+                    join = new Join(join, new Table(tagTableName), JoinType.LEFT_JOIN, joinCondition);
                 }
 
                 query.join(join);
             }
 
-            result.setDataSourceTables(tableNames);
+            result.addDataSourceTables(tableNames);
         } else {
             String tableName = indexTableNames.iterator().next();
 
             query.from(new Table(tableName));
 
-            result.setDataSourceTables(indexTableNames);
+            result.addDataSourceTables(indexTableNames);
         }
+
+        result.setTagTables(tags.stream().map(it -> tagSQLGenerateService.generateTagTableName(it.getId())).collect(Collectors.toSet()));
 
         Insert insert = new Insert(indexTableName, query, true);
 

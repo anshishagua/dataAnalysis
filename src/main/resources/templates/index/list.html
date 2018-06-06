@@ -37,6 +37,7 @@
                     <th>类型</th>
                     <th>描述</th>
                     <th>创建时间</th>
+                    <th>详情</th>
                     <th>执行</th>
                     <th>数据展示</th>
                     </thead>
@@ -48,6 +49,7 @@
                         <td>${index.indexType.description}</td>
                         <td>${index.description!}</td>
                         <td>${index.createTime}</td>
+                        <td><a href="/index/detail?id=${index.id}">详情</a></td>
                         <td><a href="/taskExecution/execute?type=INDEX&objectId=${index.id}">执行</a></td>
                         <td><a href="/index/data?id=${index.id}">数据展示</a> </td>
                     </tr>

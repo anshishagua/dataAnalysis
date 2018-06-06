@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -18,6 +19,7 @@ public class SQLGenerateResult {
     private String errorMessage;
     private List<String> executeSQLs = new ArrayList<>();
     private Set<String> dataSourceTables = new HashSet<>();
+    private Set<String> tagTables = new HashSet<>();
     private Set<String> targetTables = new HashSet<>();
     private List<String> tempTables = new ArrayList<>();
 
@@ -71,8 +73,22 @@ public class SQLGenerateResult {
         return dataSourceTables;
     }
 
+    public void addDataSourceTables(Set<String> tableNames) {
+        Objects.requireNonNull(tableNames);
+
+        this.dataSourceTables.addAll(tableNames);
+    }
+
     public void setDataSourceTables(Set<String> dataSourceTables) {
         this.dataSourceTables = dataSourceTables;
+    }
+
+    public void setTagTables(Set<String> tagTables) {
+        this.tagTables = tagTables;
+    }
+
+    public Set<String> getTagTables() {
+        return tagTables;
     }
 
     public Set<String> getTargetTables() {
@@ -115,7 +131,7 @@ public class SQLGenerateResult {
         dataSourceTables.add("student");
         dataSourceTables.add("course");
 
-        result.setDataSourceTables(dataSourceTables);
+        result.addDataSourceTables(dataSourceTables);
 
         List<String> executeSQLs = new ArrayList<>();
         executeSQLs.add("SELECT * from `prs_cust_info`.`p_exchange_date` = '20180408' AND (`prs_cust_info`.`sex` = '01' AND `prs_cust_info`.`area_house` > 200 AND `prs_cust_info`.`price_car` > 2000000\n");
