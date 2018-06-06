@@ -11,6 +11,7 @@ import com.anshishagua.service.BasicSQLService;
 import com.anshishagua.service.DataTypeService;
 import com.anshishagua.service.HiveService;
 import com.anshishagua.service.NameValidateService;
+import com.anshishagua.service.ObjectReferenceService;
 import com.anshishagua.service.TableService;
 import com.google.common.base.Strings;
 import org.apache.ibatis.annotations.Param;
@@ -52,6 +53,8 @@ public class TableController {
     private HiveService hiveService;
     @Autowired
     private NameValidateService nameValidateService;
+    @Autowired
+    private ObjectReferenceService objectReferenceService;
 
     @RequestMapping("")
     public ModelAndView index() {
@@ -96,15 +99,12 @@ public class TableController {
 
     @RequestMapping("/detail")
     public ModelAndView detail(@RequestParam("id") long id) {
-        ModelAndView modelAndView = new ModelAndView();
+        ModelAndView modelAndView = new ModelAndView("table/detail");
 
         Table table = tableService.getById(id);
 
-        List<TableColumn> columns = table.getColumns();
         modelAndView.addObject("table", table);
-        modelAndView.addObject("columns", columns);
-
-        modelAndView.setViewName("table/detail");
+        modelAndView.addObject("objectReferences", objectReferenceService.getByRefObjectId(table.getId()));
 
         return modelAndView;
     }

@@ -121,6 +121,35 @@
                     </tbody>
                 </table>
             </div>
+            <div class="row">
+                <h3>被引用信息</h3>
+                <table class="table table-striped">
+                    <thead>
+                    <th>ID</th>
+                    <th>类型</th>
+                    <th>名称</th>
+                    </thead>
+                    <tbody>
+                    <#list refObjects as objRef>
+                    <tr>
+                        <td>
+                            <#if objRef.objectType.value == 'SYSTEM_PARAM'>
+                            <a href="/systemParam/detail?id=${objRef.objectId}">${objRef.objectId}</a>
+                            <#elseif objRef.objectType.value == 'TABLE'>
+                            <a href="/table/detail?id=${objRef.objectId}">${objRef.objectId}</a>
+                            <#elseif objRef.objectType.value == 'TAG'>
+                            <a href="/tag/detail?id=${objRef.objectId}">${objRef.objectId}</a>
+                            <#else>
+                            <a href="/index/detail?id=${objRef.objectId}">${objRef.objectId}</a>
+                        </#if>
+                        </td>
+                        <td>${objRef.objectType.description}</td>
+                        <td>${objRef.objectName}</td>
+                    </tr>
+                    </#list>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

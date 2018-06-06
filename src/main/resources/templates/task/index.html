@@ -32,7 +32,7 @@
             <div class="row">
                 <table class="table table-striped">
                     <thead>
-                    <th>任务ID</th>
+                    <th>ID</th>
                     <th>关联对象ID</th>
                     <th>任务类型</th>
                     <th>Cron表达式</th>
@@ -44,7 +44,17 @@
                     <#list tasks as task>
                     <tr>
                         <td>${task.id}</td>
-                        <td>${task.objectId}</td>
+                        <td>
+                            <#if task.taskType.value == 'TAG'>
+                                <a href="/tag/detail?id=${task.objectId}">${task.objectId}</a>
+                            <#elseif task.taskType.value == 'DATA_LOAD'>
+                                <a href="/table/detail?id=${task.objectId}">${task.objectId}</a>
+                            <#elseif task.taskType.value == 'INDEX'>
+                                <a href="/index/detail?id=${task.objectId}">${task.objectId}</a>
+                            <#else>
+                                ${task.objectId}
+                            </#if>
+                        </td>
                         <td>${task.taskType.description}</td>
                         <td>${task.cronExpression}</td>
                         <td>${task.createTime}</td>

@@ -34,4 +34,8 @@ public class ObjectReferenceService {
     public List<ObjectReference> getByObjectId(long objectId) {
         return objectReferenceMapper.getByObjectId(objectId);
     }
+
+    public List<ObjectReference> getByRefObjectId(long objectId) {
+        return objectReferenceMapper.getByRefObjectId(objectId);
+    }
 }

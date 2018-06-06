@@ -17,4 +17,5 @@ public interface ObjectReferenceMapper {
     void insert(ObjectReference objectReference);
     void insertBatch(@Param("list") List<ObjectReference> list);
     List<ObjectReference> getByObjectId(@Param("objectId") long objectId);
+    List<ObjectReference> getByRefObjectId(@Param("objectId") long objectId);
 }

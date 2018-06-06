@@ -164,8 +164,8 @@ public class TagController {
         Tag tag = tagService.getById(tagId);
 
         modelAndView.addObject("tag", tag);
-
         modelAndView.addObject("objectReferences", objectReferenceService.getByObjectId(tagId));
+        modelAndView.addObject("refObjects", objectReferenceService.getByRefObjectId(tagId));
 
         return modelAndView;
     }

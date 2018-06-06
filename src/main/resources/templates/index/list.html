@@ -38,6 +38,7 @@
                     <th>描述</th>
                     <th>创建时间</th>
                     <th>查看详情</th>
+                    <th>执行SQL</th>
                     <th>编辑</th>
                     <th>删除</th>
                     <th>执行</th>
@@ -52,6 +53,11 @@
                         <td>${index.description!}</td>
                         <td>${index.createTime}</td>
                         <td><a href="/index/detail?id=${index.id}">查看详情</a></td>
+                        <td>
+                            <#list index.sqlGenerateResult.executeSQLs as sql>
+                                ${sql}; <br/>
+                            </#list>
+                        </td>
                         <td><a href="/index/edit?id=${index.id}">编辑</a></td>
                         <td><a href="/index/delete?id=${index.id}">删除</a></td>
                         <td><a href="/taskExecution/execute?type=INDEX&objectId=${index.id}">执行</a></td>

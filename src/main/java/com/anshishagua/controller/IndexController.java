@@ -99,6 +99,7 @@ public class IndexController {
         ModelAndView modelAndView = new ModelAndView("index/detail");
         modelAndView.addObject("index", index);
         modelAndView.addObject("objectReferences", objectReferenceService.getByObjectId(id));
+        modelAndView.addObject("refObjects", objectReferenceService.getByRefObjectId(id));
 
         return modelAndView;
     }

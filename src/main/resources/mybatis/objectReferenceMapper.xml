@@ -39,4 +39,9 @@
         FROM t_object_reference
         WHERE object_id = #{objectId}
     </select>
+    <select id="getByRefObjectId" resultMap="objectReferenceMapper">
+        SELECT *
+        FROM t_object_reference
+        WHERE ref_object_id = #{objectId}
+    </select>
 </mapper>
