@@ -193,10 +193,6 @@ public class TableController {
             return Result.error("没有选择主键");
         }
 
-        if (count > 1) {
-            return Result.error("只能有唯一主键");
-        }
-
         count = columns.stream().filter(column -> column.isPrimaryKey() && column.isNullable()).count();
 
         if (count > 0) {

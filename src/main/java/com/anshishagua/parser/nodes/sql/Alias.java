@@ -14,7 +14,7 @@ import java.util.Objects;
 public class Alias extends AbstractNode<Void> {
     private String aliasName;
 
-    public Alias(String aliasName, Node child) {
+    public Alias(Node child, String aliasName) {
         Objects.requireNonNull(aliasName);
         Objects.requireNonNull(child);
 

@@ -151,11 +151,7 @@ public class IndexSQLGenerateService {
                 Tag tag = dimensionParseResult.getTags().iterator().next();
                 tags.add(tag);
                 query.select(new Column(tagSQLGenerateService.generateTagTableName(tag.getId()), "tag_value_value"));
-
-                com.anshishagua.object.Table table = tableService.getById(tag.getTableId());
-                TableColumn primaryKey = table.getPrimaryKeys().get(0);
-
-                query.groupBy(new Column(table.getName(), primaryKey.getName()));
+                query.groupBy(new Column(tagSQLGenerateService.generateTagTableName(tag.getId()), "tag_value_value"));
             } else {
                 query.select(dimensionParseResult.getAstTree());
                 query.groupBy(dimensionParseResult.getAstTree());

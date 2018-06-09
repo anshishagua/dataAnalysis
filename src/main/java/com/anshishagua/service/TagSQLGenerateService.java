@@ -1,6 +1,7 @@
 package com.anshishagua.service;
 
 import com.anshishagua.object.ParseResult;
+import com.anshishagua.object.PrimaryKey;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableColumn;
@@ -8,12 +9,15 @@ import com.anshishagua.object.TableRelation;
 import com.anshishagua.object.Tag;
 import com.anshishagua.object.TagValue;
 import com.anshishagua.parser.nodes.Node;
+import com.anshishagua.parser.nodes.bool.And;
 import com.anshishagua.parser.nodes.bool.In;
 import com.anshishagua.parser.nodes.bool.NotIn;
 import com.anshishagua.parser.nodes.comparision.Equal;
 import com.anshishagua.parser.nodes.function.aggregation.AggregationNode;
+import com.anshishagua.parser.nodes.function.string.Concat;
 import com.anshishagua.parser.nodes.primitive.LongValue;
 import com.anshishagua.parser.nodes.primitive.StringValue;
+import com.anshishagua.parser.nodes.sql.Alias;
 import com.anshishagua.parser.nodes.sql.Column;
 import com.anshishagua.parser.nodes.sql.Condition;
 import com.anshishagua.parser.nodes.sql.Insert;
@@ -22,6 +26,7 @@ import com.anshishagua.parser.nodes.sql.JoinType;
 import com.anshishagua.parser.nodes.sql.Query;
 import com.anshishagua.utils.CollectionUtils;
 import com.anshishagua.utils.NodeUtils;
+import com.anshishagua.utils.StringUtils;
 import com.anshishagua.utils.TreeTransform;
 import com.anshishagua.service.BasicSQLService.TreeNode;
 import org.slf4j.Logger;
@@ -69,7 +74,8 @@ public class TagSQLGenerateService {
     public String generateTagTableCreateSQL(Tag tag) {
         Objects.requireNonNull(tag);
 
-        TableColumn primaryKey = tableService.getById(tag.getTableId()).getPrimaryKeys().get(0);
+        Table table = tableService.getById(tag.getTableId());
+        PrimaryKey primaryKey = basicSQLService.getPrimaryKey(table);
 
         String tagTableName = generateTagTableName(tag.getId());
 
@@ -87,9 +93,17 @@ public class TagSQLGenerateService {
     private Query aggregationToSubQuery(AggregationNode node, Table targetTable) {
         Query query = new Query();
 
-        TableColumn primaryKey = targetTable.getPrimaryKeys().get(0);
+        List<TableColumn> primaryKeys = targetTable.getPrimaryKeys();
 
-        query.select(new Column(targetTable.getName(), primaryKey.getName()));
+        PrimaryKey primaryKey = basicSQLService.getPrimaryKey(targetTable);
+
+        if (primaryKey.isCombined()) {
+            Concat concat = primaryKey.toConcatNode();
+
+            query.select(new Alias(concat, "id"));
+        } else {
+            query.select(new Column(targetTable.getName(), primaryKeys.get(0).getName()));
+        }
 
         query.select(node);
 
@@ -113,12 +127,13 @@ public class TagSQLGenerateService {
         } catch (Exception ex) {
             LOG.error("Failed to join trees", ex);
         }
-        //Join join = basicSQLService.buildJoinClauses(tableNames, targetTable.getName());
         Join join = basicSQLService.buildJoinClauses(root);
 
         query.join(join);
 
-        query.groupBy(new Column(targetTable.getName(), primaryKey.getName()));
+        for (TableColumn column : primaryKeys) {
+            query.groupBy(new Column(targetTable.getName(), column.getName()));
+        }
 
         return query;
     }
@@ -165,8 +180,30 @@ public class TagSQLGenerateService {
         return root;
     }
 
+    private Condition joinCondition(String leftTableName, String rightTableName, List<TableColumn> columns) {
+        Objects.requireNonNull(leftTableName);
+        Objects.requireNonNull(rightTableName);
+        Objects.requireNonNull(columns);
+
+        Node condition = null;
+
+        for (TableColumn column : columns) {
+            Node equal = new Equal(new Column(leftTableName, column.getName()), new Column(rightTableName, column.getName()));
+
+            if (condition == null) {
+                condition = equal;
+            } else {
+                condition = new And(condition, equal);
+            }
+        }
+
+        return (Condition) condition;
+    }
+
     private Query buildQuery(SQLGenerateResult sqlGenerateResult, Node root, Table targetTable, List<Node> aggregationNodes) {
-        TableColumn primaryKey = targetTable.getPrimaryKeys().get(0);
+        List<TableColumn> primaryKeys = targetTable.getPrimaryKeys();
+
+        PrimaryKey primaryKey = basicSQLService.getPrimaryKey(targetTable);
 
         Set<String> tempTables = new HashSet<>();
 
@@ -178,6 +215,7 @@ public class TagSQLGenerateService {
             sqlGenerateResult.addTempTable(tempTableName);
 
             List<TableColumn> columns = new ArrayList<>();
+
             TableColumn column = new TableColumn();
 
             column.setName("id");
@@ -202,7 +240,11 @@ public class TagSQLGenerateService {
 
         Query query = new Query();
 
-        query.select(new Column(targetTable.getName(), primaryKey.getName()));
+        if (primaryKey.isCombined()) {
+            query.select(new Alias(primaryKey.toConcatNode(), "id"));
+        } else {
+            query.select(new Column(targetTable.getName(), primaryKeys.get(0).getName()));
+        }
 
         if (tempTables.isEmpty()) {
             query.from(new com.anshishagua.parser.nodes.sql.Table(targetTable.getName()));
@@ -210,7 +252,9 @@ public class TagSQLGenerateService {
             Join join = null;
 
             for (String tempTableName : tempTables) {
-                Condition joinCondition = new Equal(new Column(tempTableName, "id"), new Column(targetTable.getName(), primaryKey.getName()));
+                Condition joinCondition = primaryKey.isCombined() ?
+                        new Equal(new Column(tempTableName, "id"), primaryKey.toConcatNode()) :
+                        new Equal(new Column(tempTableName, "id"), new Column(targetTable.getName(), primaryKeys.get(0).getName()));
 
                 if (join == null) {
                     join = new Join(new com.anshishagua.parser.nodes.sql.Table(targetTable.getName()),
@@ -250,8 +294,12 @@ public class TagSQLGenerateService {
         Set<String> systemParameters = new HashSet<>();
 
         Table targetTable = tableService.getById(tag.getTableId());
-        TableColumn primaryKey = targetTable.getPrimaryKeys().get(0);
+        List<TableColumn> primaryKeys = targetTable.getPrimaryKeys();
+        PrimaryKey primaryKey = basicSQLService.getPrimaryKey(targetTable);
+
         dataSourceTables.add(targetTable.getName());
+
+        boolean first = true;
 
         for (TagValue tagValue : tagValues) {
             filterConditionResult = tagService.parseFilterCondition(tagValue.getFilterCondition(), tag.getTableId());
@@ -285,16 +333,27 @@ public class TagSQLGenerateService {
             computeQuery.select(new StringValue(tagValue.getValue()));
 
             if (filterQuery != null) {
-                computeQuery.and(new In(new Column(targetTable.getName(), primaryKey.getName()), filterQuery));
+                if (primaryKey.isCombined()) {
+                    computeQuery.and(new In(primaryKey.toConcatNode(), filterQuery));
+                } else {
+                    computeQuery.and(new In(new Column(targetTable.getName(), primaryKeys.get(0).getName()), filterQuery));
+                }
             }
 
-            Query filterTagIdQuery = new Query();
-            Column targetTableColumn = new Column(targetTable.getName(), primaryKey.getName());
-            Column tagColumn = new Column(tagTableName, "id");
-            filterTagIdQuery.select(tagColumn);
-            filterTagIdQuery.from(tagTableName);
+            if (first) {
+                first = !first;
+            } else {
+                Query filterTagIdQuery = new Query();
+                Column tagColumn = new Column(tagTableName, "id");
+                filterTagIdQuery.select(tagColumn);
+                filterTagIdQuery.from(tagTableName);
 
-            computeQuery.and(new NotIn(targetTableColumn, filterTagIdQuery));
+                if (primaryKey.isCombined()) {
+                    computeQuery.and(new NotIn(primaryKey.toConcatNode(), filterTagIdQuery));
+                } else {
+                    computeQuery.and(new NotIn(new Column(targetTable.getName(), primaryKeys.get(0).getName()), filterTagIdQuery));
+                }
+            }
 
             Insert insert = new Insert();
             insert.setOverwrite(insertOverwrite);

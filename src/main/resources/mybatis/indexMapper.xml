@@ -40,7 +40,7 @@
     <select id="getByNameLike" resultMap="indexMapper">
         SELECT *
         FROM `t_index`
-        WHERE `name` LIKE CONCAT('%', CONCAT(#{name},'%'))
+        WHERE `name` LIKE CONCAT('%', #{name},'%')
     </select>
     <select id="list" resultMap="indexMapper">
         SELECT *

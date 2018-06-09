@@ -8,73 +8,65 @@
     <link rel="stylesheet" href="/static/css/simple-side-bar.css">
     <script src="/static/js/jquery-3.3.1.min.js"></script>
     <script src="/static/js/bootstrap.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#addSystemParam").click(function() {
+                $.ajax({
+                    url: "/systemParam/newParam",
+                    success: function(data) {
+                        $("#param-body").append(data);
+                    }
+                });
+            });
+
+            $("#param-body").on("click", ".delete-param", function() {
+                $(".delete-param").parents()[1].remove();
+            });
+
+            $("#submit").click(function() {
+                var systemParams = [];
+
+                $(".param-info").each(function() {
+                    var name = $(this).find("input[name=paramName]").val();
+                    var value = $(this).find("input[name=paramValue]").val();
+                    var dataType = $(this).find("select[name=dataType] option:selected").val();
+                    var description = $(this).find("input[name=description]").val();
+
+                    var systemParam = {
+                        name: name,
+                        value: value,
+                        dataType : dataType,
+                        description: description
+                    };
+
+                    systemParams.push(systemParam);
+                });
+
+                $.ajax({
+                    url: "/systemParam/add",
+                    dataType: "json",
+                    data: {
+                        systemParams: JSON.stringify(systemParams)
+                    },
+                    success: function(result) {
+                        if (result.success) {
+                            alert("添加系统参数成功");
+                            location.href = "/systemParam/";
+                        } else {
+                            alert("添加系统参数失败:" + result.errorMessage);
+                        }
+                    }
+                });
+            });
+
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        });
+    </script>
 </head>
 <body>
-<script type="text/javascript">
-    $(document).ready(function() {
-        $("li > a").click(function() {
-            var url = $(this).attr("href");
-
-            $.ajax({
-                url: url,
-                success: function(data) {
-                    $(".container-fluid").html(data);
-                }
-            });
-
-            return false;
-        });
-
-        $("#addSystemParam").click(function() {
-            $.ajax({
-               url: "/systemParam/newParam",
-               success: function(data) {
-                   $("#param-body").append(data);
-               }
-            });
-        });
-
-        $("#param-body").on("click", ".delete-param", function() {
-            $(".delete-param").parents()[1].remove();
-        });
-
-        $("#submit").click(function() {
-            var systemParams = [];
-
-            $(".param-info").each(function() {
-                var name = $(this).find("input[name=paramName]").val();
-                var value = $(this).find("input[name=paramValue]").val();
-                var dataType = $(this).find("select[name=dataType] option:selected").val();
-                var description = $(this).find("input[name=description]").val();
-
-                var systemParam = {
-                    name: name,
-                    value: value,
-                    dataType : dataType,
-                    description: description
-                };
-
-                systemParams.push(systemParam);
-            });
-
-            $.ajax({
-                url: "/systemParam/add",
-                dataType: "json",
-                data: {
-                    systemParams: JSON.stringify(systemParams)
-                },
-                success: function(result) {
-                    if (result.success) {
-                        alert("添加系统参数成功");
-                        location.href = "/systemParam/";
-                    } else {
-                        alert("添加系统参数失败:" + result.errorMessage);
-                    }
-                }
-            });
-        });
-    });
-</script>
 
 <div id="wrapper">
     <#include "/common/header.html"/>
@@ -132,12 +124,5 @@
             </div>
         </div>
     </div>
-
-    <script type="text/javascript">
-        $("#menu-toggle").click(function(e) {
-            e.preventDefault();
-            $("#wrapper").toggleClass("toggled");
-        });
-    </script>
 </div>
 </body>

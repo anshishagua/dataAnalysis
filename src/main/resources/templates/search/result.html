@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>搜索结果</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/simple-side-bar.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="wrapper">
+    <#include "/common/header.html"/>
+
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <h2>搜索类型: ${searchType.description}</h2>
+                <div class="col-sm-offset-11 col-sm-1">
+                    <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
+                </div>
+            </div>
+
+            <#if searchType.value == 'TABLE' || searchType.value == 'ALL'>
+            <div class="row">
+                <h3>搜索到的表</h3>
+                <table class="table table-striped">
+                    <thead>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>别名</th>
+                    <th>创建时间</th>
+                    </thead>
+                    <tbody>
+                    <#list tables as table>
+                    <tr>
+                        <td><a href="/table/detail?id=${table.id}">${table.id}</a></td>
+                        <td>${table.name}</td>
+                        <td>${table.alias}</td>
+                        <td>${table.createTime}</td>
+                    </tr>
+                    </#list>
+                    </tbody>
+                </table>
+            </div>
+            </#if>
+
+            <#if searchType.value == 'TAG' || searchType.value == 'ALL'>
+            <div class="row">
+                <h3>搜索到的标签</h3>
+                <table class="table table-striped">
+                <thead>
+                <th>ID</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>创建时间</th>
+                </thead>
+                <tbody>
+                <#list tags as tag>
+                <tr>
+                    <td><a href="/tag/detail?id=${tag.id}">${tag.id}</a></td>
+                    <td>${tag.name}</td>
+                    <td>${tag.description!}</td>
+                    <td>${tag.createTime}</td>
+                </tr>
+                </#list>
+                </tbody>
+                </table>
+            </div>
+            </#if>
+
+            <#if searchType.value == 'INDEX' || searchType.value == 'ALL'>
+            <div class="row">
+                <h3>搜索到的指标</h3>
+                <table class="table table-striped">
+                <thead>
+                <th>ID</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>创建时间</th>
+                </thead>
+                <tbody>
+                <#list indices as index>
+                <tr>
+                    <td><a href="/index/detail?id=${index.id}">${index.id}</a></td>
+                  <td>${index.name}</td>
+                  <td>${index.description!}</td>
+                   <td>${index.createTime}</td>
+                </tr>
+                </#list>
+                </tbody>
+                </table>
+            </div>
+            </#if>
+        </div>
+    </div>
+</div>
+</body>

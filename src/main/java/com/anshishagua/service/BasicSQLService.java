@@ -2,6 +2,7 @@ package com.anshishagua.service;
 
 import com.anshishagua.exceptions.UnableToJoinException;
 import com.anshishagua.object.Index;
+import com.anshishagua.object.PrimaryKey;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
 import com.anshishagua.object.TableColumn;
@@ -135,6 +136,18 @@ public class BasicSQLService {
 
     public String generateTempTableName() {
         return "tmp_table_" + UUID.randomUUID().toString().replace("-", "");
+    }
+
+    public PrimaryKey getPrimaryKey(Table table) {
+        Objects.requireNonNull(table);
+
+        List<TableColumn> primaryKeys = table.getPrimaryKeys();
+
+        PrimaryKey primaryKey = new PrimaryKey();
+        primaryKey.setTableName(table.getName());
+        primaryKey.setKeyColumns(primaryKeys);
+
+        return primaryKey;
     }
 
     public String createTemporaryTable(String tableName, List<TableColumn> columns) {
