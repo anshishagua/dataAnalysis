@@ -20,6 +20,7 @@ public class Join extends AbstractNode<Void> {
     private JoinType joinType;
     private Condition joinCondition;
     private Set<String> joinTables = new HashSet<>();
+    private Set<Long> tableRelationIds = new HashSet<>();
 
     public Join(Node left, Node right, JoinType joinType, Condition joinCondition) {
         super(left, right);
@@ -33,13 +34,27 @@ public class Join extends AbstractNode<Void> {
             joinTables.add(((Table) left).getTableName());
         } else if (left instanceof Join) {
             joinTables.addAll(((Join) left).getJoinTables());
+            tableRelationIds.addAll(((Join) left).getTableRelationIds());
         }
 
         if (right instanceof Table) {
             joinTables.add(((Table) right).getTableName());
         } else if (right instanceof Join) {
             joinTables.addAll(((Join) right).getJoinTables());
+            tableRelationIds.addAll(((Join) right).getTableRelationIds());
         }
+    }
+
+    public void addTableRelationId(long relationId) {
+        this.tableRelationIds.add(relationId);
+    }
+
+    public Set<Long> getTableRelationIds() {
+        return tableRelationIds;
+    }
+
+    public void setTableRelationIds(Set<Long> tableRelationIds) {
+        this.tableRelationIds = tableRelationIds;
     }
 
     public Set<String> getJoinTables() {

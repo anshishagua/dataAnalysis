@@ -82,4 +82,15 @@ public class TableRelationController {
 
         return modelAndView;
     }
+
+    @RequestMapping("/detail")
+    public ModelAndView detail(@RequestParam("id") long id) {
+        TableRelation relation = tableRelationService.getById(id);
+
+        ModelAndView modelAndView = new ModelAndView("tableRelation/detail");
+
+        modelAndView.addObject("relation", relation);
+
+        return modelAndView;
+    }
 }

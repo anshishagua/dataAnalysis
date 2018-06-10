@@ -210,6 +210,10 @@ public class TagSQLGenerateService {
         for (Node aggregationNode : aggregationNodes) {
             Query query = aggregationToSubQuery((AggregationNode) aggregationNode, targetTable);
 
+            if (query.getJoinClause() != null) {
+                sqlGenerateResult.addTableRelationIds(query.getJoinClause().getTableRelationIds());
+            }
+
             String tempTableName = basicSQLService.generateTempTableName();
             tempTables.add(tempTableName);
             sqlGenerateResult.addTempTable(tempTableName);
@@ -292,6 +296,7 @@ public class TagSQLGenerateService {
 
         Set<String> dataSourceTables = new HashSet<>();
         Set<String> systemParameters = new HashSet<>();
+        Set<Long> tableRelationIds = new HashSet<>();
 
         Table targetTable = tableService.getById(tag.getTableId());
         List<TableColumn> primaryKeys = targetTable.getPrimaryKeys();
@@ -325,6 +330,10 @@ public class TagSQLGenerateService {
             //has filter condition
             if (filterConditionResult.getAstTree() != null) {
                 filterQuery = buildQuery(result, filterConditionResult.getAstTree(), targetTable, filterConditionResult.getAggregationNodes());
+
+                if (filterQuery.getJoinClause() != null) {
+                    tableRelationIds.addAll(filterQuery.getJoinClause().getTableRelationIds());
+                }
             }
 
             Query computeQuery = buildQuery(result, computeConditionResult.getAstTree(), targetTable, computeConditionResult.getAggregationNodes());
@@ -355,6 +364,10 @@ public class TagSQLGenerateService {
                 }
             }
 
+            if (computeQuery.getJoinClause() != null) {
+                tableRelationIds.addAll(computeQuery.getJoinClause().getTableRelationIds());
+            }
+
             Insert insert = new Insert();
             insert.setOverwrite(insertOverwrite);
             insert.setTableName(tagTableName);
@@ -373,6 +386,7 @@ public class TagSQLGenerateService {
         result.setSuccess(true);
         result.addDataSourceTables(dataSourceTables);
         result.addSystemParameters(systemParameters);
+        result.addTableRelationIds(tableRelationIds);
 
         Set<String> targetTables = new HashSet<>(Arrays.asList(tagTableName));
         result.setTargetTables(targetTables);

@@ -237,6 +237,20 @@ public class TagService {
             objectReferences.add(reference);
         }
 
+        for (long relationId : sqlGenerateResult.getTableRelationIds()) {
+            TableRelation relation = tableRelationService.getById(relationId);
+
+            ObjectReference reference = new ObjectReference();
+            reference.setObjectId(tag.getId());
+            reference.setObjectName(tag.getName());
+            reference.setObjectType(ObjectType.TAG);
+            reference.setRefObjectId(relation.getId());
+            reference.setRefObjectType(ObjectType.TABLE_RELATION);
+            reference.setRefObjectName(relation.getLeftTable().getName() + "-" + relation.getRightTable().getName());
+
+            objectReferences.add(reference);
+        }
+
         List<Task> dependentTasks = new ArrayList<>();
 
         for (String tableName : tableNames) {

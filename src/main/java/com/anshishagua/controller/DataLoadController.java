@@ -2,6 +2,7 @@ package com.anshishagua.controller;
 
 import com.anshishagua.compute.Task;
 import com.anshishagua.compute.TaskExecution;
+import com.anshishagua.constants.TaskType;
 import com.anshishagua.object.Result;
 import com.anshishagua.object.Table;
 import com.anshishagua.constants.TaskStatus;
@@ -88,7 +89,7 @@ public class DataLoadController {
         }
 
         Table table = tableService.getByName(tableName);
-        Task task = taskService.getByObjectId(table.getId());
+        Task task = taskService.getByTaskTypeAndObjectId(TaskType.DATA_LOAD, table.getId());
 
         TaskExecution taskExecution = taskExecutionService.getByTask(task.getId(), date);
 
@@ -98,6 +99,7 @@ public class DataLoadController {
             taskExecution.setTaskId(task.getId());
             taskExecution.setLocks(1);
             taskExecution.setCreateTime(LocalDateTime.now());
+            taskExecution.setExecuteDate(date);
         }
 
         taskExecution.setStartTime(LocalDateTime.now());

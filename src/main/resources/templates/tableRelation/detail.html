@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>模型关系详情</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/simple-side-bar.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        });
+    </script>
+</head>
+<body>
+
+<div id="wrapper">
+    <#include "/common/header.html"/>
+
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <h2>关联关系详情</h2>
+                <div class="col-sm-offset-11 col-sm-1">
+                    <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
+                </div>
+            </div>
+            <div class="row">
+                <table class="table table-striped">
+                    <thead>
+                    <th>ID</th>
+                    <th>左侧表名</th>
+                    <th>左侧字段名</th>
+                    <th>关联类型</th>
+                    <th>右侧表名</th>
+                    <th>右侧字段名</th>
+                    <th>创建时间</th>
+                    <th>描述</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>${relation.id}</td>
+                        <td><a href="/table/detail?id=${relation.leftTable.id}">${relation.leftTable.name}</a></td>
+                        <td>${relation.leftColumn.name}</td>
+                        <td>${relation.joinType.description}</td>
+                        <td><a href="/table/detail?id=${relation.rightTable.id}">${relation.rightTable.name}</a></td>
+                        <td>${relation.rightColumn.name}</td>
+                        <td>${relation.createTime}</td>
+                        <td>${relation.description}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>

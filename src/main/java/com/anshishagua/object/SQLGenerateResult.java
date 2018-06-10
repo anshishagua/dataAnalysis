@@ -23,6 +23,7 @@ public class SQLGenerateResult {
     private Set<String> targetTables = new HashSet<>();
     private List<String> tempTables = new ArrayList<>();
     private Set<String> systemParameters = new HashSet<>();
+    private Set<Long> tableRelationIds = new HashSet<>();
 
     public static SQLGenerateResult ok() {
         SQLGenerateResult result = new SQLGenerateResult();
@@ -118,6 +119,24 @@ public class SQLGenerateResult {
 
     public void addSystemParameters(Set<String> systemParameters) {
         this.systemParameters.addAll(systemParameters);
+    }
+
+    public void addTableRelationIds(Set<Long> tableRelationIds) {
+        Objects.requireNonNull(tableRelationIds);
+
+        this.tableRelationIds.addAll(tableRelationIds);
+    }
+
+    public void addTableRelationId(long relationId) {
+        this.tableRelationIds.add(relationId);
+    }
+
+    public void setTableRelationIds(Set<Long> tableRelationIds) {
+        this.tableRelationIds = tableRelationIds;
+    }
+
+    public Set<Long> getTableRelationIds() {
+        return tableRelationIds;
     }
 
     @Override

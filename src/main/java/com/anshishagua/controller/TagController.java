@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.anshishagua.object.ParseResult;
+import com.anshishagua.object.PrimaryKey;
 import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
+import com.anshishagua.object.TableColumn;
 import com.anshishagua.object.Tag;
 import com.anshishagua.object.TagValue;
 import com.anshishagua.parser.nodes.comparision.Equal;
@@ -304,6 +306,8 @@ public class TagController {
         Objects.requireNonNull(tag);
 
         Table table = tableService.getById(tag.getTableId());
+        List<TableColumn> primaryKeys = table.getPrimaryKeys();
+        PrimaryKey primaryKey = basicSQLService.getPrimaryKey(table);
         String tableName = table.getName();
         String tagTableName = String.format("tag_%d", tag.getId());
         List<String> columnNames = new ArrayList<>();
@@ -324,7 +328,11 @@ public class TagController {
         com.anshishagua.parser.nodes.sql.Table left = new com.anshishagua.parser.nodes.sql.Table(tagTableName);
         com.anshishagua.parser.nodes.sql.Table right = new com.anshishagua.parser.nodes.sql.Table(tableName);
 
-        query.join(new Join(left, right, JoinType.INNER_JOIN, new Equal(new Column(tagTableName, "id"), new Column(tableName, table.getPrimaryKeys().get(0).getName()))));
+        if (primaryKey.isCombined()) {
+            query.join(new Join(left, right, JoinType.INNER_JOIN, new Equal(new Column(tagTableName, "id"), primaryKey.toConcatNode())));
+        } else {
+            query.join(new Join(left, right, JoinType.INNER_JOIN, new Equal(new Column(tagTableName, "id"), new Column(tableName, table.getPrimaryKeys().get(0).getName()))));
+        }
 
         String sql = query.toSQL();
 

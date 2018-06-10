@@ -14,6 +14,7 @@ public enum ObjectType {
     TAG("TAG", "标签"),
     BASIC_INDEX("BASIC_INDEX", "基础指标"),
     DERIVED_INDEX("DERIVED_INDEX", "派生指标"),
+    TABLE_RELATION("TABLE_RELATION", "表关联关系"),
     UNKNOWN("", "");
 
     private String value;

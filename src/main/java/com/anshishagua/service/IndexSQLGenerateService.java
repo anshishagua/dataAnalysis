@@ -175,6 +175,7 @@ public class IndexSQLGenerateService {
                     join = basicSQLService.buildJoinClauses2(tableNames);
 
                     result.addDataSourceTables(join.getJoinTables());
+                    result.addTableRelationIds(join.getTableRelationIds());
                 } catch (UnableToJoinException ex) {
                     return SQLGenerateResult.error(ex.getMessage());
                 }

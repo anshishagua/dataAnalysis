@@ -105,13 +105,15 @@
                     <tr>
                         <td>
                             <#if objRef.refObjectType.value == 'SYSTEM_PARAM'>
-                            <a href="/systemParam/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
+                                <a href="/systemParam/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
                             <#elseif objRef.refObjectType.value == 'TABLE'>
-                            <a href="/table/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
+                                <a href="/table/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
                             <#elseif objRef.refObjectType.value == 'TAG'>
-                            <a href="/tag/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
+                                <a href="/tag/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
+                            <#elseif objRef.refObjectType.value == 'TABLE_RELATION'>
+                                <a href="/tableRelation/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
                             <#else>
-                            <a href="/index/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
+                                <a href="/index/detail?id=${objRef.refObjectId}">${objRef.refObjectId}</a>
                         </#if>
                         </td>
                         <td>${objRef.refObjectType.description}</td>

@@ -27,10 +27,6 @@ public class TaskService {
         return taskMapper.getByTaskTypeAndObjectId(taskType.getValue(), objectId);
     }
 
-    public Task getByObjectId(long id) {
-        return taskMapper.getByObjectId(id);
-    }
-
     public void addNewTask(Task task) {
         taskMapper.addNewTask(task);
     }

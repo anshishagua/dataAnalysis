@@ -19,6 +19,7 @@ import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.SystemParameter;
 import com.anshishagua.object.Table;
 import com.anshishagua.constants.TaskType;
+import com.anshishagua.object.TableRelation;
 import com.anshishagua.object.Tag;
 import com.anshishagua.parser.grammar.ExpressionParser;
 import com.anshishagua.parser.nodes.Node;
@@ -59,6 +60,8 @@ public class IndexService {
     private TagService tagService;
     @Autowired
     private ObjectReferenceService objectReferenceService;
+    @Autowired
+    private TableRelationService tableRelationService;
 
     @Autowired
     private IndexMapper indexMapper;
@@ -286,6 +289,20 @@ public class IndexService {
             reference.setRefObjectId(systemParameter.getId());
             reference.setRefObjectType(ObjectType.SYSTEM_PARAM);
             reference.setRefObjectName(systemParam);
+
+            objectReferences.add(reference);
+        }
+
+        for (long relationId : sqlGenerateResult.getTableRelationIds()) {
+            TableRelation relation = tableRelationService.getById(relationId);
+
+            ObjectReference reference = new ObjectReference();
+            reference.setObjectId(index.getId());
+            reference.setObjectName(index.getName());
+            reference.setObjectType(index.getIndexType() == IndexType.BASIC ? ObjectType.BASIC_INDEX : ObjectType.DERIVED_INDEX);
+            reference.setRefObjectId(relation.getId());
+            reference.setRefObjectType(ObjectType.TABLE_RELATION);
+            reference.setRefObjectName(relation.getLeftTable().getName() + "-" + relation.getRightTable().getName());
 
             objectReferences.add(reference);
         }

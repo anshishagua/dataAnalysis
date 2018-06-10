@@ -76,6 +76,10 @@ public class Query extends AbstractNode<Void> {
         this.joinClause = join;
     }
 
+    public Join getJoinClause() {
+        return joinClause;
+    }
+
     public void groupBy(Node node) {
         Objects.requireNonNull(node);
 
@@ -125,7 +129,7 @@ public class Query extends AbstractNode<Void> {
         }
 
         if (!groupBys.isEmpty()) {
-            builder.append("GROUP BY ");
+            builder.append(" GROUP BY ");
 
             iterator = groupBys.iterator();
 

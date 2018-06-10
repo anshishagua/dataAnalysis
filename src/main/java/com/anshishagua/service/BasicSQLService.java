@@ -249,6 +249,7 @@ public class BasicSQLService {
                     new Column(relation.getRightTable().getName(), relation.getRightColumn().getName()));
 
             join = new Join(left, right, relation.getJoinType(), joinCondition);
+            join.addTableRelationId(relation.getId());
         }
 
         return join;
@@ -285,6 +286,7 @@ public class BasicSQLService {
                     new Column(relation.getRightTable().getName(), relation.getRightColumn().getName()));
 
             join = new Join(left, right, relation.getJoinType(), joinCondition);
+            join.addTableRelationId(relation.getId());
 
             for (TreeNode child : node.getChildren()) {
                 queue.add(child);
