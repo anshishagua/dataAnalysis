@@ -105,7 +105,7 @@ public class DataLoadController {
         taskExecution.setStartTime(LocalDateTime.now());
 
         try {
-            hiveService.load(outputFileName, tableName);
+            hiveService.uploadToHdfs(outputFileName, tableName);
         } catch (IOException ex) {
             taskExecution.setStatus(TaskStatus.FINISHED_FAILED);
             taskExecution.setErrorMessage(ex.toString());

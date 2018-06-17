@@ -2,13 +2,15 @@
     <td>
         <input type="text" class="form-control tagValue" name="tagValue">
     </td>
-    <td>
-        <textarea class="form-control filterCondition" name="filterCondition"></textarea>
-    </td>
+    <#if tagType.value == 'STANDARD'>
+        <td>
+            <textarea class="form-control filterCondition" name="filterCondition"></textarea>
+        </td>
 
-    <td>
-        <textarea class="form-control computeCondition" name="computeCondition"></textarea>
-    </td>
+        <td>
+            <textarea class="form-control computeCondition" name="computeCondition"></textarea>
+        </td>
+    </#if>
 
     <td>
         <input type="text" class="form-control description" name="description">

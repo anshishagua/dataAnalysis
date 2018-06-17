@@ -139,7 +139,7 @@ public class HiveService {
 
     //LOAD DATA LOCAL inpath '/tmp/deposit_details.txt' OVERWRITE INTO TABLE deposit_details PARTITION(`p_exchange_date`='2018LOAD DATA LOCAL inpath ''/tmp/deposit_details.txt'' OVERWRITE INTO TABLE deposit_details PARTITION(`p_exchange_date`=''20180329'');
     //0329');
-    public void load(String localFile, String tableName) throws IOException {
+    public void uploadToHdfs(String localFile, String tableName) throws IOException {
         String hdfsFileName = tableName + ".txt";
 
         String path = String.format("%s/%s.db/%s/%s", hiveHdfsUri, database, tableName, hdfsFileName);

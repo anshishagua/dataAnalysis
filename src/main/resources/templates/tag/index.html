@@ -96,15 +96,27 @@
         });
 
         $("#add-tag-value").click(function() {
-           $.ajax({
-               url: "/tag/value",
+            var tagType = $("#tag-type option:selected").val();
+
+            $.ajax({
+               url: "/tag/value?tagType=" + tagType,
+
                success: function(data) {
                    $("#tag-values-body").append(data);
                }
-           })
+            });
+        });
+
+        $("#tag-type").change(function() {
+            $(this).attr("disabled","disabled");
+            var tagType = $(this).find("option:selected").val();
+
+            $(".tag-compute-rule").toggle();
+            $(".tag-filter-rule").toggle();
         });
 
         $("#submit").click(function() {
+            var tagType = $("#tag-type option:selected").val();
             var tagName = $("#tagName").val();
             var targetTableId = $("#targetTable option:selected").val();
 
@@ -130,6 +142,7 @@
                 url: "/tag/add",
                 dataType: "json",
                 data: {
+                    tagType: tagType,
                     tagName: tagName,
                     targetTableId: targetTableId,
                     tagValues: JSON.stringify(tagValues)
@@ -274,14 +287,24 @@
                             </div>
                             <label class="control-label" for="tagName" style="display: none">标签名不为空</label>
                         </div>
+                        <div class="form-group">
+                            <label for="tag-type" class="control-label col-sm-2">标签类型</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" name="tag-type" id="tag-type">
+                                    <#list tagTypes as tagType>
+                                        <option name="${tagType.value}" value="${tagType.value}">${tagType.description}</option>
+                                    </#list>
+                                </select>
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label for="targetTable" class="control-label col-sm-2">贴标表</label>
                             <div class="col-sm-10">
                                 <select class="form-control" name="targetTable" id="targetTable">
                                     <#list tables as table>
-                                    <option name="${table.name}" value="${table.id}">${table.alias}</option>
-                                </#list>
+                                        <option name="${table.name}" value="${table.id}">${table.alias}</option>
+                                    </#list>
                                 </select>
                             </div>
                         </div>
@@ -296,8 +319,8 @@
                             <table id="tag-values" class="table table-striped">
                                 <thead>
                                 <th>标签值</th>
-                                <th>过滤条件</th>
-                                <th>规则表达式</th>
+                                <th class="tag-compute-rule">过滤条件</th>
+                                <th class="tag-filter-rule">规则表达式</th>
                                 <th>描述</th>
                                 <th>操作</th>
                                 </thead>

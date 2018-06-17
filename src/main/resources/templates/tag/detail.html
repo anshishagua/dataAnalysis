@@ -57,8 +57,12 @@
                     <th>ID</th>
                     <th>名称</th>
                     <th>序号</th>
-                    <th>过滤条件</th>
-                    <th>计算规则</th>
+                    <#if tag.tagType.value == 'STANDARD'>
+                        <th>过滤条件</th>
+                        <th>计算规则</th>
+                    <#else>
+                        <th>上传数据</th>
+                    </#if>
                     </thead>
                     <tbody>
                     <#list tag.tagValues as tagValue>
@@ -66,8 +70,12 @@
                         <td>${tagValue.id}</td>
                         <td>${tagValue.value}</td>
                         <td>${tagValue.order}</td>
-                        <td>${tagValue.filterCondition}</td>
-                        <td>${tagValue.computeCondition}</td>
+                        <#if tag.tagType.value == 'STANDARD'>
+                            <td>${tagValue.filterCondition}</td>
+                            <td>${tagValue.computeCondition}</td>
+                        <#else>
+                        <td><a href="/tag/upload?id=${tag.id}">上传数据</a></td>
+                        </#if>
                     </tr>
                     </#list>
                     </tbody>

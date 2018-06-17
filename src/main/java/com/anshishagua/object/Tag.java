@@ -1,5 +1,6 @@
 package com.anshishagua.object;
 
+import com.anshishagua.constants.TagType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ public class Tag {
     private String name;
     private long groupId;
     private long tableId;
+    private TagType tagType;
     private Table table;
     private List<TagValue> tagValues;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -71,6 +73,14 @@ public class Tag {
 
     public void setTableId(long tableId) {
         this.tableId = tableId;
+    }
+
+    public TagType getTagType() {
+        return tagType;
+    }
+
+    public void setTagType(TagType tagType) {
+        this.tagType = tagType;
     }
 
     public List<TagValue> getTagValues() {

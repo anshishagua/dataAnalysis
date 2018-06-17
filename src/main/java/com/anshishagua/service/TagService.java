@@ -3,6 +3,7 @@ package com.anshishagua.service;
 import com.anshishagua.compute.Task;
 import com.anshishagua.constants.IndexType;
 import com.anshishagua.constants.ObjectType;
+import com.anshishagua.constants.TagType;
 import com.anshishagua.exceptions.SemanticException;
 import com.anshishagua.mybatis.mapper.TagMapper;
 import com.anshishagua.mybatis.mapper.TagValueMapper;
@@ -203,10 +204,14 @@ public class TagService {
             tagValueMapper.insert(tagValue);
         }
 
-        SQLGenerateResult sqlGenerateResult = sqlGenerateService.generate(tag);
+        SQLGenerateResult sqlGenerateResult = tag.getTagType() == TagType.USER_DEFINED ? SQLGenerateResult.ok() : sqlGenerateService.generate(tag);
         tag.setSqlGenerateResult(sqlGenerateResult);
 
         tagService.updateSQLGenerateResult(tag);
+
+        if (tag.getTagType() == TagType.USER_DEFINED) {
+            return;
+        }
 
         Task task = new Task();
         task.setCreateTime(LocalDateTime.now());

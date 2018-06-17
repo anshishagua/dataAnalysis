@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>自定义标签数据上传</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/simple-side-bar.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        });
+    </script>
+</head>
+<body>
+
+<script>
+    $(document).ready(function() {
+        $("#submit").click(function() {
+            var tagId = $("#tag-id").val();
+            var fileEncoding = $("#file-encoding").val();
+            var uploadFile = $("#file").get(0).files[0];
+
+            var data = new FormData();
+            data.append("id", tagId);
+            data.append("fileEncoding", fileEncoding);
+            data.append("uploadFile", uploadFile);
+
+            $.ajax({
+                url: "/tag/upload",
+                type: "POST",
+                data: data,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(result) {
+                    if (!result.success) {
+                        alert(result.errorMessage);
+                    } else {
+                        var message = "自定义标签数据加载成功";
+
+                        alert(message);
+
+                        location.href = "/tag/list";
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<div id="wrapper">
+    <#include "/common/header.html"/>
+
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <h2>上传数据</h2>
+                <div class="col-sm-offset-11 col-sm-1">
+                    <a href="#menu-toggle" class="btn btn-info" id="menu-toggle">显示菜单</a>
+                </div>
+            </div>
+            <form role="form" action="/tag/upload" method="post" class="form-horizontal">
+                <div class="form-group">
+                    <label for="tag-name" class="col-sm-2 control-label">标签名</label>
+                    <div class="col-sm-6">
+                        <input type="text" id="tag-name" class="form-control" name="tag-name" value="${tag.name!}" disabled>
+                    </div>
+                </div>
+                <div class="form-group table-name-group has-feedback">
+                    <label for="file-encoding" class="col-sm-2 control-label">文件编码</label>
+                    <div class="col-sm-6">
+                        <input type="text" id="file-encoding" class="form-control" name="file-encoding" value="UTF-8" disabled>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="file" class="control-label col-sm-2">文件</label>
+                    <div class="col-sm-6">
+                        <input type="file" id="file" name="file" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" class="btn btn-info" id="submit">上传</button>
+                    </div>
+                </div>
+
+                <input id="tag-id" name="tag-id" value="${tag.id!}" hidden>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

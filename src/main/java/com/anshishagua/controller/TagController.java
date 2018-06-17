@@ -3,6 +3,7 @@ package com.anshishagua.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.anshishagua.constants.TagType;
 import com.anshishagua.object.ParseResult;
 import com.anshishagua.object.PrimaryKey;
 import com.anshishagua.object.Result;
@@ -30,26 +31,42 @@ import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import scala.Char;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -62,6 +79,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/tag")
 public class TagController {
     private static final Logger LOG = LoggerFactory.getLogger(TagController.class);
+
+    private final int BATCH_SIZE = 5000;
+
+    @Value("${file.upload.dir}")
+    String uploadDir;
 
     @Autowired
     private TagSQLGenerateService sqlGenerateService;
@@ -131,6 +153,8 @@ public class TagController {
         modelAndView.addObject("functions", metaDataService.getFunctionNames());
         modelAndView.addObject("tableColumns", metaDataService.getTableColumns());
         modelAndView.addObject("tables", tables);
+        modelAndView.addObject("tagTypes", Arrays.asList(TagType.STANDARD, TagType.USER_DEFINED));
+
         modelAndView.setViewName("tag/index");
 
         return modelAndView;
@@ -202,7 +226,8 @@ public class TagController {
 
     @RequestMapping("/add")
     @ResponseBody
-    public Result add(@RequestParam("tagName") String tagName,
+    public Result add(@RequestParam("tagType") String tagTypeString,
+                      @RequestParam("tagName") String tagName,
                       @RequestParam("targetTableId") long targetTableId,
                       @RequestParam(value = "description", required = false) String description,
                       @RequestParam("tagValues") String tagValuesString) {
@@ -216,6 +241,12 @@ public class TagController {
 
         if (tagService.getByName(tagName) != null) {
             return Result.error(String.format("标签%s已存在", tagName));
+        }
+
+        TagType tagType = TagType.parseByValue(tagTypeString);
+
+        if (tagType == TagType.UNKNOWN) {
+            return Result.error(String.format("未知的标签类型:%s", tagTypeString));
         }
 
         List<TagValue> tagValues = new ArrayList<>();
@@ -250,6 +281,10 @@ public class TagController {
                 set.add(tagValue.getValue());
             }
 
+            if (tagType == TagType.USER_DEFINED) {
+                continue;
+            }
+
             ParseResult parseResult = tagService.parseFilterCondition(tagValue.getFilterCondition(), targetTableId);
 
             if (!parseResult.isSuccess()) {
@@ -261,12 +296,12 @@ public class TagController {
             if (!parseResult.isSuccess()) {
                 return Result.error(String.format("规则条件%s错误:%s", tagValue.getComputeCondition(), parseResult.getErrorMessage()));
             }
-
         }
 
         Tag tag = new Tag();
         tag.setName(tagName);
         tag.setDescription(description);
+        tag.setTagType(tagType);
 
         Table table = tableService.getById(targetTableId);
 
@@ -279,7 +314,11 @@ public class TagController {
         tag.setCreateTime(LocalDateTime.now());
         tag.setLastUpdated(LocalDateTime.now());
 
-        SQLGenerateResult result = sqlGenerateService.generate(tag);
+        SQLGenerateResult result = SQLGenerateResult.ok();
+
+        if (tagType == TagType.STANDARD) {
+            result = sqlGenerateService.generate(tag);
+        }
 
         if (!result.isSuccess()) {
             return Result.error(String.format("标签生成SQL失败:%s", result.getErrorMessage()));
@@ -395,8 +434,120 @@ public class TagController {
     }
 
     @RequestMapping("/value")
-    public String tagValue() {
-        return "tag/tagValue";
+    public ModelAndView tagValue(@RequestParam("tagType") String tagTypeString) {
+        TagType tagType = TagType.parseByValue(tagTypeString);
+
+        ModelAndView modelAndView = new ModelAndView("tag/tagValue");
+
+        modelAndView.addObject("tagType", tagType);
+
+        return modelAndView;
+    }
+
+    @GetMapping("/upload")
+    public ModelAndView upload(@RequestParam("id") long tagId) {
+        ModelAndView modelAndView = new ModelAndView("tag/upload");
+
+        Tag tag = tagService.getById(tagId);
+
+        modelAndView.addObject("tag", tag);
+
+        return modelAndView;
+    }
+
+    @PostMapping("/upload")
+    public Result doUpload(@RequestParam("id") long tagId,
+                           @RequestParam("fileEncoding") String encoding,
+                           @RequestParam("uploadFile") MultipartFile multipartFile) {
+        Tag tag = tagService.getById(tagId);
+
+        if (tag == null) {
+            return Result.error(String.format("标签%d不存在", tagId));
+        }
+
+        if (tag.getTagType() != TagType.USER_DEFINED) {
+            return Result.error(String.format("标签%d不是自定义标签", tagId));
+        }
+
+        Charset charset = null;
+
+        try {
+            charset = Charset.forName(encoding);
+        } catch (UnsupportedCharsetException ex) {
+            return Result.error("不支持的编码类型:" + encoding);
+        }
+
+        Map<String, Long> tagValueMap = new HashMap<>();
+
+        List<TagValue> tagValues = tag.getTagValues();
+        tagValues.forEach(it -> tagValueMap.put(it.getValue(), it.getId()));
+
+        String tagTableName = String.format("tag_%d", tagId);
+
+        String tempFileName = UUID.randomUUID().toString().replace("-", "") + ".txt";
+        String tempFilePath = uploadDir + "/" + tempFileName;
+        String outputFilePath = uploadDir + "/" + tagTableName + ".txt";
+
+        try (OutputStream outputStream = new FileOutputStream(tempFilePath)) {
+            FileCopyUtils.copy(multipartFile.getInputStream(), outputStream);
+        } catch (IOException ex) {
+            LOG.error("Failed to write tag value file", ex);
+
+            return Result.error("写文件失败:" + ex.toString());
+        }
+
+        try (BufferedReader bufferedReader = Files.newBufferedReader(Paths.get(tempFilePath), charset);
+             BufferedWriter bufferedWriter = Files.newBufferedWriter(Paths.get(outputFilePath), charset)) {
+            List<String> list = new ArrayList<>(BATCH_SIZE);
+
+            String line = null;
+
+            while ((line = bufferedReader.readLine()) != null) {
+                String [] strings = line.split(",");
+
+                String id = strings[0];
+                String value = strings[1];
+
+                if (!tagValueMap.containsKey(value)) {
+                    return Result.error("标签值"+ value + "不存在");
+                }
+
+                long tagValueId = tagValueMap.get(value);
+
+                list.add(String.format("%s,%s,%s", id, tagValueId, value));
+
+                if (list.size() == BATCH_SIZE) {
+                    for (String string : list) {
+                        bufferedWriter.write(string + "\n");
+                    }
+
+                    bufferedWriter.flush();
+
+                    list = new ArrayList<>(BATCH_SIZE);
+                }
+            }
+
+            for (String string : list) {
+                bufferedWriter.write(string + "\n");
+            }
+
+            bufferedWriter.close();
+
+            Files.delete(Paths.get(tempFilePath));
+        } catch (IOException ex) {
+            LOG.error("", ex);
+
+            return Result.error(ex.toString());
+        }
+
+        try {
+            hiveService.uploadToHdfs(outputFilePath, tagTableName);
+            Files.delete(Paths.get(outputFilePath));
+        } catch (IOException ex) {
+            return Result.error(ex.toString());
+        }
+
+        return Result.ok();
     }
 
     @RequestMapping("/export")
