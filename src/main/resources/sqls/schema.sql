@@ -98,6 +98,7 @@ CREATE TABLE `t_tag`
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(128) NOT NULL COMMENT '',
   `table_id` BIGINT NOT NULL COMMENT '',
+  `tag_type` VARCHAR(64) NOT NULL DEFAULT 'STANDARD',
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) DEFAULT '' COMMENT '描述',
@@ -113,7 +114,7 @@ CREATE TABLE `t_tag_value`
   `value` VARCHAR(128) NOT NULL COMMENT '',
   `order` INTEGER NOT NULL COMMENT '',
   `filter_condition` TEXT DEFAULT NULL COMMENT '',
-  `compute_condition` TEXT NOT NULL COMMENT '',
+  `compute_condition` TEXT DEFAULT NULL COMMENT '',
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
@@ -192,6 +193,19 @@ CREATE TABLE `t_index_metric`
   `create_time` DATETIME NOT NULL COMMENT '',
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) COMMENT '描述',
+  `deleted` BIT(1) DEFAULT FALSE,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `t_tag_upload_log`
+(
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `tag_id` BIGINT NOT NULL COMMENT '',
+  `path` VARCHAR(255) NOT NULL COMMENT '',
+  `file_size` BIGINT NOT NULL COMMENT '大小以KB描述',
+  `create_time` DATETIME NOT NULL COMMENT '',
+  `last_updated` DATETIME NOT NULL COMMENT '',
+  `description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '描述',
   `deleted` BIT(1) DEFAULT FALSE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
