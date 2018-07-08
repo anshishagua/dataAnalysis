@@ -10,14 +10,16 @@
         <result column="last_updated" property="lastUpdated" jdbcType="TIMESTAMP" typeHandler="com.anshishagua.mybatis.typehandler.LocalDateTimeHandler"></result>
         <result column="description" property="description" jdbcType="VARCHAR"></result>
         <result column="deleted" property="deleted" jdbcType="BIT"></result>
+        <result column="data_type" property="dataType" jdbcType="VARCHAR" typeHandler="com.anshishagua.mybatis.typehandler.DataTypeHandler"></result>
     </resultMap>
     <insert id="insert" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
-        INSERT INTO `t_table`(`name`, `alias`, `create_time`, `last_updated`, `description`)
+        INSERT INTO `t_table`(`name`, `alias`, `create_time`, `last_updated`, `description`, `data_type`)
             VALUE (#{name},
                    #{alias},
                    #{createTime, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
                    #{lastUpdated, typeHandler=com.anshishagua.mybatis.typehandler.LocalDateTimeHandler},
-                   #{description})
+                   #{description},
+                   #{dataType, typeHandler=com.anshishagua.mybatis.typehandler.DataTypeHandler})
     </insert>
     <select id="getById" resultMap="tableMapper">
         SELECT *

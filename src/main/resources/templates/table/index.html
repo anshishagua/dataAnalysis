@@ -81,6 +81,7 @@
            var tableName = $("#tableName").val();
            var tableAlias = $("#tableAlias").val();
            var description = $("#description").val();
+           var dataType = $("#dataType option:selected").val();
 
            var columns = [];
 
@@ -111,6 +112,7 @@
                    name: tableName,
                    alias: tableAlias,
                    description: description,
+                   dataType: dataType,
                    columns: JSON.stringify(columns)
                },
                success: function(result) {
@@ -151,6 +153,16 @@
                     <label for="tableAlias" class="control-label col-sm-2">表格中文名</label>
                     <div class="col-sm-6">
                         <input type="text" id="tableAlias" name="tableAlias" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dataType" class="control-label col-sm-2">数据类型</label>
+                    <div class="col-sm-6">
+                        <select id="dataType" class="form-control" name="dataType">
+                            <option value="BATCH" selected>批量数据</option>
+                            <option value="STREAM">流式数据</option>
+                        </select>
                     </div>
                 </div>
 

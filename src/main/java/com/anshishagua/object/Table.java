@@ -1,5 +1,7 @@
 package com.anshishagua.object;
 
+import com.anshishagua.constants.DataType;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +23,7 @@ public class Table {
     private boolean deleted;
     private List<TableColumn> columns;
     private List<TableColumn> primaryKeys;
+    private DataType dataType;
 
     public long getId() {
         return id;
@@ -102,6 +105,14 @@ public class Table {
         }
 
         return result.get(0);
+    }
+
+    public DataType getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(DataType dataType) {
+        this.dataType = dataType;
     }
 
     @Override

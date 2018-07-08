@@ -54,8 +54,25 @@ CREATE TABLE `t_table`
   `last_updated` DATETIME NOT NULL COMMENT '',
   `description` VARCHAR(64) COMMENT '描述',
   `deleted` BIT(1) NOT NULL DEFAULT FALSE,
+  `data_type` VARCHAR(20) NOT NULL DEFAULT 'BATCH',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE t_kafka_data_source
+(
+  `id` BIGINT NOT NULL PRIMARY KEY,
+  `table_id` BIGINT NOT NULL,
+  `bootstrap_servers` VARCHAR(50) NOT NULL,
+  `source_topic`VARCHAR(100) NOT NULL,
+  `dest_topic` VARCHAR(100) NOT NULL,
+  `auto_commit` BOOLEAN NOT NULL DEFAULT TRUE,
+  `key_serializer` VARCHAR(100) NOT NULL,
+  `key_deserializer` VARCHAR(100) NOT NULL,
+  `value_serializer` VARCHAR(100) NOT NULL,
+  `value_deserializer` VARCHAR(100) NOT NULL,
+  `auto_offset_reset` VARCHAR(20) NOT NULL,
+  `consumer_group` VARCHAR(100) NOT NULL
+);
 
 CREATE TABLE `t_table_column`
 (

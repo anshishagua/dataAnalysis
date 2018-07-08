@@ -3,6 +3,7 @@ package com.anshishagua.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.anshishagua.constants.DataType;
 import com.anshishagua.object.Result;
 import com.anshishagua.object.SQLGenerateResult;
 import com.anshishagua.object.Table;
@@ -146,6 +147,7 @@ public class TableController {
     public Result add(@RequestParam("name") String name,
                       @RequestParam("alias") String alias,
                       @RequestParam("description") String description,
+                      @RequestParam("dataType") String dataType,
                       @RequestParam("columns") String columnString) {
         if (Strings.isNullOrEmpty(name)) {
             return Result.error("表名为空");
@@ -161,6 +163,7 @@ public class TableController {
         table.setDescription(description);
         table.setCreateTime(LocalDateTime.now());
         table.setLastUpdated(LocalDateTime.now());
+        table.setDataType(DataType.parseByValue(dataType));
 
         JSONArray jsonArray = JSON.parseArray(columnString);
 

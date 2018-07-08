@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.anshishagua.mybatis.mapper.KafkaDataSourceMapper">
+    <resultMap id="kafkaSourceMapper" type="com.anshishagua.object.KafkaDataSource">
+        <id column="id" property="id" jdbcType="BIGINT"></id>
+        <result column="table_id" property="tableId" jdbcType="BIGINT"></result>
+        <result column="bootstrap_servers" property="bootstrapServers" jdbcType="VARCHAR"></result>
+        <result column="key_serializer" property="keySerializer" jdbcType="VARCHAR"></result>
+        <result column="key_deserializer" property="keyDeserializer" jdbcType="VARCHAR"></result>
+        <result column="value_serializer" property="valueSerializer" jdbcType="VARCHAR"></result>
+        <result column="value_deserializer" property="valueDeserializer" jdbcType="VARCHAR"></result>
+        <result column="auto_offset_reset" property="autoOffsetReset" jdbcType="VARCHAR"></result>
+        <result column="auto_commit" property="autoCommit" jdbcType="BOOLEAN"></result>
+        <result column="source_topic" property="sourceTopic" jdbcType="VARCHAR"></result>
+        <result column="dest_topic" property="destTopic" jdbcType="VARCHAR"></result>
+        <result column="consumer_group" property="consumerGroup" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <insert id="insert" keyProperty="id" keyColumn="id" useGeneratedKeys="true" flushCache="true">
+        INSERT INTO `t_kafka_data_source`(`table_id`, `bootstrap_servers`, `key_serializer`, `key_deserializer`,
+                                          `value_serializer`, `value_deserializer`, `auto_offset_reset`, `auto_commit`,
+                                          `source_topic`, `dest_topic`, `consumer_group`)
+        VALUES (#{tableId},
+        #{bootstrapServers},
+        #{keySerializer},
+        #{keyDeserializer},
+        #{valueSerializer},
+        #{valueDeserializer},
+        #{autoOffsetReset},
+        #{autoCommit},
+        #{sourceTopic},
+        #{destTopic},
+        #{consumerGroup}
+        )
+    </insert>
+    <select id="getById" resultMap="kafkaSourceMapper">
+        SELECT *
+        FROM t_kafka_data_source
+        WHERE id = #{id}
+    </select>
+    <select id="getByTableId" resultMap="kafkaSourceMapper">
+        SELECT *
+        FROM t_kafka_data_source
+        WHERE table_id = #{tableId}
+    </select>
+</mapper>
