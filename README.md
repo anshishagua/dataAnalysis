@@ -267,6 +267,13 @@ GROUP BY employee_info.id, employee_account.id;
 基于时间的调度,使用quartz进行,在计算的时候查看当前任务依赖的前序任务是否执行成功,若没有,则当前任务标记为失败,等待前序任务执行完成  
 若当前任务执行失败,则标记为失败,有一个定时任务不断扫描任务执行表,对于失败的任务则重新运行  
 
+6  实时计算
+
+采用spark streaming进行实时计算,用户在定义表的时候需要选择表数据类型:默认为批量数据,和原来的逻辑保持一致,若选择流式数据,则会要求用户进一步配置
+数据源信息,目前只支持kafka数据(每一条消息是json字符串,涉及字段由表定义的字段指定),用户定义server列表和topic等信息.规则部分书写规则和以前一样,增加了一些限制:规则中不允许引用多个表,不允许有聚合,
+生成SQL和原来是一样的.计算的时候,把表和字段的基本信息,kafka配置信息,生成sql转成json,通过调用livy的rest接口,把参数传递给计算类`SparkStreamJob`.计算任务预先
+打包成jar放到hdfs上,传递参数时指定jar包路径以及主类信息,`SparkStreamJob`从命令行参数解析相关信息,读取kafka消息,解析字段,定义schema,根据传递的sql进行计算,
+计算结果写入kafka的结果topic.
 
 定义系统参数
 ![系统参数](https://github.com/anshishagua/dataAnalysis/blob/master/src/main/resources/screenshots/systemParameter.png)
