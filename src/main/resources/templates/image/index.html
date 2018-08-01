@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>图片处理</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, multipart/form-data">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/simple-side-bar.css">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+</head>
+<body>
+
+<script>
+    $(document).ready(function() {
+        $("#tagName").blur(function() {
+            var tagName = $("#tagName").val();
+
+            if (tagName == "") {
+                $(".tag-name-group").removeClass("has-success");
+                $(".tag-name-group").addClass("has-error");
+                $(".tag-name-group span").addClass("glyphicon-remove");
+                $(".tag-name-group span").removeClass("glyphicon-ok");
+                $(".table-name span").show();
+                $(".table-name label:eq(1)").show();
+
+                return;
+            }
+
+            $.ajax({
+                url: "/tag/check",
+                data: {
+                    tagName: tagName
+                },
+                success: function(data) {
+                    if (!data.success) {
+                        $(".tag-name-group").removeClass("has-success");
+                        $(".tag-name-group").addClass("has-error");
+                        $(".tag-name-group span").removeClass("glyphicon-ok");
+                        $(".tag-name-group span").addClass("glyphicon-remove");
+                        $(".tag-name-group span").show();
+                        $(".tag-name-group label:eq(1)").html(data.errorMessage);
+                        $(".tag-name-group label:eq(1)").show();
+                    } else {
+
+                    }
+                }
+            });
+        });
+
+        $("#filterCondition").blur(function() {
+
+        });
+
+
+
+        $("#addColumnButton").click(function() {
+            console.log("clicked");
+
+            $.ajax({
+                url: "/table/column",
+                success: function(data) {
+                    console.log(data);
+
+                    $("#column-body").append(data);
+                }
+            });
+        });
+
+        $("#column-body").on("click", ".delete-column", function() {
+            $(".delete-column").parents()[1].remove();
+        });
+
+        /*
+        $("#submit").click(function() {
+            var width = $("#width").val();
+            var height = $("#height").val();
+            var uploadFile = $("#file").get(0).files[0];
+
+            var data = new FormData();
+            data.append("width", width);
+            data.append("height", height);
+            data.append("uploadFile", uploadFile);
+
+            $.ajax({
+                url: "/image/upload",
+                type: "POST",
+                data: data,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(result) {
+
+                }
+            });
+        });
+        */
+    });
+</script>
+
+
+<div id="wrapper">
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <h2>上传图片</h2>
+            </div>
+            <form role="form" action="/image/upload" enctype="multipart/form-data" method="post" class="form-horizontal">
+                <div class="form-group">
+                    <label for="width" class="control-label col-sm-2">宽度</label>
+                    <div class="col-sm-6">
+                        <input type="text" id="width" name="width" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="height" class="control-label col-sm-2">高度</label>
+                    <div class="col-sm-6">
+                        <input type="text" id="height" name="height" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="file" class="control-label col-sm-2">文件</label>
+                    <div class="col-sm-6">
+                        <input type="file" id="file" name="uploadFile" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-info" id="submit">上传</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
